@@ -23,7 +23,7 @@ import { ButtonToggleGroupComponent } from './button-toggle-group.component';
     '[class.focus:ring-2]': '!isDisabled()',
     role: 'radio',
     '[attr.aria-checked]': 'isSelected()',
-    '[attr.tabindex]': 'isSelected() ? 0 : -1',
+    '[attr.tabindex]': 'isDisabled() ? -1 : 0',
     '(click)': 'onClick()',
     '(keydown)': 'onKeyDown($event)',
   },
