@@ -1,3 +1,35 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Fonte principal */
+  --font-sans: 'Quicksand', ui-sans-serif, system-ui, sans-serif;
+
+  /* Paleta Primary - Rosa Queimado / Bordô */
+  --color-primary-50: #fdf2f4;
+  --color-primary-100: #fbe8ec;
+  --color-primary-200: #f5c9d3;
+  --color-primary-300: #eda3b3;
+  --color-primary-400: #e07a91;
+  --color-primary-500: #c4687a;
+  --color-primary-600: #b05468;
+  --color-primary-700: #944055;
+  --color-primary-800: #7a3347;
+  --color-primary-900: #5e2035;
+
+  /* Paleta Neutral - Creme / Pêssego */
+  --color-neutral-50: #fdf6f0;
+  --color-neutral-100: #f9ece2;
+  --color-neutral-200: #f2d9c8;
+  --color-neutral-300: #e8c0a4;
+  --color-neutral-400: #d9a07e;
+  --color-neutral-500: #c8825c;
+  --color-neutral-600: #b06848;
+  --color-neutral-700: #8f5038;
+  --color-neutral-800: #6e3c2b;
+  --color-neutral-900: #4a2519;
+}
