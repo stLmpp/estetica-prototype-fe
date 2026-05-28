@@ -1,3 +1,46 @@
+<section>
+  <button
+    id="theme-toggle"
+    aria-label="Alternar tema"
+    class="focus:ring-primary-400 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-neutral-600 transition-colors hover:bg-neutral-100 focus:ring-2 focus:outline-none dark:text-neutral-300 dark:hover:bg-neutral-700"
+    (click)="toggleTheme()"
+  >
+    @if (theme() === 'dark') {
+      <svg
+        id="icon-sun"
+        xmlns="http://www.w3.org/2000/svg"
+        class="hidden h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"
+        />
+      </svg>
+    } @else {
+      <svg
+        id="icon-moon"
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+        />
+      </svg>
+    }
+  </button>
+</section>
+
 <section class="buttons">
   <h1>Button</h1>
   <section>
@@ -12,6 +55,7 @@
     <button btn btnSecondary disabled>Secondary</button>
     <button btn btnOutline disabled>Outline</button>
     <button btn disabled>Text</button>
+    <button btn btnPrimary btnLoading>Text</button>
   </section>
 </section>
 
@@ -39,3 +83,22 @@
     Value: {{ f().value().buttonToggle }}
   </section>
 </section>
+
+<!-- Badges and chips -->
+@defer (hydrate on interaction) {
+  <section aria-labelledby="sec-badges">
+    <h2 id="sec-badges" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">
+      Badges &amp; Chips
+    </h2>
+    <div class="flex flex-wrap items-center gap-4">
+      <!-- Badges -->
+      <app-badge primary>Novo</app-badge>
+      <app-badge secondary>Promoção</app-badge>
+      <app-badge>Padrão</app-badge>
+
+      <!-- Chips -->
+      <app-chip>Limpeza de Pele</app-chip>
+      <app-chip secondary>Microagulhamento</app-chip>
+    </div>
+  </section>
+}
