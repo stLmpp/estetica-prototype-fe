@@ -3,8 +3,8 @@ import { ButtonComponent } from './components/button/button.component';
 import { ButtonToggleGroupComponent } from './components/button-toggle-group/button-toggle-group.component';
 import { ButtonToggleDirective } from './components/button-toggle-group/button-toggle.directive';
 import { form, FormField } from '@angular/forms/signals';
-import { Badge } from './components/badge/badge.component';
-import { Chip } from './components/chip/chip.component';
+import { BadgeComponent } from './components/badge/badge.component';
+import { ChipComponent } from './components/chip/chip.component';
 
 const formModel = signal({
   buttonToggle: 'corporal',
@@ -17,8 +17,8 @@ const formModel = signal({
     ButtonToggleGroupComponent,
     ButtonToggleDirective,
     FormField,
-    Badge,
-    Chip,
+    BadgeComponent,
+    ChipComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',

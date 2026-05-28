@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   input,
+  output,
 } from '@angular/core';
 
 @Component({
@@ -17,9 +18,11 @@ import {
     '[class]': 'classes()',
   },
 })
-export class Chip {
+export class ChipComponent {
   readonly secondary = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
+
+  readonly remove = output();
 
   private readonly styles = {
     default: 'border-primary-300 text-primary-700 dark:border-primary-600 dark:text-primary-300',

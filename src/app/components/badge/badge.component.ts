@@ -17,7 +17,7 @@ import {
     '[class]': 'classes()',
   },
 })
-export class Badge {
+export class BadgeComponent {
   readonly primary = input(false, { transform: booleanAttribute });
   readonly secondary = input(false, { transform: booleanAttribute });
 
