@@ -19,6 +19,7 @@ import { FormValueControl } from '@angular/forms/signals';
   styleUrl: './select.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+// TODO https://angular.dev/guide/aria/select
 export class SelectComponent implements FormValueControl<any> {
   constructor() {
     effect(() => {
