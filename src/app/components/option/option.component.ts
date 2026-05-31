@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-option',
@@ -7,4 +7,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styleUrl: './option.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OptionComponent {}
+export class OptionComponent {
+  readonly value = input<any>();
+}
