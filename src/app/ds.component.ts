@@ -9,6 +9,8 @@ import { HintComponent } from './components/hint/hint.component';
 import { InputDirective } from './components/input/input.directive';
 import { LabelComponent } from './components/label/label.component';
 import { debounce, form, FormField, required } from '@angular/forms/signals';
+import { SelectComponent } from './components/select/select.component';
+import { OptionComponent } from './components/option/option.component';
 
 const formModel = signal<{ buttonToggle: string; name: string; select: { id: number } }>({
   buttonToggle: 'corporal',
@@ -29,6 +31,8 @@ const formModel = signal<{ buttonToggle: string; name: string; select: { id: num
     InputDirective,
     LabelComponent,
     FormField,
+    SelectComponent,
+    OptionComponent,
   ],
   templateUrl: './ds.component.html',
   styles: `

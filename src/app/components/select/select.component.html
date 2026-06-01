@@ -1,4 +1,27 @@
-<div cdkOverlayOrigin></div>
-<ng-template cdkConnectedOverlay>
-  <ng-content></ng-content>
-</ng-template>
+<div ngCombobox readonly>
+  <div #origin class="select">
+    <span class="combobox-label">
+      <span
+        class="selected-label-icon material-symbols-outlined"
+        translate="no"
+        aria-hidden="true"
+        >{{ displayIcon() }}</span
+      >
+      <span class="selected-label-text">{{ displayValue() }}</span>
+    </span>
+    <input aria-label="Label dropdown" placeholder="Select a label" ngComboboxInput />
+    <span class="example-arrow material-symbols-outlined" translate="no" aria-hidden="true"
+      >arrow_drop_down</span
+    >
+  </div>
+  <ng-template ngComboboxPopupContainer>
+    <ng-template
+      [cdkConnectedOverlay]="{ origin, usePopover: 'inline', matchWidth: true }"
+      [cdkConnectedOverlayOpen]="true"
+    >
+      <div class="example-popup-container">
+        <ng-content></ng-content>
+      </div>
+    </ng-template>
+  </ng-template>
+</div>

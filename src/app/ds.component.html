@@ -116,15 +116,9 @@
 </section>
 
 <section>
-  <label for="select-service" class="text-sm font-semibold text-neutral-700 dark:text-neutral-300"
-    >Serviço <span class="text-red-500">*</span></label
-  >
-  <select
-    id="select-service"
-    aria-invalid="true"
-    aria-describedby="select-service-error-msg"
-    class="rounded-xl border border-red-400 bg-white px-4 py-2.5 text-sm text-neutral-900 transition focus:ring-2 focus:ring-red-300 focus:outline-none dark:border-red-500 dark:bg-neutral-800 dark:text-neutral-100"
-  >
-    @for (option of options; track option.id) {}
-  </select>
+  <app-select [formField]="f.select">
+    <app-option value="1">Option 1</app-option>
+    <app-option value="2">Option 2</app-option>
+    <app-option value="3">Option 3</app-option>
+  </app-select>
 </section>
