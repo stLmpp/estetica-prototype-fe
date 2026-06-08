@@ -1,4 +1,4 @@
-import { afterNextRender, Component, signal } from '@angular/core';
+import { afterNextRender, Component, computed, signal } from '@angular/core';
 import { BadgeComponent } from './components/badge/badge.component';
 import { ButtonComponent } from './components/button/button.component';
 import { ButtonToggleDirective } from './components/button-toggle-group/button-toggle.directive';
@@ -9,13 +9,14 @@ import { HintComponent } from './components/hint/hint.component';
 import { InputDirective } from './components/input/input.directive';
 import { LabelComponent } from './components/label/label.component';
 import { debounce, form, FormField, required } from '@angular/forms/signals';
-import { SelectComponent } from './components/select/select.component';
-import { OptionComponent } from './components/option/option.component';
+import { StringPipe } from './shared/string.pipe';
+import { SelectDirective } from './components/select/select.directive';
+import { JsonPipe } from '@angular/common';
 
-const formModel = signal<{ buttonToggle: string; name: string; select: { id: number } }>({
+const formModel = signal<{ buttonToggle: string; name: string; select: string }>({
   buttonToggle: 'corporal',
   name: '',
-  select: { id: 1 },
+  select: '1',
 });
 
 @Component({
@@ -31,8 +32,9 @@ const formModel = signal<{ buttonToggle: string; name: string; select: { id: num
     InputDirective,
     LabelComponent,
     FormField,
-    SelectComponent,
-    OptionComponent,
+    StringPipe,
+    SelectDirective,
+    JsonPipe,
   ],
   templateUrl: './ds.component.html',
   styles: `
@@ -41,6 +43,7 @@ const formModel = signal<{ buttonToggle: string; name: string; select: { id: num
 
       margin-top: 2rem;
       margin-left: 2rem;
+      margin-right: 2rem;
     }
 
     .buttons {
@@ -63,13 +66,15 @@ export class DsComponent {
 
   readonly options = [{ id: 1 }, { id: 2 }, { id: 3 }];
 
-  readonly compareWith = (o1: { id: number }, o2: { id: number }) => o1.id === o2.id;
-
   readonly f = form(formModel, (schema) => {
     // disabled(schema.buttonToggle);
     required(schema.name, { message: 'Name is required' });
     debounce(schema.name, 300);
   });
+
+  readonly selectValueObject = computed(() =>
+    this.options.find((option) => String(option.id) === this.f.select().value()),
+  );
 
   readonly theme = signal('light');
 
