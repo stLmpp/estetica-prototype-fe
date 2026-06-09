@@ -1,0 +1,28 @@
+<label
+  role="region"
+  class="flex cursor-pointer items-center gap-3"
+  (click)="onLabelClick()"
+  (keydown.enter)="onLabelKeydown()"
+  (keydown.space)="onLabelKeydown()"
+  [class.text-red-400]="isInvalid()"
+  [class.dark:text-red-500]="isInvalid()"
+>
+  <span class="relative inline-flex h-6 w-11 shrink-0">
+    <input
+      type="checkbox"
+      [checked]="checked()"
+      (change)="onChange($event)"
+      [disabled]="disabled()"
+      class="peer sr-only"
+    />
+    <span
+      class="peer-checked:bg-primary-500 absolute inset-0 rounded-full bg-neutral-300 transition dark:bg-neutral-600"
+    ></span>
+    <span
+      class="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5"
+    ></span>
+  </span>
+  <span class="text-sm text-neutral-700 dark:text-neutral-300">
+    <ng-content></ng-content>
+  </span>
+</label>

@@ -133,3 +133,10 @@
   </app-form-field>
   {{ f.check().value() }}
 </section>
+
+<section>
+  <app-form-field>
+    <app-switch [formField]="f.switch">Switch</app-switch>
+  </app-form-field>
+  {{ f.switch().value() }}
+</section>

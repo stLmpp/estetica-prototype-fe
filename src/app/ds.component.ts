@@ -13,12 +13,14 @@ import { StringPipe } from './shared/string.pipe';
 import { SelectDirective } from './components/select/select.directive';
 import { JsonPipe } from '@angular/common';
 import { CheckboxComponent } from './components/checkbox/checkbox.component';
+import { SwitchComponent } from './components/switch/switch.component';
 
 const formModel = signal({
   buttonToggle: 'corporal',
   name: '',
   select: '1',
   check: false,
+  switch: true,
 });
 
 @Component({
@@ -38,6 +40,7 @@ const formModel = signal({
     SelectDirective,
     JsonPipe,
     CheckboxComponent,
+    SwitchComponent,
   ],
   templateUrl: './ds.component.html',
   styles: `
