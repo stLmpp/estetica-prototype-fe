@@ -12,11 +12,13 @@ import { debounce, form, FormField, required } from '@angular/forms/signals';
 import { StringPipe } from './shared/string.pipe';
 import { SelectDirective } from './components/select/select.directive';
 import { JsonPipe } from '@angular/common';
+import { Checkbox } from './components/checkbox/checkbox.component';
 
-const formModel = signal<{ buttonToggle: string; name: string; select: string }>({
+const formModel = signal({
   buttonToggle: 'corporal',
   name: '',
   select: '1',
+  check: false,
 });
 
 @Component({
@@ -35,6 +37,7 @@ const formModel = signal<{ buttonToggle: string; name: string; select: string }>
     StringPipe,
     SelectDirective,
     JsonPipe,
+    Checkbox,
   ],
   templateUrl: './ds.component.html',
   styles: `

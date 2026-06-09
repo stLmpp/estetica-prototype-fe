@@ -1,0 +1,10 @@
+<label class="flex cursor-pointer items-center gap-3">
+  <input
+    type="checkbox"
+    [checked]="value()"
+    (change)="onChange($event)"
+    [disabled]="disabled()"
+    class="accent-primary-500 focus:ring-primary-400 h-4 w-4 rounded border-neutral-300"
+  />
+  <ng-content></ng-content>
+</label>

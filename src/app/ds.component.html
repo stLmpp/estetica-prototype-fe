@@ -108,7 +108,7 @@
   <input appInput [formField]="f.name" class="border-transparent" />
   <app-form-field>
     <label appLabel for="name">Name</label>
-    <input appInput [formField]="f.name" id="name" />
+    <input appInput [formField]="f.name" id="name" type="number" />
     <app-hint start>Hint start</app-hint>
     <app-hint start>Hint end</app-hint>
   </app-form-field>
@@ -125,4 +125,9 @@
     </select>
   </app-form-field>
   {{ selectValueObject() | json }}
+</section>
+
+<section>
+  <app-checkbox [formField]="f.check">Check</app-checkbox>
+  {{ f.check().value() }}
 </section>
