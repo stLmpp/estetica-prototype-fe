@@ -128,6 +128,8 @@
 </section>
 
 <section>
-  <app-checkbox [formField]="f.check">Check</app-checkbox>
+  <app-form-field>
+    <app-checkbox [formField]="f.check">Check</app-checkbox>
+  </app-form-field>
   {{ f.check().value() }}
 </section>

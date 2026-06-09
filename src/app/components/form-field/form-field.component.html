@@ -1,7 +1,5 @@
 <ng-content select="label[appLabel]"></ng-content>
-<ng-content select="input[appInput]"></ng-content>
-<ng-content select="select[appSelect]"></ng-content>
-<ng-content select="app-checkbox"></ng-content>
+<ng-content select="input[appInput],select[appSelect],app-checkbox"></ng-content>
 @let error = firstError();
 @if (error && input()?.isInvalid()) {
   <p class="min-h-5 text-xs text-red-500 dark:text-red-300">{{ error.message }}</p>

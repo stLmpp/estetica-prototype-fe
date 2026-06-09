@@ -8,11 +8,11 @@ import { FormFieldComponent } from './components/form-field/form-field.component
 import { HintComponent } from './components/hint/hint.component';
 import { InputDirective } from './components/input/input.directive';
 import { LabelComponent } from './components/label/label.component';
-import { debounce, form, FormField, required } from '@angular/forms/signals';
+import { debounce, form, FormField, required, validate } from '@angular/forms/signals';
 import { StringPipe } from './shared/string.pipe';
 import { SelectDirective } from './components/select/select.directive';
 import { JsonPipe } from '@angular/common';
-import { Checkbox } from './components/checkbox/checkbox.component';
+import { CheckboxComponent } from './components/checkbox/checkbox.component';
 
 const formModel = signal({
   buttonToggle: 'corporal',
@@ -37,7 +37,7 @@ const formModel = signal({
     StringPipe,
     SelectDirective,
     JsonPipe,
-    Checkbox,
+    CheckboxComponent,
   ],
   templateUrl: './ds.component.html',
   styles: `
@@ -73,6 +73,16 @@ export class DsComponent {
     // disabled(schema.buttonToggle);
     required(schema.name, { message: 'Name is required' });
     debounce(schema.name, 300);
+    validate(schema.check, ({ value }) => {
+      console.log({ value: value() });
+      if (value()) {
+        return null;
+      }
+      return {
+        kind: 'requireTrue',
+        message: 'Checkbox must be checked',
+      };
+    });
   });
 
   readonly selectValueObject = computed(() =>

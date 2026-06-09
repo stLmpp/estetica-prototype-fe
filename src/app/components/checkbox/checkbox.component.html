@@ -1,7 +1,16 @@
-<label class="flex cursor-pointer items-center gap-3">
+<label
+  role="region"
+  class="flex cursor-pointer items-center gap-3 transition-colors"
+  (click)="onLabelClick()"
+  (keydown.enter)="onLabelKeydown()"
+  (keydown.space)="onLabelKeydown()"
+  [class.text-red-400]="isInvalid()"
+  [class.dark:text-red-500]="isInvalid()"
+  #label
+>
   <input
     type="checkbox"
-    [checked]="value()"
+    [checked]="checked()"
     (change)="onChange($event)"
     [disabled]="disabled()"
     class="accent-primary-500 focus:ring-primary-400 h-4 w-4 rounded border-neutral-300"
