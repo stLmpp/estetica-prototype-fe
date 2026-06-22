@@ -42,7 +42,7 @@
 </section>
 
 <section class="buttons">
-  <h1>Button</h1>
+  <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">Button</h2>
   <section>
     <button btn btnPrimary>Primary</button>
     <button btn btnSecondary>Secondary</button>
@@ -62,7 +62,7 @@
 <!--Button Toggle Group-->
 
 <section>
-  <h1>Button Toggle</h1>
+  <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">Button Toggle</h2>
 
   <section>
     <app-button-toggle-group label="Tipo de serviço" [formField]="f.buttonToggle">
@@ -104,8 +104,7 @@
 <!-- Forms -->
 
 <section>
-  <h1>Forms</h1>
-  <input appInput [formField]="f.name" class="border-transparent" />
+  <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">Forms</h2>
   <app-form-field>
     <label appLabel for="name">Name</label>
     <input appInput [formField]="f.name" id="name" type="number" />
@@ -139,4 +138,8 @@
     <app-switch [formField]="f.switch">Switch</app-switch>
   </app-form-field>
   {{ f.switch().value() }}
+</section>
+
+<section>
+  <app-table [columns]="columns" [data]="data" [trackBy]="trackBy"></app-table>
 </section>

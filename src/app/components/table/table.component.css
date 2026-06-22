@@ -1,0 +1,29 @@
+@reference "../../../styles.css";
+
+app-table {
+  display: block;
+  @apply overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700;
+  table {
+    @apply w-full text-sm;
+
+    thead {
+      @apply sticky top-0 bg-neutral-100 dark:bg-neutral-800;
+
+      th {
+        @apply px-5 py-3 text-left font-semibold text-neutral-700 dark:text-neutral-300;
+      }
+    }
+
+    tbody {
+      @apply divide-y divide-neutral-100 bg-white dark:divide-neutral-700 dark:bg-neutral-900;
+
+      tr {
+        @apply hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors;
+
+        td {
+          @apply px-5 py-3 font-medium text-neutral-800 dark:text-neutral-100;
+        }
+      }
+    }
+  }
+}

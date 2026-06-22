@@ -14,6 +14,8 @@ import { SelectDirective } from './components/select/select.directive';
 import { JsonPipe } from '@angular/common';
 import { CheckboxComponent } from './components/checkbox/checkbox.component';
 import { SwitchComponent } from './components/switch/switch.component';
+import { ColDef } from './components/table/model/col-def';
+import { TableComponent } from './components/table/table.component';
 
 const formModel = signal({
   buttonToggle: 'corporal',
@@ -41,6 +43,7 @@ const formModel = signal({
     JsonPipe,
     CheckboxComponent,
     SwitchComponent,
+    TableComponent,
   ],
   templateUrl: './ds.component.html',
   styles: `
@@ -87,6 +90,42 @@ export class DsComponent {
       };
     });
   });
+
+  readonly columns: ColDef[] = [
+    {
+      key: 'id',
+      title: 'Id',
+    },
+    {
+      key: 'name',
+      title: 'Name',
+    },
+  ];
+
+  readonly data: any[] = [
+    {
+      id: 1,
+      name: 'John Doe',
+    },
+    {
+      id: 2,
+      name: 'Jane Doe',
+    },
+    {
+      id: 3,
+      name: 'Bob Doe',
+    },
+    {
+      id: 4,
+      name: 'Alice Doe',
+    },
+    {
+      id: 5,
+      name: 'Charlie Doe',
+    },
+  ];
+
+  readonly trackBy = (value: any) => value.id;
 
   readonly selectValueObject = computed(() =>
     this.options.find((option) => String(option.id) === this.f.select().value()),
