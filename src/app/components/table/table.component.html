@@ -3,14 +3,25 @@
     <ng-container [cdkColumnDef]="column.key | string">
       <th cdk-header-cell *cdkHeaderCellDef>{{ column.title }}</th>
       <td cdk-cell *cdkCellDef="let row" (click)="onCellClick(row, column)">
-        @let template = column.template?.();
-        @if (template) {
-          <ng-container
-            [ngTemplateOutlet]="template"
-            [ngTemplateOutletContext]="{ row, column }"
-          ></ng-container>
-        } @else {
-          {{ row[column.key] }}
+        @switch (column.type) {
+          @case ('template') {
+            <ng-container
+              [ngTemplateOutlet]="column.template()"
+              [ngTemplateOutletContext]="{ row, column }"
+            ></ng-container>
+          }
+          @case ('date') {
+            {{ row[column.key] | date: column.format }}
+          }
+          @case ('number') {
+            {{ row[column.key] | number: column.digitsInfo }}
+          }
+          @case ('currency') {
+            {{ row[column.key] | currency: column.currency }}
+          }
+          @default {
+            {{ row[column.key] }}
+          }
         }
       </td>
     </ng-container>

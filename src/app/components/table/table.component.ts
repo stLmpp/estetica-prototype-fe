@@ -15,7 +15,7 @@ import {
 import { StringPipe } from '../../shared/string.pipe';
 import { TableDataSource } from './table-data-source';
 import { TableEvent } from './model/table-event';
-import { NgTemplateOutlet } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'app-table',
@@ -34,6 +34,9 @@ import { NgTemplateOutlet } from '@angular/common';
     CdkColumnDef,
     StringPipe,
     NgTemplateOutlet,
+    DatePipe,
+    DecimalPipe,
+    CurrencyPipe,
   ],
   encapsulation: ViewEncapsulation.None,
 })
