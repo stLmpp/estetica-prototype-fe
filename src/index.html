@@ -8,11 +8,15 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <script>
       (function () {
-        const theme =
-          localStorage.getItem('theme') ||
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
+        try {
+          const theme =
+            localStorage.getItem('theme') ||
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (error) {
+          console.warn('Error setting theme:', error);
         }
       })();
     </script>

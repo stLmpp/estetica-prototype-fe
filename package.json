@@ -23,7 +23,10 @@
     "@angular/platform-server": "^22.0.1",
     "@angular/router": "^22.0.1",
     "@angular/ssr": "^22.0.1",
+    "better-auth": "~1.6.23",
+    "cacheable": "~2.5.0",
     "express": "^5.1.0",
+    "ngx-better-auth": "~1.6.5",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
