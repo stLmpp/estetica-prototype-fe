@@ -3,14 +3,10 @@
 <pre>
   {{
     {
-      isLoggedIn: authService.isLoggedIn(),
-      session: authService.session(),
+      isLoggedIn: authQuery.isLoggedIn(),
+      session: authQuery.session(),
     } | json
   }}
 </pre>
 
-<input placeholder="Username" [(ngModel)]="username" />
-<input placeholder="Password" type="password" [(ngModel)]="password" />
-
-<button btn (click)="login()">Login</button>
 <button btn (click)="logout()">Logout</button>

@@ -1,0 +1,8 @@
+<ul>
+  @for (organization of organizations(); track organization.id) {
+    <li>
+      {{ organization.name }}
+      <button type="button" (click)="selectOrganization(organization)">Select</button>
+    </li>
+  }
+</ul>

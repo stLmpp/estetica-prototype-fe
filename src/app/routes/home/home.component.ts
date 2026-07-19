@@ -1,8 +1,11 @@
-import { Component, inject, model } from '@angular/core';
-import { AuthService } from 'ngx-better-auth';
+import { Component, inject } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { ButtonComponent } from '../../components/button/button.component';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { switchMap } from 'rxjs';
+import { AuthService } from '../../core/better-auth/auth.service';
+import { AuthQuery } from '../../core/better-auth/auth.query';
 
 @Component({
   selector: 'app-home',
@@ -11,22 +14,15 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './home.component.css',
 })
 export class HomeComponent {
-  readonly authService = inject(AuthService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  username = model('');
-  password = model('');
-
-  protected login() {
-    this.authService
-      .signInEmail({
-        email: this.username(),
-        password: this.password(),
-        rememberMe: true,
-      })
-      .subscribe();
-  }
+  protected readonly authQuery = inject(AuthQuery);
 
   protected logout() {
-    this.authService.signOut().subscribe();
+    this.authService
+      .signOut()
+      .pipe(switchMap(() => this.router.navigate(['/login'])))
+      .subscribe();
   }
 }

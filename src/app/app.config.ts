@@ -18,15 +18,12 @@ import {
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
-import { AuthService, BETTER_AUTH_CONFIG_TOKEN } from 'ngx-better-auth';
 import { environment } from '../environments/environment';
 import { isPlatformServer } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { smallTtlCacheInterceptor } from './core/small-ttl-cache.interceptor';
-import {
-  BetterAuthConfigProvider,
-  BetterAuthConfigToken,
-} from './core/better-auth-config.provider';
+import { provideBetterAuthClient } from './core/better-auth/better-auth.provider';
+import { AuthService } from './core/better-auth/auth.service';
 
 const routerFeatures: RouterFeatures[] = [
   withPreloading(PreloadAllModules),
@@ -44,20 +41,15 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, ...routerFeatures),
     provideHttpClient(withInterceptors([smallTtlCacheInterceptor()])),
     provideClientHydration(),
-    BetterAuthConfigProvider,
-    { provide: BETTER_AUTH_CONFIG_TOKEN, useExisting: BetterAuthConfigToken },
-    AuthService,
-    provideAppInitializer(async () => {
+    provideBetterAuthClient(),
+    provideAppInitializer(() => {
       const authService = inject(AuthService);
       const req = inject(REQUEST, { optional: true });
       const isServer = isPlatformServer(inject(PLATFORM_ID));
       if (!req && isServer) {
         return;
       }
-      const session = await (authService as any).client.getSession();
-      if (session?.data) {
-        authService.session.set(session.data);
-      }
+      return authService.getSession();
     }),
   ],
 };
