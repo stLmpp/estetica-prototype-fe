@@ -17,6 +17,16 @@ export class OrganizationService {
     );
   }
 
+  getOrganization(organizationId: string) {
+    return from(
+      this.client.organization.getFullOrganization({
+        query: {
+          organizationId,
+        },
+      }),
+    ).pipe(map((response) => response.data));
+  }
+
   setActive(organization: BetterAuthOrganization) {
     return from(
       this.client.organization.setActive({

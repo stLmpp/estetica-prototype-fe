@@ -1,35 +1,43 @@
 import { inject, Service } from '@angular/core';
 import { AuthClient } from './better-auth.provider';
-import { from, map, tap } from 'rxjs';
-import { AuthStore } from './auth.store';
+import { from, map, skip, Subject, tap } from 'rxjs';
+import { AuthStateSession, AuthStore } from './auth.store';
+import { AuthQuery } from './auth.query';
+import { refreshMap } from '../../shared/operators/refresh-map';
 
 @Service()
 export class AuthService {
   private readonly client = inject(AuthClient);
   private readonly authStore = inject(AuthStore);
+  private readonly authQuery = inject(AuthQuery);
+  private readonly useSession$ = new Subject<AuthStateSession | null>();
 
   constructor() {
-    this.client.useSession.subscribe((value) => {
-      if (value.data) {
-        this.authStore.setUserSession({
-          session: value.data.session as never,
-          user: value.data.user,
-        });
+    this.client.useSession.listen((value) => {
+      if (value.isPending) {
+        return;
       }
+      this.useSession$.next(value.data);
+    });
+    this.useSession$.pipe(skip(1)).subscribe((data) => {
+      const currentSession = this.authQuery.session()?.session;
+      if (data && data.session.id === currentSession?.id) {
+        return;
+      }
+      this.setUserSession(data);
     });
   }
 
   getSession() {
-    return from(this.client.getSession()).pipe(
-      map((response) => response.data),
-      tap((data) => {
-        if (data) {
-          this.authStore.setUserSession({ session: data.session as never, user: data.user });
-        } else {
-          this.authStore.reset();
-        }
-      }),
-    );
+    return from(this.client.getSession()).pipe(map((response) => response.data));
+  }
+
+  setUserSession(session: AuthStateSession | null) {
+    if (session) {
+      this.authStore.setUserSession(session);
+    } else {
+      this.authStore.reset();
+    }
   }
 
   signOut() {
@@ -54,6 +62,13 @@ export class AuthService {
         }
         return response.data;
       }),
+      refreshMap(() =>
+        this.getSession().pipe(
+          tap((session) => {
+            this.setUserSession(session);
+          }),
+        ),
+      ),
     );
   }
 }

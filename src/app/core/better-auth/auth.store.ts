@@ -26,21 +26,20 @@ export class AuthStore {
 
   private update(updater: (state: AuthState) => Partial<AuthState>) {
     const state = this.#state$.value;
-    this.#state$.next({
-      ...state,
-      ...updater(state),
-    });
+    const newState = { ...state, ...updater(state) };
+    this.#state$.next(newState);
   }
 
-  setUserSession(userSession: Pick<AuthStateSession, 'user' | 'session'>) {
+  setUserSession(userSession: AuthStateSession) {
     this.update((state) => {
       const partialState: Partial<AuthState> = {
         session: userSession,
       };
       if (
+        !userSession.activeOrganization &&
         state.session?.activeOrganization &&
-        userSession.session.session &&
-        state.session?.activeOrganization?.id === userSession.session.session?.activeOrganizationId
+        userSession.session &&
+        state.session?.activeOrganization?.id === userSession.session?.activeOrganizationId
       ) {
         partialState.session!.activeOrganization = state.session.activeOrganization;
       }

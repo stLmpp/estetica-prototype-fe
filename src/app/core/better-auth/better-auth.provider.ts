@@ -85,7 +85,7 @@ export function createClient(options: ReturnType<typeof createAuthConfig>) {
 }
 
 export type AuthClientType = ReturnType<typeof createClient>;
-export type BetterAuthSession = AuthClientType['$Infer']['Session'];
+export type BetterAuthSession = AuthClientType['$Infer']['Session']['session'];
 export type BetterAuthOrganization = AuthClientType['$Infer']['Organization'];
 
 export const AuthClient = new InjectionToken<AuthClientType>('better-auth.client');
@@ -112,16 +112,15 @@ export function provideBetterAuthServer(): Provider[] {
       deps: [HttpClient],
       useFactory: () => {
         const httpClient = inject(HttpClient);
-        const config = createAuthConfig(httpClient);
+        const config: BetterAuthClientOptions = createAuthConfig(httpClient);
         const req = inject(REQUEST, { optional: true });
         const cookieHeader = req?.headers.get('cookie');
-        return {
-          ...config,
-          fetchOptions: {
-            ...config.fetchOptions,
-            headers: cookieHeader ? { cookie: cookieHeader as string } : {},
-          },
-        };
+        config.fetchOptions ??= {};
+        const headers: Record<string, string> = (config.fetchOptions.headers ??= {});
+        if (cookieHeader) {
+          headers['Cookie'] = cookieHeader;
+        }
+        return config;
       },
     },
   ];

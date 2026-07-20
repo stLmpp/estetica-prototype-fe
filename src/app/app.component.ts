@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
 import { NgProgressbar } from 'ngx-progressbar';
 import { NgProgressRouter } from 'ngx-progressbar/router';
+import { AuthService } from './core/better-auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,15 @@ import { NgProgressRouter } from 'ngx-progressbar/router';
   styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  protected logout() {
+    this.authService.signOut().subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+    });
+  }
+}
