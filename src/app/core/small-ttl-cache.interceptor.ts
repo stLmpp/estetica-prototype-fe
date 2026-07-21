@@ -4,12 +4,14 @@ import {
   HttpEvent,
   HttpEventType,
   HttpInterceptorFn,
+  HttpRequest,
   HttpResponse,
 } from '@angular/common/http';
-import { inject, PLATFORM_ID, REQUEST, TransferState, makeStateKey } from '@angular/core';
+import { inject, makeStateKey, PLATFORM_ID, REQUEST, TransferState } from '@angular/core';
 import { isPlatformServer } from '@angular/common';
-import { Observable, catchError, finalize, of, shareReplay, tap, throwError } from 'rxjs';
+import { catchError, finalize, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import { CacheableMemory } from 'cacheable';
+import firstBy from 'thenby';
 
 export const SMALL_TTL_CACHE_DISABLE = new HttpContextToken<boolean>(() => false);
 
@@ -23,6 +25,20 @@ type Cache =
       error: HttpErrorResponse;
     };
 
+type Flag = 'inflight' | 'transferState' | 'cacheHit' | 'cacheMiss';
+
+const symbolMap: Record<Flag, string> = {
+  inflight: '⏳',
+  cacheHit: '⚡',
+  cacheMiss: '☁️',
+  transferState: '📦',
+};
+
+function logRequest(req: HttpRequest<unknown>, flag: Flag) {
+  // TODO add logger
+  console.log(`${symbolMap[flag]} [HTTP] ${req.method} ${req.urlWithParams}`);
+}
+
 export function smallTtlCacheInterceptor(): HttpInterceptorFn {
   const memoryCache = new CacheableMemory({
     ttl: 50,
@@ -35,6 +51,7 @@ export function smallTtlCacheInterceptor(): HttpInterceptorFn {
 
   return (req, next) => {
     if (req.method !== 'GET' || req.context.get(SMALL_TTL_CACHE_DISABLE)) {
+      logRequest(req, 'cacheMiss');
       return next(req);
     }
 
@@ -50,6 +67,7 @@ export function smallTtlCacheInterceptor(): HttpInterceptorFn {
     // 2. Check Memory Cache (for recently finished requests)
     const memoryCached = memoryCache.get<Cache>(memoryCacheKey);
     if (memoryCached) {
+      logRequest(req, 'cacheHit');
       if (memoryCached.error) {
         return throwError(() => memoryCached.error);
       }
@@ -67,7 +85,7 @@ export function smallTtlCacheInterceptor(): HttpInterceptorFn {
           status: 200,
           url: req.urlWithParams,
         });
-
+        logRequest(req, 'transferState');
         memoryCache.set(memoryCacheKey, { response } satisfies Cache);
         return of(response);
       }
@@ -76,6 +94,7 @@ export function smallTtlCacheInterceptor(): HttpInterceptorFn {
     // 4. NEW: Check if this exact request is currently in-flight!
     const inflightRequest$ = inflightRequests.get(memoryCacheKey);
     if (inflightRequest$) {
+      logRequest(req, 'inflight');
       // If it is, return the existing Observable.
       // The waiting component will piggyback on the ongoing HTTP call.
       return inflightRequest$;
@@ -106,6 +125,8 @@ export function smallTtlCacheInterceptor(): HttpInterceptorFn {
 
     // 8. NEW: Store the shared observable in the Map before returning it
     inflightRequests.set(memoryCacheKey, request$);
+
+    logRequest(req, 'cacheMiss');
 
     return request$;
   };

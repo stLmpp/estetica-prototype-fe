@@ -29,7 +29,6 @@ import { AuthService } from './core/better-auth/auth.service';
 import { OrganizationService } from './core/better-auth/organization.service';
 import { AuthStateSession } from './core/better-auth/auth.store';
 import { map, of, switchMap, tap } from 'rxjs';
-import { loggingInterceptor } from './core/logging.interceptor';
 
 const routerFeatures: RouterFeatures[] = [
   withPreloading(PreloadAllModules),
@@ -45,7 +44,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, ...routerFeatures),
-    provideHttpClient(withInterceptors([smallTtlCacheInterceptor(), loggingInterceptor()])),
+    provideHttpClient(withInterceptors([smallTtlCacheInterceptor()])),
     provideClientHydration(),
     provideBetterAuthClient(),
     provideAppInitializer(() => {

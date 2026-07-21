@@ -42,23 +42,25 @@ export function createAuthConfig(httpClient: HttpClient) {
           headers = headers.append(key, value);
         });
 
-        const [error, response] = await safeAsync(() =>
-          lastValueFrom(
-            httpClient.request(req.method, req.url, {
-              body,
-              headers,
-              observe: 'response',
-              responseType: 'text',
-              credentials: req.credentials,
-              keepalive: req.keepalive,
-              mode: req.mode,
-              cache: req.cache,
-              redirect: req.redirect,
-              referrer: req.referrer,
-              referrerPolicy: req.referrerPolicy,
-              integrity: req.integrity,
-            }),
-          ),
+        const [error, response] = await safeAsync(
+          () =>
+            lastValueFrom(
+              httpClient.request(req.method, req.url, {
+                body,
+                headers,
+                observe: 'response',
+                responseType: 'text',
+                credentials: req.credentials,
+                keepalive: req.keepalive,
+                mode: req.mode,
+                cache: req.cache,
+                redirect: req.redirect,
+                referrer: req.referrer,
+                referrerPolicy: req.referrerPolicy,
+                integrity: req.integrity,
+              }),
+            ),
+          HttpErrorResponse,
         );
 
         if (!error) {
@@ -68,12 +70,6 @@ export function createAuthConfig(httpClient: HttpClient) {
           });
         }
 
-        if (error instanceof HttpErrorResponse) {
-          return new Response(error.error, {
-            status: error.status,
-            headers: extractAngularHeaders(error.headers),
-          });
-        }
         throw error;
       },
     },

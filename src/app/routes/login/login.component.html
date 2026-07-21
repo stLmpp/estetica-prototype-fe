@@ -1,4 +1,58 @@
-<input placeholder="Username" [(ngModel)]="username" />
-<input placeholder="Password" type="password" [(ngModel)]="password" />
+<div
+  class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl ring-1 ring-neutral-200 transition-all dark:bg-neutral-800 dark:ring-neutral-700"
+>
+  <div class="mb-8 text-center">
+    <h1 class="text-primary-800 dark:text-primary-300 mb-2 text-3xl font-bold">Bem-vindo(a)</h1>
+    <p class="text-neutral-500 dark:text-neutral-400">Por favor, faça login para continuar</p>
+  </div>
 
-<button btn (click)="login()">Login</button>
+  <form [formRoot]="loginForm" class="flex flex-col gap-6">
+    <app-form-field>
+      <label appLabel for="email">E-mail</label>
+      <input
+        appInput
+        [formField]="loginForm.email"
+        id="email"
+        type="email"
+        placeholder="E-mail"
+        autocomplete="email"
+      />
+    </app-form-field>
+
+    <app-form-field>
+      <label appLabel for="password">Senha</label>
+      <input
+        appInput
+        [formField]="loginForm.password"
+        id="password"
+        type="password"
+        placeholder="Senha"
+        autocomplete="current-password"
+      />
+    </app-form-field>
+
+    <a
+      routerLink="/forgot-password"
+      class="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium transition-colors"
+    >
+      Esqueci minha senha
+    </a>
+
+    <div class="mt-2">
+      <button
+        btn
+        btnPrimary
+        class="w-full justify-center py-3 text-lg"
+        type="submit"
+        [btnLoading]="loginForm().submitting()"
+      >
+        Fazer login
+      </button>
+    </div>
+
+    <div>
+      <!--      TODO -->
+      {{ loginForm().errorSummary() | json }}
+    </div>
+  </form>
+</div>
