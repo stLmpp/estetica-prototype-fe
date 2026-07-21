@@ -4,8 +4,6 @@ export type SafeSuccess<T> = [error: undefined, data: T];
 export type SafeError<E extends Class<any>> = [error: InstanceType<E>, data: undefined];
 export type Safe<T, E extends Class<any>> = SafeSuccess<T> | SafeError<E>;
 
-new Error();
-
 export async function safeAsync<T, E extends Class<any>>(
   callback: () => Promise<T>,
   errorClass: E,
