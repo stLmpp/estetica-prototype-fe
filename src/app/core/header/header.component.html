@@ -9,17 +9,26 @@
     @if (isLoggedIn()) {
       <div class="flex items-center gap-4 text-sm text-neutral-700 dark:text-neutral-300">
         @if (organization(); as org) {
-          <span class="text-primary-700 dark:text-primary-300 font-semibold"> {{ org.name }}</span>
+          <a btn type="button" routerLink="/organizations">{{ org.name }}</a>
           <span class="text-neutral-300 dark:text-neutral-600">|</span>
         }
         <span class="text-neutral-600 dark:text-neutral-400">{{ user()?.name }}</span>
         <button
           type="button"
+          iconBtn
+          btnSecondary
+          [icon]="theme() === 'dark' ? LucideSun : LucideMoon"
+          (click)="changeTheme()"
+          ariaLabel="Toggle dark mode"
+        ></button>
+        <button
+          type="button"
+          iconBtn
+          btnSecondary
+          [icon]="LucideLogOut"
+          ariaLabel="Logout"
           (click)="logout()"
-          class="border-primary-300 text-primary-700 hover:bg-primary-100 hover:border-primary-400 hover:text-primary-900 focus-visible:outline-primary-500 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-900 dark:hover:border-primary-600 dark:hover:text-primary-100 cursor-pointer rounded-md border px-4 py-2 text-sm font-medium transition-all focus-visible:outline-2 focus-visible:outline-offset-2"
-        >
-          Logout
-        </button>
+        ></button>
       </div>
     }
   </div>

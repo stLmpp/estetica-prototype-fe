@@ -1,5 +1,19 @@
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
+## Styling and UI
+
+- Use Tailwind CSS for all styling.
+- Follow Tailwind best practices (utility-first, avoid arbitrary values when possible).
+- All components MUST support dark and light mode.
+- Use the project's color palette defined in `src/styles.css`:
+  - **Primary**: Rosa Queimado / Bordô (`primary-50` to `primary-900`).
+  - **Neutral**: Creme / Pêssego (`neutral-50` to `neutral-900`).
+- Always prefer components from the design system (`src/app/components`) over creating new UI elements:
+  - Use `[btn]`, `[btnPrimary]`, `[btnSecondary]`, `[btnOutline]` for buttons.
+  - Use `app-form-field`, `appLabel`, `appInput` for forms.
+  - Use `app-alert` for notifications.
+  - Check `src/app/components` for other available components (badge, checkbox, chip, switch, table, etc.).
+
 ## TypeScript Best Practices
 
 - Use strict type checking

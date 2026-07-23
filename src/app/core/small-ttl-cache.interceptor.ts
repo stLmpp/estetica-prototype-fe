@@ -11,7 +11,6 @@ import { inject, makeStateKey, PLATFORM_ID, REQUEST, TransferState } from '@angu
 import { isPlatformServer } from '@angular/common';
 import { catchError, finalize, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import { CacheableMemory } from 'cacheable';
-import firstBy from 'thenby';
 
 export const SMALL_TTL_CACHE_DISABLE = new HttpContextToken<boolean>(() => false);
 
@@ -33,6 +32,13 @@ const symbolMap: Record<Flag, string> = {
   cacheMiss: '☁️',
   transferState: '📦',
 };
+
+// TODO logger
+console.log(
+  Object.entries(symbolMap)
+    .map(([flag, symbol]) => `${symbol} -> ${flag}`)
+    .join('\n'),
+);
 
 function logRequest(req: HttpRequest<unknown>, flag: Flag) {
   // TODO add logger

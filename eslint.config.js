@@ -38,12 +38,19 @@ module.exports = defineConfig([
           style: 'kebab-case',
         },
       ],
-      '@typescript-eslint/no-explicit-any': 'off'
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
-    rules: {},
+    rules: {
+      '@angular-eslint/template/elements-content': [
+        'error',
+        {
+          allowList: ['iconBtn'],
+        },
+      ],
+    },
   },
 ]);

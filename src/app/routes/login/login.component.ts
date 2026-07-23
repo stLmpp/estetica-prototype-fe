@@ -13,6 +13,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { isApiErrorResponse } from '../../model/api-error';
 
 import { AlertComponent } from '../../components/alert/alert.component';
+import { IconComponent } from '../../components/icon/icon.component';
+import { LucideLogIn } from '@lucide/angular';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +27,7 @@ import { AlertComponent } from '../../components/alert/alert.component';
     RouterLink,
     FormRoot,
     AlertComponent,
+    IconComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
@@ -83,4 +86,5 @@ export class LoginComponent {
   );
 
   readonly errorMessage = computed(() => this.loginForm().errors()[0]?.message);
+  protected readonly LucideLogIn = LucideLogIn;
 }
