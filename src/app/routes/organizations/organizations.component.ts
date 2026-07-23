@@ -1,14 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { AuthQuery } from '../../core/better-auth/auth.query';
 import { OrganizationService } from '../../core/better-auth/organization.service';
 import { BetterAuthOrganization } from '../../core/better-auth/better-auth.provider';
 import { Router } from '@angular/router';
-import { switchMap } from 'rxjs';
-import { ButtonComponent } from '../../components/button/button.component';
+import { Observable, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-organizations',
-  imports: [ButtonComponent],
+  imports: [],
   templateUrl: './organizations.component.html',
   styleUrl: './organizations.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,11 +21,14 @@ export class OrganizationsComponent {
   private readonly router = inject(Router);
 
   readonly organizations = this.authQuery.organizations;
+  readonly activeOrganization = computed(() => this.authQuery.session()?.activeOrganization);
 
   protected selectOrganization(organization: BetterAuthOrganization) {
-    this.organizationService
-      .setActive(organization)
-      .pipe(switchMap(() => this.router.navigate(['/'])))
-      .subscribe();
+    const setActive$: Observable<unknown> =
+      organization.id === this.activeOrganization()?.id
+        ? of(null)
+        : this.organizationService.setActive(organization);
+
+    setActive$.pipe(switchMap(() => this.router.navigate(['/']))).subscribe();
   }
 }
