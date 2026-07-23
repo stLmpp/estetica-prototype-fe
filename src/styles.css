@@ -33,3 +33,8 @@
   --color-neutral-800: #6e3c2b;
   --color-neutral-900: #4a2519;
 }
+
+.ng-spinner {
+  top: 85px !important;
+  right: 25px !important;
+}

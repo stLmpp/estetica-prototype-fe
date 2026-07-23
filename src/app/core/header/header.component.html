@@ -1,0 +1,26 @@
+<header
+  class="w-full border-b border-neutral-200 bg-neutral-50 px-8 py-4 font-sans dark:border-neutral-800 dark:bg-neutral-900"
+>
+  <div class="mx-auto flex max-w-[1200px] items-center justify-between">
+    <div class="text-primary-800 dark:text-primary-200 text-xl font-bold">
+      <span>Estética Prototype</span>
+    </div>
+
+    @if (isLoggedIn()) {
+      <div class="flex items-center gap-4 text-sm text-neutral-700 dark:text-neutral-300">
+        @if (organization(); as org) {
+          <span class="text-primary-700 dark:text-primary-300 font-semibold"> {{ org.name }}</span>
+          <span class="text-neutral-300 dark:text-neutral-600">|</span>
+        }
+        <span class="text-neutral-600 dark:text-neutral-400">{{ user()?.name }}</span>
+        <button
+          type="button"
+          (click)="logout()"
+          class="border-primary-300 text-primary-700 hover:bg-primary-100 hover:border-primary-400 hover:text-primary-900 focus-visible:outline-primary-500 dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-900 dark:hover:border-primary-600 dark:hover:text-primary-100 cursor-pointer rounded-md border px-4 py-2 text-sm font-medium transition-all focus-visible:outline-2 focus-visible:outline-offset-2"
+        >
+          Logout
+        </button>
+      </div>
+    }
+  </div>
+</header>

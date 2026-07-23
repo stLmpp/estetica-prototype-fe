@@ -1,25 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { NgProgressbar } from 'ngx-progressbar';
 import { NgProgressRouter } from 'ngx-progressbar/router';
-import { AuthService } from './core/better-auth/auth.service';
+import { HeaderComponent } from './core/header/header.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NgProgressbar, NgProgressRouter],
+  imports: [RouterOutlet, NgProgressbar, NgProgressRouter, HeaderComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-
-  protected logout() {
-    this.authService.signOut().subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-      },
-    });
-  }
-}
+export class AppComponent {}

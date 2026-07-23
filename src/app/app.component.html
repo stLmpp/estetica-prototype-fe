@@ -1,3 +1,5 @@
 <ng-progress ngProgressRouter [debounceTime]="500" spinner></ng-progress>
-<button (click)="logout()">Logout</button>
-<router-outlet></router-outlet>
+<app-header></app-header>
+<main>
+  <router-outlet></router-outlet>
+</main>
