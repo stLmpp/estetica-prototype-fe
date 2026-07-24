@@ -1,0 +1,68 @@
+<div
+  class="flex items-center justify-between border-b border-neutral-200 p-4 dark:border-neutral-800"
+>
+  <span class="text-primary-800 dark:text-primary-200 text-xl font-bold">Menu</span>
+  <button
+    type="button"
+    iconBtn
+    btnSecondary
+    [icon]="LucideX"
+    ariaLabel="Close menu"
+    (click)="close()"
+  ></button>
+</div>
+
+<nav class="flex flex-1 flex-col gap-2 p-4">
+  <a
+    routerLink="/"
+    routerLinkActive="bg-neutral-200 dark:bg-neutral-800"
+    [routerLinkActiveOptions]="{ exact: true }"
+    class="flex items-center gap-3 rounded-lg px-3 py-2 text-neutral-700 transition-colors hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-800"
+    (click)="close()"
+  >
+    <app-icon [icon]="LucideHouse" size="sm"></app-icon>
+    <span>Home</span>
+  </a>
+
+  <a
+    routerLink="/organizations"
+    routerLinkActive="bg-neutral-200 dark:bg-neutral-800"
+    class="flex items-center gap-3 rounded-lg px-3 py-2 text-neutral-700 transition-colors hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-800"
+    (click)="close()"
+  >
+    <app-icon [icon]="LucideBuilding" size="sm"></app-icon>
+    <span>Organizations</span>
+  </a>
+
+  <div class="my-2 border-t border-neutral-200 dark:border-neutral-800"></div>
+
+  <a
+    routerLink="/profile"
+    class="flex items-center gap-3 rounded-lg px-3 py-2 text-neutral-700 transition-colors hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-800"
+    (click)="close()"
+  >
+    <app-icon [icon]="LucideUser" size="sm"></app-icon>
+    <span>Profile</span>
+  </a>
+
+  <a
+    routerLink="/settings"
+    class="flex items-center gap-3 rounded-lg px-3 py-2 text-neutral-700 transition-colors hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-800"
+    (click)="close()"
+  >
+    <app-icon [icon]="LucideSettings" size="sm"></app-icon>
+    <span>Settings</span>
+  </a>
+
+  <div class="mt-auto">
+    <a
+      routerLink="/ds"
+      routerLinkActive="bg-neutral-200 dark:bg-neutral-800"
+      class="flex items-center gap-3 rounded-lg px-3 py-2 text-neutral-700 transition-colors hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-800"
+      (click)="close()"
+    >
+      <app-icon [icon]="LucideLayoutDashboard" size="sm"></app-icon>
+      <span>Design System</span>
+    </a>
+  </div>
+</nav>

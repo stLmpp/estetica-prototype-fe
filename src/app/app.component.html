@@ -1,5 +1,9 @@
 <ng-progress ngProgressRouter [debounceTime]="500" spinner></ng-progress>
+
 <app-header></app-header>
+@if (sidebarService.isOpen()) {
+  <app-sidebar></app-sidebar>
+}
 <main>
   <router-outlet></router-outlet>
 </main>

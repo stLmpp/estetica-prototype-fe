@@ -1,0 +1,7 @@
+.enter-animation {
+  animation: slide-in 1s;
+}
+
+.leave-animation {
+  animation: slide-out 1s;
+}

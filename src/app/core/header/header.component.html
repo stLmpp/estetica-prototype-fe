@@ -2,8 +2,20 @@
   class="w-full border-b border-neutral-200 bg-neutral-50 px-8 py-4 font-sans dark:border-neutral-800 dark:bg-neutral-900"
 >
   <div class="mx-auto flex max-w-[1200px] items-center justify-between">
-    <div class="text-primary-800 dark:text-primary-200 text-xl font-bold">
-      <span>Estética Prototype</span>
+    <div class="flex items-center gap-4">
+      <button
+        type="button"
+        iconBtn
+        btnSecondary
+        [icon]="LucideMenu"
+        ariaLabel="Open menu"
+        (click)="toggleSidebar()"
+        [attr.aria-expanded]="sidebarService.isOpen()"
+        aria-controls="sidebar-menu"
+      ></button>
+      <div class="text-primary-800 dark:text-primary-200 text-xl font-bold">
+        <span>Estética Prototype</span>
+      </div>
     </div>
 
     @if (isLoggedIn()) {

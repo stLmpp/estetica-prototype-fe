@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import "@angular/cdk/overlay-prebuilt.css";
 @import 'tailwindcss';
 
 @variant dark (&:where(.dark, .dark *));
@@ -37,4 +38,8 @@
 .ng-spinner {
   top: 85px !important;
   right: 25px !important;
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.5);
 }

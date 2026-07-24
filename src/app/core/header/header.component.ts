@@ -12,12 +12,13 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthQuery } from '../better-auth/auth.query';
 import { AuthService } from '../better-auth/auth.service';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
-import { LucideLogOut, LucideMoon, LucideSun } from '@lucide/angular';
+import { LucideLogOut, LucideMenu, LucideMoon, LucideSun } from '@lucide/angular';
 import { switchMap } from 'rxjs';
 import { ButtonComponent } from '../../components/button/button.component';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { safe } from '../../shared/safe';
 import { SsrCookieService } from 'ngx-cookie-service-ssr';
+import { SidebarService } from '../sidebar/sidebar.service';
 
 @Component({
   selector: 'app-header',
@@ -54,6 +55,7 @@ export class HeaderComponent {
   private readonly router = inject(Router);
   private readonly renderer = inject(Renderer2);
   private readonly cookieService = inject(SsrCookieService);
+  protected readonly sidebarService = inject(SidebarService);
 
   protected readonly theme = signal<'dark' | 'light'>('dark');
 
@@ -74,7 +76,12 @@ export class HeaderComponent {
     this.renderer.addClass(document.documentElement, this.theme());
   }
 
+  protected toggleSidebar() {
+    this.sidebarService.toggle();
+  }
+
   protected readonly LucideLogOut = LucideLogOut;
   protected readonly LucideMoon = LucideMoon;
   protected readonly LucideSun = LucideSun;
+  protected readonly LucideMenu = LucideMenu;
 }
