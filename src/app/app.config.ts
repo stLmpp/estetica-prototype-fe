@@ -20,7 +20,6 @@ import {
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { environment } from '../environments/environment';
 import { isPlatformServer } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -46,7 +45,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, ...routerFeatures),
     provideHttpClient(withInterceptors([smallTtlCacheInterceptor()])),
-    provideAnimationsAsync(),
     provideClientHydration(),
     provideBetterAuthClient(),
     provideAppInitializer(() => {
