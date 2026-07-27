@@ -1,7 +1,27 @@
-.enter-animation {
-  animation: slide-in 1s;
+:host.enter-animation {
+  animation: slide-in 200ms linear;
 }
 
-.leave-animation {
-  animation: slide-out 1s;
+@keyframes slide-in {
+  from {
+    transform: translateX(-256px);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+:host.leave-animation {
+  animation: slide-out 200ms linear;
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-256px);
+  }
 }

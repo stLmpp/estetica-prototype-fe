@@ -1,18 +1,21 @@
 <header
-  class="w-full border-b border-neutral-200 bg-neutral-50 px-8 py-4 font-sans dark:border-neutral-800 dark:bg-neutral-900"
+  class="flex h-[75px] w-full items-center border-b border-neutral-200 bg-neutral-50 px-8 font-sans dark:border-neutral-800 dark:bg-neutral-900"
 >
-  <div class="mx-auto flex max-w-[1200px] items-center justify-between">
+  @let org = organization();
+  <div class="mx-auto flex w-full max-w-[1200px] items-center justify-between">
     <div class="flex items-center gap-4">
-      <button
-        type="button"
-        iconBtn
-        btnSecondary
-        [icon]="LucideMenu"
-        ariaLabel="Open menu"
-        (click)="toggleSidebar()"
-        [attr.aria-expanded]="sidebarService.isOpen()"
-        aria-controls="sidebar-menu"
-      ></button>
+      @if (org) {
+        <button
+          type="button"
+          iconBtn
+          btnSecondary
+          [icon]="LucideMenu"
+          ariaLabel="Open menu"
+          (click)="toggleSidebar()"
+          [attr.aria-expanded]="sidebarService.isOpen()"
+          aria-controls="sidebar-menu"
+        ></button>
+      }
       <div class="text-primary-800 dark:text-primary-200 text-xl font-bold">
         <span>Estética Prototype</span>
       </div>
@@ -20,7 +23,7 @@
 
     @if (isLoggedIn()) {
       <div class="flex items-center gap-4 text-sm text-neutral-700 dark:text-neutral-300">
-        @if (organization(); as org) {
+        @if (org) {
           <a btn type="button" routerLink="/organizations">{{ org.name }}</a>
           <span class="text-neutral-300 dark:text-neutral-600">|</span>
         }

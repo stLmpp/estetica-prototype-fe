@@ -51,6 +51,12 @@ module.exports = defineConfig([
           allowList: ['iconBtn'],
         },
       ],
+      '@angular-eslint/template/click-events-have-key-events': [
+        'error',
+        {
+          ignoreWithDirectives: ['backdrop'],
+        },
+      ],
     },
   },
 ]);

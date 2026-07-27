@@ -1,5 +1,5 @@
 <div
-  class="flex items-center justify-between border-b border-neutral-200 p-4 dark:border-neutral-800"
+  class="flex h-[75px] items-center justify-between border-b border-neutral-200 p-4 dark:border-neutral-800"
 >
   <span class="text-primary-800 dark:text-primary-200 text-xl font-bold">Menu</span>
   <button
@@ -66,3 +66,11 @@
     </a>
   </div>
 </nav>
+
+<div
+  id="backdrop"
+  class="fixed top-0 right-0 bottom-0 left-64 bg-transparent"
+  (click)="close()"
+  tabindex="-1"
+  backdrop
+></div>
