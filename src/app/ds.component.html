@@ -143,3 +143,34 @@
 <section>
   <app-table [columns]="columns" [data]="data" [trackBy]="trackBy"></app-table>
 </section>
+
+<!-- Paginator -->
+<section aria-labelledby="sec-paginator">
+  <h2 id="sec-paginator" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">
+    Paginator
+  </h2>
+
+  <section class="mb-8">
+    <h3 class="mb-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400">Full</h3>
+    <app-paginator
+      [(page)]="paginatorFullPage"
+      [(pageSize)]="paginatorFullPageSize"
+      [length]="237"
+    />
+  </section>
+
+  <section class="mb-8">
+    <h3 class="mb-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400">Compact</h3>
+    <app-paginator
+      [(page)]="paginatorCompactPage"
+      mode="compact"
+      [length]="237"
+      [showPageSizeSelector]="false"
+    />
+  </section>
+
+  <section>
+    <h3 class="mb-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400">Disabled</h3>
+    <app-paginator [page]="3" [length]="237" [disabled]="true" />
+  </section>
+</section>

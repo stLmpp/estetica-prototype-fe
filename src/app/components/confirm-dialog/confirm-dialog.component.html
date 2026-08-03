@@ -1,0 +1,20 @@
+<h2 id="confirm-dialog-title" class="mb-2 text-lg font-bold text-neutral-800 dark:text-neutral-100">
+  {{ data.title }}
+</h2>
+<p id="confirm-dialog-message" class="mb-6 text-sm text-neutral-600 dark:text-neutral-300">
+  {{ data.message }}
+</p>
+<div class="flex justify-end gap-3">
+  <button btn btnOutline type="button" (click)="cancel()">{{ data.cancelLabel ?? 'Cancelar' }}</button>
+  <button
+    btn
+    [btnPrimary]="!data.danger"
+    [class.bg-red-600]="data.danger"
+    [class.not-disabled:hover:bg-red-700]="data.danger"
+    [class.text-white]="data.danger"
+    type="button"
+    (click)="confirm()"
+  >
+    {{ data.confirmLabel ?? 'Confirmar' }}
+  </button>
+</div>

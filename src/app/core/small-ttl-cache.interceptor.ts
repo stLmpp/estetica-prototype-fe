@@ -10,7 +10,7 @@ import {
 import { inject, makeStateKey, PLATFORM_ID, REQUEST, TransferState } from '@angular/core';
 import { isPlatformServer } from '@angular/common';
 import { catchError, finalize, Observable, of, shareReplay, tap, throwError } from 'rxjs';
-import { CacheableMemory } from 'cacheable';
+import { CacheableMemory } from '@cacheable/memory';
 
 export const SMALL_TTL_CACHE_DISABLE = new HttpContextToken<boolean>(() => false);
 

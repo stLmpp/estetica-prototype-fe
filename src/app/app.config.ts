@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   inject,
+  LOCALE_ID,
   makeStateKey,
   PLATFORM_ID,
   provideAppInitializer,
@@ -21,7 +22,8 @@ import {
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { environment } from '../environments/environment';
-import { isPlatformServer } from '@angular/common';
+import { isPlatformServer, registerLocaleData } from '@angular/common';
+import localePtBR from '@angular/common/locales/pt';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { smallTtlCacheInterceptor } from './core/small-ttl-cache.interceptor';
 import { provideBetterAuthClient } from './core/better-auth/better-auth.provider';
@@ -29,6 +31,7 @@ import { AuthService } from './core/better-auth/auth.service';
 import { OrganizationService } from './core/better-auth/organization.service';
 import { AuthStateSession } from './core/better-auth/auth.store';
 import { map, of, switchMap, tap } from 'rxjs';
+import { withCredentialsInterceptor } from './core/with-credentials.interceptor';
 
 const routerFeatures: RouterFeatures[] = [
   withPreloading(PreloadAllModules),
@@ -40,11 +43,14 @@ if (environment.debug) {
   routerFeatures.push(withDebugTracing());
 }
 
+registerLocaleData(localePtBR);
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    { provide: LOCALE_ID, useValue: 'pt-BR' },
     provideRouter(routes, ...routerFeatures),
-    provideHttpClient(withInterceptors([smallTtlCacheInterceptor()])),
+    provideHttpClient(withInterceptors([smallTtlCacheInterceptor(), withCredentialsInterceptor()])),
     provideClientHydration(),
     provideBetterAuthClient(),
     provideAppInitializer(() => {

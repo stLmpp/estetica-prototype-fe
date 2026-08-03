@@ -1,0 +1,76 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Catálogo</h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Gerencie os produtos e serviços oferecidos.
+    </p>
+  </div>
+  <button btn btnPrimary type="button" (click)="openCreateDialog()">
+    <app-icon [icon]="LucidePlus" size="sm" color="white" />
+    Novo item
+  </button>
+</div>
+
+<app-form-field>
+  <label appLabel for="catalog-item-search">Buscar por nome</label>
+  <input
+    appInput
+    [formField]="searchForm.name"
+    id="catalog-item-search"
+    type="search"
+    placeholder="Ex: Limpeza de pele"
+  />
+</app-form-field>
+
+@if (errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table [columns]="columns()" [data]="items()" [trackBy]="trackBy" />
+
+@if (!loading() && items().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhum item encontrado.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="total()"
+  [showPageSizeSelector]="false"
+  [disabled]="loading()"
+/>
+
+<ng-template #statusTemplate let-row="row">
+  @if (row.active) {
+    <app-badge primary>Ativo</app-badge>
+  } @else {
+    <app-badge>Inativo</app-badge>
+  }
+</ng-template>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    <button
+      iconBtn
+      type="button"
+      [icon]="LucidePencil"
+      ariaLabel="Editar item"
+      size="sm"
+      (click)="openEditDialog(row)"
+    ></button>
+    <button
+      iconBtn
+      type="button"
+      [icon]="LucideTrash2"
+      ariaLabel="Excluir item"
+      size="sm"
+      (click)="openDeleteDialog(row)"
+    ></button>
+  </div>
+</ng-template>

@@ -16,6 +16,7 @@ import { CheckboxComponent } from './components/checkbox/checkbox.component';
 import { SwitchComponent } from './components/switch/switch.component';
 import { ColDef } from './components/table/model/col-def';
 import { TableComponent } from './components/table/table.component';
+import { PaginatorComponent } from './components/paginator/paginator.component';
 
 const formModel = signal({
   buttonToggle: 'corporal',
@@ -44,6 +45,7 @@ const formModel = signal({
     CheckboxComponent,
     SwitchComponent,
     TableComponent,
+    PaginatorComponent,
   ],
   templateUrl: './ds.component.html',
   styles: `
@@ -126,6 +128,10 @@ export class DsComponent {
   ];
 
   readonly trackBy = (value: any) => value.id;
+
+  readonly paginatorFullPage = signal(1);
+  readonly paginatorFullPageSize = signal(10);
+  readonly paginatorCompactPage = signal(1);
 
   readonly selectValueObject = computed(() =>
     this.options.find((option) => String(option.id) === this.f.select().value()),

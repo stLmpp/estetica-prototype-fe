@@ -72,6 +72,31 @@ export const routes: Routes = [
     resolve: [() => inject(OrganizationService).list()],
   },
   {
+    path: 'catalog-items',
+    loadComponent: () =>
+      import('./routes/catalog-items/catalog-items.component').then(
+        (m) => m.CatalogItemsComponent,
+      ),
+    canActivate: [
+      () => {
+        const authQuery = inject(AuthQuery);
+        const router = inject(Router);
+
+        const session = authQuery.session();
+
+        if (!session) {
+          return router.createUrlTree(['/login']);
+        }
+
+        if (!session.activeOrganization) {
+          return router.createUrlTree(['/organizations']);
+        }
+
+        return true;
+      },
+    ],
+  },
+  {
     path: 'raw-ds',
     loadComponent: () => import('./temp.component').then((m) => m.TempComponent),
   },

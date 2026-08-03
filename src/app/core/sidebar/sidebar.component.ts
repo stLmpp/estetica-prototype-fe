@@ -5,6 +5,7 @@ import {
   LucideBuilding,
   LucideHouse,
   LucideLayoutDashboard,
+  LucidePackage,
   LucideSettings,
   LucideUser,
   LucideX,
@@ -30,6 +31,7 @@ export class SidebarComponent {
 
   protected readonly LucideHouse = LucideHouse;
   protected readonly LucideBuilding = LucideBuilding;
+  protected readonly LucidePackage = LucidePackage;
   protected readonly LucideSettings = LucideSettings;
   protected readonly LucideUser = LucideUser;
   protected readonly LucideX = LucideX;

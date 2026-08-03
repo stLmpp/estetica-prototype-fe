@@ -30,3 +30,11 @@ export function isApiErrorResponse(value: unknown): value is ApiErrorResponse {
     typeof value.error.error === 'string'
   );
 }
+
+export function extractApiErrorMessage(error: unknown, fallback: string): string {
+  console.log({ error });
+  if (error && typeof error === 'object' && 'error' in error && isApiErrorResponse(error.error)) {
+    return error.error.error.message;
+  }
+  return fallback;
+}

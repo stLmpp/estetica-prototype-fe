@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "estetica-fe",
+      "runtimeExecutable": "ng",
+      "runtimeArgs": ["serve"],
+      "port": 4200
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+<div class="flex flex-wrap items-center gap-4">
+  @if (showRangeLabel()) {
+    <span>Mostrando {{ rangeStart() }}–{{ rangeEnd() }} de {{ length() }} itens</span>
+  }
+  @if (showPageSizeSelector()) {
+    <div class="flex items-center gap-2">
+      <label [for]="pageSizeSelectId" class="whitespace-nowrap">Itens por página</label>
+      <select
+        appSelect
+        [id]="pageSizeSelectId"
+        class="!px-3 !py-1.5"
+        [disabled]="disabled()"
+        (change)="onPageSizeChange($event)"
+      >
+        @for (option of pageSizeOptions(); track option) {
+          <option [value]="option" [selected]="option === pageSize()">{{ option }}</option>
+        }
+      </select>
+    </div>
+  }
+</div>
+
+<nav [attr.aria-label]="navAriaLabel()">
+  @if (mode() === 'compact') {
+    <div class="flex items-center gap-3">
+      <button
+        iconBtn
+        type="button"
+        [icon]="ChevronLeft"
+        ariaLabel="Página anterior"
+        size="sm"
+        [disabled]="!canGoPrevious()"
+        (click)="previous()"
+      ></button>
+      <span>Página {{ page() }} de {{ pageCount() }}</span>
+      <button
+        iconBtn
+        type="button"
+        [icon]="ChevronRight"
+        ariaLabel="Próxima página"
+        size="sm"
+        [disabled]="!canGoNext()"
+        (click)="next()"
+      ></button>
+    </div>
+  } @else {
+    <ul class="flex items-center gap-1">
+      <li>
+        <button
+          iconBtn
+          type="button"
+          [icon]="ChevronLeft"
+          ariaLabel="Página anterior"
+          size="sm"
+          [disabled]="!canGoPrevious()"
+          (click)="previous()"
+        ></button>
+      </li>
+      @for (item of pages(); track $index) {
+        <li>
+          @if (item === ellipsis) {
+            <span class="flex h-9 w-9 items-center justify-center" aria-hidden="true">{{
+              ellipsis
+            }}</span>
+          } @else {
+            <button
+              type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-lg font-medium transition-colors focus:ring-2 focus:ring-primary-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              [class.bg-primary-500]="item === page()"
+              [class.text-white]="item === page()"
+              [class.not-disabled:hover:bg-neutral-100]="item !== page()"
+              [class.dark:not-disabled:hover:bg-neutral-800]="item !== page()"
+              [disabled]="disabled()"
+              [attr.aria-current]="item === page() ? 'page' : null"
+              [attr.aria-label]="'Página ' + item"
+              (click)="goToPage(item)"
+            >
+              {{ item }}
+            </button>
+          }
+        </li>
+      }
+      <li>
+        <button
+          iconBtn
+          type="button"
+          [icon]="ChevronRight"
+          ariaLabel="Próxima página"
+          size="sm"
+          [disabled]="!canGoNext()"
+          (click)="next()"
+        ></button>
+      </li>
+    </ul>
+  }
+</nav>
