@@ -11,7 +11,7 @@ import { SelectDirective } from '../../../components/select/select.directive';
 import { SwitchComponent } from '../../../components/switch/switch.component';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { CatalogItem, CatalogItemPayload, CatalogItemType } from '../catalog-item.model';
-import { CatalogItemService } from '../catalog-item.service';
+import { CatalogItemsStore } from '../catalog-items.store';
 import { NgxMaskDirective } from 'ngx-mask';
 
 export interface CatalogItemFormDialogData {
@@ -44,7 +44,7 @@ const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar o item. Tente novamente
 export class CatalogItemFormDialogComponent {
   protected readonly data = inject<CatalogItemFormDialogData>(DIALOG_DATA);
   private readonly dialogRef = inject(DialogRef<CatalogItem | undefined>);
-  private readonly catalogItemService = inject(CatalogItemService);
+  private readonly store = inject(CatalogItemsStore);
 
   protected readonly isEditing = !!this.data.catalogItem;
   protected readonly CatalogItemType = CatalogItemType;
@@ -91,14 +91,14 @@ export class CatalogItemFormDialogComponent {
 
   private save(payload: CatalogItemPayload): Promise<SaveResult> {
     const request$: Observable<SaveResult> = this.data.catalogItem
-      ? this.catalogItemService.update(this.data.catalogItem.id, payload).pipe(
+      ? this.store.updateCatalogItem(this.data.catalogItem.id, payload).pipe(
           map((): SaveResult => ({
             ok: true,
             catalogItem: { ...this.data.catalogItem!, ...payload },
           })),
         )
-      : this.catalogItemService
-          .create(payload)
+      : this.store
+          .createCatalogItem(payload)
           .pipe(map((catalogItem) => ({ ok: true, catalogItem })));
 
     return firstValueFrom(

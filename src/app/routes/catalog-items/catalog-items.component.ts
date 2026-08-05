@@ -4,6 +4,7 @@ import {
   effect,
   inject,
   input,
+  Injector,
   numberAttribute,
   signal,
   TemplateRef,
@@ -67,6 +68,7 @@ export class CatalogItemsComponent {
   private readonly dialog = inject(Dialog);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly injector = inject(Injector);
 
   protected readonly LucidePlus = LucidePlus;
   protected readonly LucidePencil = LucidePencil;
@@ -99,8 +101,8 @@ export class CatalogItemsComponent {
   ]);
 
   constructor() {
-    const initialPage = Number(this.pageParam());
-    if (Number.isInteger(initialPage) && initialPage > 1) {
+    const initialPage = this.pageParam();
+    if (initialPage > 1) {
       this.store.setPage(initialPage);
     }
 
@@ -134,24 +136,19 @@ export class CatalogItemsComponent {
   }
 
   private openFormDialog(data: CatalogItemFormDialogData) {
-    const dialogRef = this.dialog.open<CatalogItem | undefined, CatalogItemFormDialogData>(
+    // The dialog itself updates the store on save (see CatalogItemsStore
+    // createCatalogItem/updateCatalogItem), so there's nothing to do here on close.
+    // `injector` is required so the dialog's child injector can resolve the
+    // component-scoped CatalogItemsStore (CDK Dialog otherwise uses the root injector).
+    this.dialog.open<CatalogItem | undefined, CatalogItemFormDialogData>(
       CatalogItemFormDialogComponent,
       {
         data,
+        injector: this.injector,
         ariaModal: true,
         ariaLabelledBy: 'catalog-item-form-dialog-title',
       },
     );
-
-    dialogRef.closed.subscribe((result) => {
-      if (!result) {
-        return;
-      }
-      if (!data.catalogItem) {
-        this.store.refresh();
-        return;
-      }
-    });
   }
 
   protected openDeleteDialog(catalogItem: CatalogItem) {

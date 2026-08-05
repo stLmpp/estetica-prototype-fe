@@ -7,12 +7,12 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
-import { setAllEntities, withEntities } from '@ngrx/signals/entities';
+import { setAllEntities, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
 import { extractApiErrorMessage } from '../../model/api-error';
-import { CatalogItem } from './catalog-item.model';
+import { CatalogItem, CatalogItemPayload } from './catalog-item.model';
 import { CatalogItemService } from './catalog-item.service';
 
 export const PAGE_SIZE = 10;
@@ -85,6 +85,24 @@ export const CatalogItemsStore = signalStore(
 
     refresh() {
       patchState(store, (state) => ({ reloadTrigger: state.reloadTrigger + 1 }));
+    },
+
+    createCatalogItem(payload: CatalogItemPayload) {
+      // A new item can land on any page depending on sort order, so refetch.
+      return catalogItemService.create(payload).pipe(
+        tap(() => {
+          patchState(store, (state) => ({ reloadTrigger: state.reloadTrigger + 1 }));
+        }),
+      );
+    },
+
+    updateCatalogItem(catalogItemId: string, payload: Partial<CatalogItemPayload>) {
+      // The item's position in the current page doesn't change, so patch in place.
+      return catalogItemService.update(catalogItemId, payload).pipe(
+        tap(() => {
+          patchState(store, updateEntity({ id: catalogItemId, changes: payload }));
+        }),
+      );
     },
 
     deleteCatalogItem(catalogItem: CatalogItem) {
