@@ -20,6 +20,12 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Prefer type inference when the type is obvious
 - Avoid the `any` type; use `unknown` when type is uncertain
 
+## Code Comments
+
+- Only add a comment when it's absolutely necessary to explain **why** something was done a certain way (a non-obvious constraint, a workaround, a trade-off). Never add a comment that just restates **what** the code does.
+- Write self-explanatory code instead: readable variable/function names, small focused functions, and a clear top-to-bottom flow should make the code understandable without narration.
+- If you feel the need to explain what a block does, prefer extracting it into a well-named function/variable over adding a comment.
+
 ## Angular Best Practices
 
 - Always use standalone components over NgModules
@@ -53,6 +59,13 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use `computed()` for derived state
 - Keep state transformations pure and predictable
 - Do NOT use `mutate` on signals, use `update` or `set` instead
+- For state shared across a route/feature (e.g. a list page and the create/edit dialog it opens), use an NgRx SignalStore (`@ngrx/signals`) instead of ad-hoc services or component-level effects:
+  - Build the store with `signalStore()` composed from `withState`, `withComputed`, and `withMethods`. Use `withEntities()` (`@ngrx/signals/entities`) for collections instead of a plain array in state.
+  - Update state only through `patchState()` and the entity updaters (`setAllEntities`, `addEntity`, `updateEntity`, `removeEntity`, `prependEntity`, etc.). Never mutate store state directly.
+  - Provide feature stores at the component level (`providers: [MyStore]`), not `providedIn: 'root'`, unless the state is genuinely app-wide.
+  - Wrap async side effects (HTTP calls, debounced search, etc.) in `rxMethod()` (`@ngrx/signals/rxjs-interop`) rather than driving them from a manual `effect()` in a component. Use `signalMethod()` instead when the side effect is synchronous and doesn't need RxJS operators.
+  - Connect a store's `rxMethod`/`signalMethod` reactively by calling it with a `Signal`/`computed()` (typically from `withHooks({ onInit })`), so state changes drive the effect declaratively — don't call the store's action methods imperatively from a component `effect()` just to trigger a refetch.
+  - If a component that provides a store opens an Angular CDK `Dialog`, pass `injector: this.injector` (via `inject(Injector)`) in `Dialog.open()`'s config. CDK Dialog otherwise resolves the dialog content against the root injector, which cannot see component-level providers like the store.
 
 ## Templates
 

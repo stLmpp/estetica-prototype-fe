@@ -26,7 +26,12 @@
   <app-alert error>{{ message }}</app-alert>
 }
 
-<app-table [columns]="columns()" [data]="store.entities()" [trackBy]="trackBy" />
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
 
 @if (!store.loading() && store.entities().length === 0) {
   <div

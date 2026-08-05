@@ -7,7 +7,13 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
-import { setAllEntities, updateEntity, withEntities } from '@ngrx/signals/entities';
+import {
+  prependEntity,
+  removeEntity,
+  setAllEntities,
+  updateEntity,
+  withEntities,
+} from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
@@ -83,21 +89,22 @@ export const CatalogItemsStore = signalStore(
       patchState(store, { page });
     },
 
-    refresh() {
-      patchState(store, (state) => ({ reloadTrigger: state.reloadTrigger + 1 }));
-    },
-
     createCatalogItem(payload: CatalogItemPayload) {
-      // A new item can land on any page depending on sort order, so refetch.
       return catalogItemService.create(payload).pipe(
-        tap(() => {
-          patchState(store, (state) => ({ reloadTrigger: state.reloadTrigger + 1 }));
+        tap((catalogItem) => {
+          patchState(store, prependEntity(catalogItem));
+          patchState(store, (state) => ({ total: state.total + 1 }));
+
+          const entities = store.entities();
+          const lastEntity = entities.at(-1);
+          if (entities.length > PAGE_SIZE && lastEntity) {
+            patchState(store, removeEntity(lastEntity.id));
+          }
         }),
       );
     },
 
     updateCatalogItem(catalogItemId: string, payload: Partial<CatalogItemPayload>) {
-      // The item's position in the current page doesn't change, so patch in place.
       return catalogItemService.update(catalogItemId, payload).pipe(
         tap(() => {
           patchState(store, updateEntity({ id: catalogItemId, changes: payload }));
@@ -106,9 +113,13 @@ export const CatalogItemsStore = signalStore(
     },
 
     deleteCatalogItem(catalogItem: CatalogItem) {
+      patchState(store, { loading: true, errorMessage: null });
+
       return catalogItemService.delete(catalogItem.id).pipe(
         tapResponse({
           next: () => {
+            // Left true here: the page/reloadTrigger change below re-triggers `load`,
+            // which owns turning it back off once the refreshed list arrives.
             const isLastOnPage = store.entities().length === 1 && store.page() > 1;
             if (isLastOnPage) {
               patchState(store, (state) => ({ page: state.page - 1 }));
@@ -118,6 +129,7 @@ export const CatalogItemsStore = signalStore(
           },
           error: (error: unknown) => {
             patchState(store, {
+              loading: false,
               errorMessage: extractApiErrorMessage(error, DEFAULT_DELETE_ERROR_MESSAGE),
             });
           },
@@ -127,7 +139,6 @@ export const CatalogItemsStore = signalStore(
   })),
   withHooks({
     onInit(store) {
-      // Reactively reload whenever name, page, or an explicit refresh() changes.
       store.load(
         computed(() => {
           store.reloadTrigger();

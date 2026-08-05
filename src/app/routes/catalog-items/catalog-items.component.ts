@@ -26,6 +26,7 @@ import { IconComponent } from '../../components/icon/icon.component';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
 import { InputDirective } from '../../components/input/input.directive';
 import { LabelComponent } from '../../components/label/label.component';
+import { LoadingOverlayDirective } from '../../components/loading-overlay/loading-overlay.directive';
 import { PaginatorComponent } from '../../components/paginator/paginator.component';
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
@@ -51,6 +52,7 @@ const SEARCH_DEBOUNCE_MS = 300;
     IconComponent,
     InputDirective,
     LabelComponent,
+    LoadingOverlayDirective,
     PaginatorComponent,
     TableComponent,
   ],
