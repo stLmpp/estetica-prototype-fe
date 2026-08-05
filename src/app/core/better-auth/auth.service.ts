@@ -2,14 +2,12 @@ import { inject, Service } from '@angular/core';
 import { AuthClient } from './better-auth.provider';
 import { from, map, skip, Subject, tap } from 'rxjs';
 import { AuthStateSession, AuthStore } from './auth.store';
-import { AuthQuery } from './auth.query';
 import { refreshMap } from '../../shared/operators/refresh-map';
 
 @Service()
 export class AuthService {
   private readonly client = inject(AuthClient);
   private readonly authStore = inject(AuthStore);
-  private readonly authQuery = inject(AuthQuery);
   private readonly useSession$ = new Subject<AuthStateSession | null>();
 
   constructor() {
@@ -20,7 +18,7 @@ export class AuthService {
       this.useSession$.next(value.data);
     });
     this.useSession$.pipe(skip(1)).subscribe((data) => {
-      const currentSession = this.authQuery.session()?.session;
+      const currentSession = this.authStore.session()?.session;
       if (data && data.session.id === currentSession?.id) {
         return;
       }

@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthQuery } from '../better-auth/auth.query';
+import { AuthStore } from '../better-auth/auth.store';
 import { AuthService } from '../better-auth/auth.service';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
 import { LucideLogOut, LucideMenu, LucideMoon, LucideSun } from '@lucide/angular';
@@ -50,7 +50,7 @@ export class HeaderComponent {
     });
   }
 
-  private readonly authQuery = inject(AuthQuery);
+  private readonly authStore = inject(AuthStore);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly renderer = inject(Renderer2);
@@ -59,9 +59,9 @@ export class HeaderComponent {
 
   protected readonly theme = signal<'dark' | 'light'>('dark');
 
-  protected readonly user = computed(() => this.authQuery.session()?.user);
-  protected readonly organization = computed(() => this.authQuery.session()?.activeOrganization);
-  protected readonly isLoggedIn = this.authQuery.isLoggedIn;
+  protected readonly user = computed(() => this.authStore.session()?.user);
+  protected readonly organization = computed(() => this.authStore.session()?.activeOrganization);
+  protected readonly isLoggedIn = this.authStore.isLoggedIn;
 
   protected logout() {
     this.authService

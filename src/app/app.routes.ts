@@ -1,41 +1,41 @@
 import { Router, Routes } from '@angular/router';
 import { inject } from '@angular/core';
-import { AuthQuery } from './core/better-auth/auth.query';
+import { AuthStore } from './core/better-auth/auth.store';
 import { OrganizationService } from './core/better-auth/organization.service';
+
+function requireAuthenticatedWithOrganization() {
+  const authStore = inject(AuthStore);
+  const router = inject(Router);
+
+  const session = authStore.session();
+
+  if (!session) {
+    return router.createUrlTree(['/login']);
+  }
+
+  if (!session.activeOrganization) {
+    return router.createUrlTree(['/organizations']);
+  }
+
+  return true;
+}
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
     loadComponent: () => import('./routes/home/home.component').then((m) => m.HomeComponent),
-    canActivate: [
-      () => {
-        const authQuery = inject(AuthQuery);
-        const router = inject(Router);
-
-        const session = authQuery.session();
-
-        if (!session) {
-          return router.createUrlTree(['/login']);
-        }
-
-        if (!session.activeOrganization) {
-          return router.createUrlTree(['/organizations']);
-        }
-
-        return true;
-      },
-    ],
+    canActivate: [requireAuthenticatedWithOrganization],
   },
   {
     path: 'login',
     loadComponent: () => import('./routes/login/login.component').then((m) => m.LoginComponent),
     canActivate: [
       () => {
-        const authQuery = inject(AuthQuery);
+        const authStore = inject(AuthStore);
         const router = inject(Router);
 
-        const session = authQuery.session();
+        const session = authStore.session();
 
         if (!session) {
           return true;
@@ -57,10 +57,10 @@ export const routes: Routes = [
       ),
     canActivate: [
       () => {
-        const authQuery = inject(AuthQuery);
+        const authStore = inject(AuthStore);
         const router = inject(Router);
 
-        const session = authQuery.session();
+        const session = authStore.session();
 
         if (!session) {
           return router.createUrlTree(['/login']);
@@ -74,27 +74,8 @@ export const routes: Routes = [
   {
     path: 'catalog-items',
     loadComponent: () =>
-      import('./routes/catalog-items/catalog-items.component').then(
-        (m) => m.CatalogItemsComponent,
-      ),
-    canActivate: [
-      () => {
-        const authQuery = inject(AuthQuery);
-        const router = inject(Router);
-
-        const session = authQuery.session();
-
-        if (!session) {
-          return router.createUrlTree(['/login']);
-        }
-
-        if (!session.activeOrganization) {
-          return router.createUrlTree(['/organizations']);
-        }
-
-        return true;
-      },
-    ],
+      import('./routes/catalog-items/catalog-items.component').then((m) => m.CatalogItemsComponent),
+    canActivate: [requireAuthenticatedWithOrganization],
   },
   {
     path: 'raw-ds',

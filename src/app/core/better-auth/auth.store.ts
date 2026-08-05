@@ -1,5 +1,5 @@
-import { Service } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { computed } from '@angular/core';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { User } from 'better-auth/client';
 import { BetterAuthOrganization, BetterAuthSession } from './better-auth.provider';
 
@@ -10,60 +10,59 @@ export interface AuthStateSession {
 }
 
 export interface AuthState {
-  session?: AuthStateSession;
+  session: AuthStateSession | null;
   organizations: BetterAuthOrganization[];
 }
 
-@Service()
-export class AuthStore {
-  static readonly defaultState: AuthState = {
-    organizations: [],
-  };
+const initialAuthState: AuthState = {
+  session: null,
+  organizations: [],
+};
 
-  readonly #state$ = new BehaviorSubject<AuthState>(AuthStore.defaultState);
+function withPreservedActiveOrganization(
+  currentSession: AuthStateSession | null,
+  nextSession: AuthStateSession,
+): AuthStateSession {
+  const sameOrganizationStillActive =
+    !nextSession.activeOrganization &&
+    !!currentSession?.activeOrganization &&
+    currentSession.activeOrganization.id === nextSession.session.activeOrganizationId;
 
-  readonly state$ = this.#state$.asObservable();
-
-  private update(updater: (state: AuthState) => Partial<AuthState>) {
-    const state = this.#state$.value;
-    const newState = { ...state, ...updater(state) };
-    this.#state$.next(newState);
+  if (!sameOrganizationStillActive) {
+    return nextSession;
   }
 
-  setUserSession(userSession: AuthStateSession) {
-    this.update((state) => {
-      const partialState: Partial<AuthState> = {
-        session: userSession,
-      };
-      if (
-        !userSession.activeOrganization &&
-        state.session?.activeOrganization &&
-        userSession.session &&
-        state.session?.activeOrganization?.id === userSession.session?.activeOrganizationId
-      ) {
-        partialState.session!.activeOrganization = state.session.activeOrganization;
-      }
-      return partialState;
-    });
-  }
-
-  setActiveOrganization(organization: BetterAuthOrganization) {
-    this.update((state) => {
-      if (!state.session) {
-        console.warn('Organization cannot be set before user session');
-        return {};
-      }
-      return {
-        session: { ...state.session, activeOrganization: organization },
-      };
-    });
-  }
-
-  setOrganizations(organizations: BetterAuthOrganization[]) {
-    this.update(() => ({ organizations }));
-  }
-
-  reset() {
-    this.#state$.next(AuthStore.defaultState);
-  }
+  return { ...nextSession, activeOrganization: currentSession.activeOrganization };
 }
+
+export const AuthStore = signalStore(
+  { providedIn: 'root' },
+  withState<AuthState>(initialAuthState),
+  withComputed(({ session }) => ({
+    isLoggedIn: computed(() => !!session()),
+  })),
+  withMethods((store) => ({
+    setUserSession(userSession: AuthStateSession) {
+      patchState(store, (state) => ({
+        session: withPreservedActiveOrganization(state.session, userSession),
+      }));
+    },
+
+    setActiveOrganization(organization: BetterAuthOrganization) {
+      const session = store.session();
+      if (!session) {
+        console.warn('Organization cannot be set before user session');
+        return;
+      }
+      patchState(store, { session: { ...session, activeOrganization: organization } });
+    },
+
+    setOrganizations(organizations: BetterAuthOrganization[]) {
+      patchState(store, { organizations });
+    },
+
+    reset() {
+      patchState(store, initialAuthState);
+    },
+  })),
+);

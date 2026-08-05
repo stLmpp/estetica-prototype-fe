@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { AuthQuery } from '../../core/better-auth/auth.query';
+import { AuthStore } from '../../core/better-auth/auth.store';
 import { OrganizationService } from '../../core/better-auth/organization.service';
 import { BetterAuthOrganization } from '../../core/better-auth/better-auth.provider';
 import { Router } from '@angular/router';
@@ -16,12 +16,12 @@ import { Observable, of, switchMap } from 'rxjs';
   },
 })
 export class OrganizationsComponent {
-  private readonly authQuery = inject(AuthQuery);
+  private readonly authStore = inject(AuthStore);
   private readonly organizationService = inject(OrganizationService);
   private readonly router = inject(Router);
 
-  readonly organizations = this.authQuery.organizations;
-  readonly activeOrganization = computed(() => this.authQuery.session()?.activeOrganization);
+  readonly organizations = this.authStore.organizations;
+  readonly activeOrganization = computed(() => this.authStore.session()?.activeOrganization);
 
   protected selectOrganization(organization: BetterAuthOrganization) {
     const setActive$: Observable<unknown> =
