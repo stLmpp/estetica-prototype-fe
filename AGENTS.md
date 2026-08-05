@@ -36,6 +36,21 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use `NgOptimizedImage` for all static images.
   - `NgOptimizedImage` does not work for inline base64 images.
 
+## Server-Side Rendering (SSR)
+
+This app is server-rendered (`provideClientHydration()` in `app.config.ts`). Every feature MUST be built with SSR in mind, not just verified in the browser — the server render is what search engines and first-paint performance depend on, so a route that only becomes meaningful after client-only code runs defeats the purpose of SSR.
+
+- Never reference browser globals (`window`, `document`, `localStorage`, `sessionStorage`, `navigator`, etc.) at the top level of a component/service/directive constructor or field initializer — they don't exist on the server and will throw during SSR.
+- Only use browser APIs once you've confirmed you're actually in the browser:
+  - For code that must run once, after the view is in the DOM (reading `document`, sizing elements, etc.), use `afterNextRender()`/`afterRender()` — it never runs on the server.
+  - For conditional logic that needs to differ between server and client (not just "skip on server"), inject `PLATFORM_ID` and branch with `isPlatformBrowser()` / `isPlatformServer()` from `@angular/common`. See `header.component.ts`'s theme handling for the pattern: read the initial theme from `SsrCookieService` on the server, then reconcile with `document.documentElement` inside `afterNextRender()` on the client.
+- Prefer SSR-safe abstractions over raw browser APIs so code works unmodified on both sides:
+  - Use `Renderer2` (not direct DOM manipulation) when a component/directive needs to create or mutate DOM nodes — see `LoadingOverlayDirective`.
+  - Use `SsrCookieService` (`ngx-cookie-service-ssr`) instead of `document.cookie` for cookie access.
+- When an HTTP call made during SSR needs the incoming request's cookies (e.g. for auth), inject Angular's `REQUEST` token and forward the relevant headers — see `with-credentials.interceptor.ts` and `small-ttl-cache.interceptor.ts`.
+- Use `TransferState` to pass data fetched during SSR to the client instead of re-fetching it after hydration — see the app initializer in `app.config.ts` and `small-ttl-cache.interceptor.ts`.
+- Before considering a feature done, sanity-check that its route actually renders real content server-side (view source / disable JS), not just an empty shell that only fills in client-side.
+
 ## Accessibility Requirements
 
 - It MUST pass all AXE checks.
@@ -73,6 +88,23 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
 - Use the async pipe to handle observables
 - Do not assume globals like (`new Date()`) are available.
+
+### Deferred Loading (`@defer`)
+
+Use `@defer` to split a template's heavy or non-critical dependencies (their component classes, and everything those components import) into a separate JS chunk that's fetched later instead of in the initial bundle. It exists to shrink what has to be downloaded/parsed/executed before the page is usable — smaller initial bundle, faster first load, better Core Web Vitals (LCP/TBT).
+
+- Reach for it around content that isn't needed for the initial view: below-the-fold sections, secondary widgets, heavy components (charts, rich text editors, large third-party embeds), or anything gated behind user action.
+- Pick the trigger to match why you're deferring:
+  - `on viewport` — below-the-fold content that should load as the user scrolls to it.
+  - `on interaction` / `on hover` — content tied to a specific element the user hasn't engaged with yet.
+  - `on idle` (the default) — non-critical content that should still load soon, just not before the main view.
+  - `on timer(Xms)` — rarely; prefer an explicit trigger over an arbitrary delay.
+  - `when <condition>` — drive it off a signal/expression when none of the built-in triggers fit.
+- Pair it with `@placeholder`, `@loading`, and `@error` sub-blocks so there's no layout jump and the user gets feedback while the chunk loads, instead of leaving a hole in the page.
+- Do NOT defer content that's needed for the initial render or interaction to make sense (e.g. primary page content, anything above the fold).
+- SSR caveat (see the SSR section above): Incremental Hydration is enabled by default in this app (`provideClientHydration()` has it on unless `withNoIncrementalHydration()` is added), but it only kicks in for a given `@defer` block if that block has an explicit `hydrate on`/`hydrate when`/`hydrate never` trigger. A `@defer` block with only a regular trigger (`on viewport`, `on idle`, etc. — no `hydrate` trigger) still renders just its `@placeholder` on the server, same as without incremental hydration.
+  - For content that's below the fold or truly non-critical, a regular trigger with no `hydrate` trigger is fine — the placeholder-then-swap behavior is expected there.
+  - For SEO-critical or above-the-fold content you still want to defer the JS for, add a `hydrate` trigger (e.g. `@defer (hydrate on idle)`) so Angular renders the real content server-side and only defers *hydrating* it — content is visible/crawlable immediately, with no layout shift, while the JS still loads lazily.
 
 ## Services
 
