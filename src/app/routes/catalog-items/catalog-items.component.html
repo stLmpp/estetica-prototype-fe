@@ -22,13 +22,13 @@
   />
 </app-form-field>
 
-@if (errorMessage(); as message) {
+@if (store.errorMessage(); as message) {
   <app-alert error>{{ message }}</app-alert>
 }
 
-<app-table [columns]="columns()" [data]="items()" [trackBy]="trackBy" />
+<app-table [columns]="columns()" [data]="store.entities()" [trackBy]="trackBy" />
 
-@if (!loading() && items().length === 0) {
+@if (!store.loading() && store.entities().length === 0) {
   <div
     class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
   >
@@ -38,12 +38,12 @@
 
 <app-paginator
   mode="compact"
-  [page]="page()"
+  [page]="store.page()"
   (pageChange)="goToPage($event)"
   [pageSize]="pageSize"
-  [length]="total()"
+  [length]="store.total()"
   [showPageSizeSelector]="false"
-  [disabled]="loading()"
+  [disabled]="store.loading()"
 />
 
 <ng-template #statusTemplate let-row="row">

@@ -27,7 +27,11 @@
       id="catalog-item-price"
       type="text"
       inputmode="decimal"
-      placeholder="19.90"
+      mask="separator.2"
+      separatorLimit="99999999"
+      prefix="R$ "
+      [allowNegativeNumbers]="false"
+      placeholder="19,90"
     />
     <app-hint start>Opcional. Use ponto para casas decimais, ex: 19.90</app-hint>
   </app-form-field>
@@ -41,14 +45,10 @@
   }
 
   <div class="mt-2 flex justify-end gap-3">
-    <button btn btnOutline type="button" (click)="cancel()">Cancelar</button>
-    <button
-      btn
-      btnPrimary
-      type="submit"
-      [btnLoading]="f().submitting()"
-      [disabled]="f().submitting()"
-    >
+    <button btn btnOutline type="button" [disabled]="f().submitting()" (click)="cancel()">
+      Cancelar
+    </button>
+    <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">
       {{ isEditing ? 'Salvar' : 'Criar' }}
     </button>
   </div>

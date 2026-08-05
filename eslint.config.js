@@ -39,6 +39,7 @@ module.exports = defineConfig([
         },
       ],
       '@typescript-eslint/no-explicit-any': 'off',
+      '@angular-eslint/no-input-rename': 'off',
     },
   },
   {

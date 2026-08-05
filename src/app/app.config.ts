@@ -32,6 +32,7 @@ import { OrganizationService } from './core/better-auth/organization.service';
 import { AuthStateSession } from './core/better-auth/auth.store';
 import { map, of, switchMap, tap } from 'rxjs';
 import { withCredentialsInterceptor } from './core/with-credentials.interceptor';
+import { provideEnvironmentNgxMask } from 'ngx-mask';
 
 const routerFeatures: RouterFeatures[] = [
   withPreloading(PreloadAllModules),
@@ -53,6 +54,19 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([smallTtlCacheInterceptor(), withCredentialsInterceptor()])),
     provideClientHydration(),
     provideBetterAuthClient(),
+    provideEnvironmentNgxMask({
+      decimalMarker: ',',
+      thousandSeparator: '.',
+      typeFromDecimals: true,
+      dropSpecialCharacters: true,
+      validation: false,
+      outputTransformFn: (value) => {
+        if (value === null || value === undefined) {
+          return value;
+        }
+        return String(value);
+      },
+    }),
     provideAppInitializer(() => {
       const authService = inject(AuthService);
       const organization = inject(OrganizationService);

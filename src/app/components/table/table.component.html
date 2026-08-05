@@ -3,24 +3,30 @@
     <ng-container [cdkColumnDef]="column.key | string">
       <th cdk-header-cell *cdkHeaderCellDef>{{ column.title }}</th>
       <td cdk-cell *cdkCellDef="let row" (click)="onCellClick(row, column)">
-        @switch (column.type) {
-          @case ('template') {
-            <ng-container
-              [ngTemplateOutlet]="column.template()"
-              [ngTemplateOutletContext]="{ row, column }"
-            ></ng-container>
-          }
-          @case ('date') {
-            {{ row[column.key] | date: column.format }}
-          }
-          @case ('number') {
-            {{ row[column.key] | number: column.digitsInfo }}
-          }
-          @case ('currency') {
-            {{ row[column.key] | currency: column.currency }}
-          }
-          @default {
-            {{ row[column.key] }}
+        @let value = row[column.key];
+        @let isNullish = value === null || value === undefined;
+        @if (isNullish && column.skipFormatDefaultValue) {
+          {{ column.defaultValue }}
+        } @else {
+          @switch (column.type) {
+            @case ('template') {
+              <ng-container
+                [ngTemplateOutlet]="column.template()"
+                [ngTemplateOutletContext]="{ row, column }"
+              ></ng-container>
+            }
+            @case ('date') {
+              {{ value | date: column.format }}
+            }
+            @case ('number') {
+              {{ value | number: column.digitsInfo }}
+            }
+            @case ('currency') {
+              {{ value | currency: column.currency }}
+            }
+            @default {
+              {{ value }}
+            }
           }
         }
       </td>

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
-import { catchError, map, Observable, of } from 'rxjs';
+import { form, FormField, FormRoot, required } from '@angular/forms/signals';
+import { catchError, firstValueFrom, map, Observable, of } from 'rxjs';
 import { ButtonComponent } from '../../../components/button/button.component';
 import { FormFieldComponent } from '../../../components/form-field/form-field.component';
 import { HintComponent } from '../../../components/hint/hint.component';
@@ -12,6 +12,7 @@ import { SwitchComponent } from '../../../components/switch/switch.component';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { CatalogItem, CatalogItemPayload, CatalogItemType } from '../catalog-item.model';
 import { CatalogItemService } from '../catalog-item.service';
+import { NgxMaskDirective } from 'ngx-mask';
 
 export interface CatalogItemFormDialogData {
   catalogItem?: CatalogItem;
@@ -19,7 +20,6 @@ export interface CatalogItemFormDialogData {
 
 type SaveResult = { ok: true; catalogItem: CatalogItem } | { ok: false; message: string };
 
-const DEFAULT_PRICE_PATTERN = /^\d+(\.\d{1,2})?$/;
 const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar o item. Tente novamente.';
 
 @Component({
@@ -34,6 +34,7 @@ const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar o item. Tente novamente
     LabelComponent,
     SelectDirective,
     SwitchComponent,
+    NgxMaskDirective,
   ],
   templateUrl: './catalog-item-form-dialog.component.html',
   host: {
@@ -61,13 +62,6 @@ export class CatalogItemFormDialogComponent {
     (schema) => {
       required(schema.name, { message: 'Nome é obrigatório' });
       required(schema.itemType, { message: 'Tipo é obrigatório' });
-      validate(schema.defaultPrice, ({ value }) => {
-        const price = value().trim();
-        if (!price || DEFAULT_PRICE_PATTERN.test(price)) {
-          return null;
-        }
-        return { kind: 'pattern', message: 'Preço deve ser um valor válido, ex: 19.90' };
-      });
     },
     {
       submission: {
@@ -78,7 +72,7 @@ export class CatalogItemFormDialogComponent {
           const payload: CatalogItemPayload = {
             name: value.name.trim(),
             itemType: value.itemType,
-            defaultPrice: value.defaultPrice.trim() || undefined,
+            defaultPrice: value.defaultPrice.trim() || null,
             active: value.active,
           };
 
@@ -98,26 +92,25 @@ export class CatalogItemFormDialogComponent {
   private save(payload: CatalogItemPayload): Promise<SaveResult> {
     const request$: Observable<SaveResult> = this.data.catalogItem
       ? this.catalogItemService.update(this.data.catalogItem.id, payload).pipe(
-          map(
-            (): SaveResult => ({
-              ok: true,
-              catalogItem: { ...this.data.catalogItem!, ...payload },
-            }),
-          ),
+          map((): SaveResult => ({
+            ok: true,
+            catalogItem: { ...this.data.catalogItem!, ...payload },
+          })),
         )
       : this.catalogItemService
           .create(payload)
-          .pipe(map((catalogItem): SaveResult => ({ ok: true, catalogItem })));
+          .pipe(map((catalogItem) => ({ ok: true, catalogItem })));
 
-    return new Promise((resolve) => {
-      request$
-        .pipe(
-          catchError((error: unknown) =>
-            of<SaveResult>({ ok: false, message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE) }),
-          ),
-        )
-        .subscribe((result) => resolve(result));
-    });
+    return firstValueFrom(
+      request$.pipe(
+        catchError((error) =>
+          of<SaveResult>({
+            ok: false,
+            message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
+          }),
+        ),
+      ),
+    );
   }
 
   protected cancel() {

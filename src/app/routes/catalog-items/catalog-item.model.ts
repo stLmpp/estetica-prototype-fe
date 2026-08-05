@@ -9,14 +9,14 @@ export interface CatalogItem {
   id: string;
   name: string;
   itemType: CatalogItemType;
-  defaultPrice?: string;
+  defaultPrice?: string | null;
   active: boolean;
 }
 
 export interface CatalogItemPayload {
   name: string;
   itemType: CatalogItemType;
-  defaultPrice?: string;
+  defaultPrice?: string | null;
   active: boolean;
 }
 

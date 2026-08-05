@@ -1,12 +1,25 @@
-import { Component, computed, effect, inject, signal, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  numberAttribute,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Dialog } from '@angular/cdk/dialog';
 import { debounce, form, FormField } from '@angular/forms/signals';
 import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
-import { catchError, finalize, of } from 'rxjs';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { BadgeComponent } from '../../components/badge/badge.component';
 import { ButtonComponent } from '../../components/button/button.component';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../../components/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../components/confirm-dialog/confirm-dialog.component';
 import { FormFieldComponent } from '../../components/form-field/form-field.component';
 import { IconComponent } from '../../components/icon/icon.component';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
@@ -16,16 +29,14 @@ import { PaginatorComponent } from '../../components/paginator/paginator.compone
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
 import { TableComponent } from '../../components/table/table.component';
-import { extractApiErrorMessage } from '../../model/api-error';
 import {
   CatalogItemFormDialogComponent,
   CatalogItemFormDialogData,
 } from './catalog-item-form-dialog/catalog-item-form-dialog.component';
-import { CatalogItem, ListCatalogItemResult } from './catalog-item.model';
-import { CatalogItemService } from './catalog-item.service';
+import { CatalogItem } from './catalog-item.model';
+import { CatalogItemsStore, PAGE_SIZE } from './catalog-items.store';
 
-const PAGE_SIZE = 10;
-const DEFAULT_ERROR_MESSAGE = 'Não foi possível carregar os itens do catálogo.';
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-catalog-items',
@@ -46,26 +57,26 @@ const DEFAULT_ERROR_MESSAGE = 'Não foi possível carregar os itens do catálogo
   host: {
     class: 'mx-auto flex max-w-5xl flex-col gap-6 p-6',
   },
+  providers: [CatalogItemsStore],
 })
 export class CatalogItemsComponent {
-  private readonly catalogItemService = inject(CatalogItemService);
+  readonly pageParam = input(1, { alias: 'page', transform: (value) => numberAttribute(value, 1) });
+  readonly searchParam = input('', { alias: 'search' });
+
+  protected readonly store = inject(CatalogItemsStore);
   private readonly dialog = inject(Dialog);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   protected readonly LucidePlus = LucidePlus;
   protected readonly LucidePencil = LucidePencil;
   protected readonly LucideTrash2 = LucideTrash2;
-
-  protected readonly searchModel = signal({ name: '' });
-  protected readonly searchForm = form(this.searchModel, (schema) => {
-    debounce(schema.name, 300);
-  });
-
-  protected readonly page = signal(1);
   protected readonly pageSize = PAGE_SIZE;
-  protected readonly items = signal<CatalogItem[]>([]);
-  protected readonly total = signal(0);
-  protected readonly loading = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
+
+  protected readonly searchModel = signal({ name: this.searchParam() });
+  protected readonly searchForm = form(this.searchModel, (schema) => {
+    debounce(schema.name, SEARCH_DEBOUNCE_MS);
+  });
 
   protected readonly trackBy = (catalogItem: CatalogItem) => catalogItem.id;
 
@@ -75,22 +86,43 @@ export class CatalogItemsComponent {
   protected readonly columns = computed<ColDef<CatalogItem>[]>(() => [
     { key: 'name', title: 'Nome' },
     { key: 'itemType', title: 'Tipo' },
-    { key: 'defaultPrice', title: 'Preço', type: 'currency', currency: 'BRL' },
+    {
+      key: 'defaultPrice',
+      title: 'Preço',
+      type: 'currency',
+      currency: 'BRL',
+      defaultValue: '-',
+      skipFormatDefaultValue: true,
+    },
     { key: 'active', title: 'Status', type: 'template', template: this.statusTemplate },
     { key: 'id', title: 'Ações', type: 'template', template: this.actionsTemplate },
   ]);
 
   constructor() {
+    const initialPage = Number(this.pageParam());
+    if (Number.isInteger(initialPage) && initialPage > 1) {
+      this.store.setPage(initialPage);
+    }
+
+    this.store.setSearch(computed(() => this.searchForm.name().value()));
+
     effect(() => {
-      this.searchForm.name().value();
-      this.page.set(1);
-      this.fetchItems();
+      const page = this.store.page();
+      const search = this.store.name();
+      this.router.navigate([], {
+        relativeTo: this.activatedRoute,
+        queryParams: {
+          page: page > 1 ? page : null,
+          search: search || null,
+        },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
     });
   }
 
   protected goToPage(page: number) {
-    this.page.set(page);
-    this.fetchItems();
+    this.store.setPage(page);
   }
 
   protected openCreateDialog() {
@@ -112,8 +144,12 @@ export class CatalogItemsComponent {
     );
 
     dialogRef.closed.subscribe((result) => {
-      if (result) {
-        this.fetchItems();
+      if (!result) {
+        return;
+      }
+      if (!data.catalogItem) {
+        this.store.refresh();
+        return;
       }
     });
   }
@@ -133,45 +169,9 @@ export class CatalogItemsComponent {
     });
 
     dialogRef.closed.subscribe((confirmed) => {
-      if (!confirmed) {
-        return;
+      if (confirmed) {
+        this.store.deleteCatalogItem(catalogItem).subscribe();
       }
-
-      this.catalogItemService.delete(catalogItem.id).subscribe({
-        next: () => {
-          if (this.items().length === 1 && this.page() > 1) {
-            this.page.update((page) => page - 1);
-          }
-          this.fetchItems();
-        },
-        error: (error: unknown) => {
-          this.errorMessage.set(extractApiErrorMessage(error, 'Não foi possível excluir o item.'));
-        },
-      });
     });
-  }
-
-  private fetchItems() {
-    this.loading.set(true);
-    this.errorMessage.set(null);
-
-    const name = this.searchForm.name().value().trim();
-
-    this.catalogItemService
-      .list({ page: this.page(), limit: PAGE_SIZE, name: name || undefined })
-      .pipe(
-        catchError((error: unknown) => {
-          this.errorMessage.set(extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE));
-          return of<ListCatalogItemResult>({
-            items: [],
-            meta: { total: 0, page: 1, limit: PAGE_SIZE },
-          });
-        }),
-        finalize(() => this.loading.set(false)),
-      )
-      .subscribe((result) => {
-        this.items.set(result.items);
-        this.total.set(result.meta.total);
-      });
   }
 }

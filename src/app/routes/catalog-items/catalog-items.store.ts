@@ -1,0 +1,121 @@
+import { computed, inject } from '@angular/core';
+import {
+  patchState,
+  signalMethod,
+  signalStore,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
+import { setAllEntities, withEntities } from '@ngrx/signals/entities';
+import { rxMethod } from '@ngrx/signals/rxjs-interop';
+import { tapResponse } from '@ngrx/operators';
+import { pipe, switchMap, tap } from 'rxjs';
+import { extractApiErrorMessage } from '../../model/api-error';
+import { CatalogItem } from './catalog-item.model';
+import { CatalogItemService } from './catalog-item.service';
+
+export const PAGE_SIZE = 10;
+const DEFAULT_ERROR_MESSAGE = 'Não foi possível carregar os itens do catálogo.';
+const DEFAULT_DELETE_ERROR_MESSAGE = 'Não foi possível excluir o item.';
+
+interface CatalogItemsMeta {
+  total: number;
+  page: number;
+  name: string;
+  reloadTrigger: number;
+  loading: boolean;
+  errorMessage: string | null;
+}
+
+const initialMeta: CatalogItemsMeta = {
+  total: 0,
+  page: 1,
+  name: '',
+  reloadTrigger: 0,
+  loading: true,
+  errorMessage: null,
+};
+
+interface LoadParams {
+  name: string;
+  page: number;
+}
+
+export const CatalogItemsStore = signalStore(
+  withEntities<CatalogItem>(),
+  withState(initialMeta),
+  withMethods((store, catalogItemService = inject(CatalogItemService)) => ({
+    load: rxMethod<LoadParams>(
+      pipe(
+        tap(() => patchState(store, { loading: true, errorMessage: null })),
+        switchMap(({ name, page }) =>
+          catalogItemService.list({ page, limit: PAGE_SIZE, name: name || undefined }).pipe(
+            tapResponse({
+              next: (result) => {
+                patchState(store, setAllEntities(result.items));
+                patchState(store, { total: result.meta.total, page });
+              },
+              error: (error: unknown) => {
+                patchState(store, setAllEntities<CatalogItem>([]));
+                patchState(store, {
+                  total: 0,
+                  page,
+                  errorMessage: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
+                });
+              },
+              finalize: () => patchState(store, { loading: false }),
+            }),
+          ),
+        ),
+      ),
+    ),
+
+    setSearch: signalMethod<string>((name) => {
+      const trimmed = name.trim();
+      if (trimmed === store.name()) {
+        return;
+      }
+      patchState(store, { name: trimmed, page: 1 });
+    }),
+
+    setPage(page: number) {
+      patchState(store, { page });
+    },
+
+    refresh() {
+      patchState(store, (state) => ({ reloadTrigger: state.reloadTrigger + 1 }));
+    },
+
+    deleteCatalogItem(catalogItem: CatalogItem) {
+      return catalogItemService.delete(catalogItem.id).pipe(
+        tapResponse({
+          next: () => {
+            const isLastOnPage = store.entities().length === 1 && store.page() > 1;
+            if (isLastOnPage) {
+              patchState(store, (state) => ({ page: state.page - 1 }));
+            } else {
+              patchState(store, (state) => ({ reloadTrigger: state.reloadTrigger + 1 }));
+            }
+          },
+          error: (error: unknown) => {
+            patchState(store, {
+              errorMessage: extractApiErrorMessage(error, DEFAULT_DELETE_ERROR_MESSAGE),
+            });
+          },
+        }),
+      );
+    },
+  })),
+  withHooks({
+    onInit(store) {
+      // Reactively reload whenever name, page, or an explicit refresh() changes.
+      store.load(
+        computed(() => {
+          store.reloadTrigger();
+          return { name: store.name(), page: store.page() };
+        }),
+      );
+    },
+  }),
+);
