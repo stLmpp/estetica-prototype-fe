@@ -6,6 +6,7 @@ import {
   ElementRef,
   inject,
   input,
+  OnDestroy,
   Renderer2,
   ViewContainerRef,
 } from '@angular/core';
@@ -17,7 +18,7 @@ import { LoadingOverlayContentComponent } from './loading-overlay-content.compon
     class: 'relative',
   },
 })
-export class LoadingOverlayDirective {
+export class LoadingOverlayDirective implements OnDestroy {
   readonly loadingOverlay = input(false, { transform: booleanAttribute });
   readonly loadingOverlayLabel = input('Carregando');
 
@@ -69,5 +70,9 @@ export class LoadingOverlayDirective {
   private hostContentElements() {
     const overlayElement = this.overlayRef?.location.nativeElement;
     return Array.from(this.hostElement.children).filter((child) => child !== overlayElement);
+  }
+
+  ngOnDestroy() {
+    this.detachOverlay();
   }
 }
