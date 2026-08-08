@@ -13,16 +13,7 @@
 </div>
 
 <nav class="flex flex-1 flex-col gap-2 p-4">
-  <a
-    routerLink="/"
-    routerLinkActive="bg-neutral-200 dark:bg-neutral-800"
-    [routerLinkActiveOptions]="{ exact: true }"
-    class="flex items-center gap-3 rounded-lg px-3 py-2 text-neutral-700 transition-colors hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-800"
-    (click)="close()"
-  >
-    <app-icon [icon]="LucideHouse" size="sm"></app-icon>
-    <span>Home</span>
-  </a>
+  <app-sidebar-menu-item [close]="close" [LucideHouse]="LucideHouse"></app-sidebar-menu-item>
 
   <a
     routerLink="/organizations"
