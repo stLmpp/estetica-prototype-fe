@@ -5,10 +5,18 @@
       Gerencie os produtos e serviços oferecidos.
     </p>
   </div>
-  <button btn btnPrimary type="button" (click)="openCreateDialog()">
-    <app-icon [icon]="LucidePlus" size="sm" color="white" />
-    Novo item
-  </button>
+  @if (canCreateCatalogItem()) {
+    <button
+      btn
+      btnPrimary
+      type="button"
+      [appPreloadLoader]="catalogItemFormDialogLoader"
+      (click)="openCreateDialog()"
+    >
+      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      Novo item
+    </button>
+  }
 </div>
 
 <app-form-field>
@@ -61,21 +69,33 @@
 
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
-    <button
-      iconBtn
-      type="button"
-      [icon]="LucidePencil"
-      ariaLabel="Editar item"
-      size="sm"
-      (click)="openEditDialog(row)"
-    ></button>
-    <button
-      iconBtn
-      type="button"
-      [icon]="LucideTrash2"
-      ariaLabel="Excluir item"
-      size="sm"
-      (click)="openDeleteDialog(row)"
-    ></button>
+    @let canUpdate = canUpdateCatalogItem();
+    @defer (when canUpdate) {
+      @if (canUpdate) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucidePencil"
+          ariaLabel="Editar item"
+          size="sm"
+          [appPreloadLoader]="catalogItemFormDialogLoader"
+          (click)="openEditDialog(row)"
+        ></button>
+      }
+    }
+
+    @let canDelete = canDeleteCatalogItem();
+    @defer (when canDelete) {
+      @if (canDelete) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucideTrash2"
+          ariaLabel="Excluir item"
+          size="sm"
+          (click)="openDeleteDialog(row)"
+        ></button>
+      }
+    }
   </div>
 </ng-template>

@@ -30,7 +30,7 @@ import { provideBetterAuthClient } from './core/auth/better-auth.provider';
 import { AuthService } from './core/auth/auth.service';
 import { OrganizationService } from './core/auth/organization.service';
 import { AuthStateSession } from './core/auth/auth.store';
-import { map, of, switchMap, tap } from 'rxjs';
+import { forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { withCredentialsInterceptor } from './core/interceptors/with-credentials.interceptor';
 import { provideEnvironmentNgxMask } from 'ngx-mask';
 
@@ -91,11 +91,15 @@ export const appConfig: ApplicationConfig = {
           if (!data?.session.activeOrganizationId) {
             return of([data, null] as const);
           }
-          return organization
-            .getOrganization(data.session.activeOrganizationId)
-            .pipe(map((organization) => [data, organization] as const));
+          const join = forkJoin([
+            organization.getOrganization(data.session.activeOrganizationId),
+            organization.getActiveMemberRole(),
+          ]);
+          return join.pipe(
+            map(([organization, orgRole]) => [data, organization, orgRole] as const),
+          );
         }),
-        tap(([data, organization]) => {
+        tap(([data, organization, orgRole]) => {
           const userSession = data
             ? {
                 user: data?.user,
@@ -112,6 +116,7 @@ export const appConfig: ApplicationConfig = {
                 }
               : null,
           );
+          authService.setOrgRole(orgRole);
           transferState.set(key, userSession);
         }),
       );

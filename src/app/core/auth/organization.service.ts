@@ -38,4 +38,10 @@ export class OrganizationService {
       }),
     );
   }
+
+  getActiveMemberRole() {
+    return from(this.client.organization.getActiveMemberRole()).pipe(
+      map((response) => response.data?.role),
+    );
+  }
 }

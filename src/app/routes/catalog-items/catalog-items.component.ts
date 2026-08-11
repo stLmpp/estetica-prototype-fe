@@ -27,9 +27,11 @@ import { InputDirective } from '../../components/input/input.directive';
 import { LabelComponent } from '../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../components/loading-overlay/loading-overlay.directive';
 import { PaginatorComponent } from '../../components/paginator/paginator.component';
+import { PreloadDirective } from '../../components/preload/preload.directive';
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
 import { TableComponent } from '../../components/table/table.component';
+import { AuthStore } from '../../core/auth/auth.store';
 import { DialogService } from '../../core/dialog/dialog.service';
 import { type CatalogItemFormDialogData } from './catalog-item-form-dialog/catalog-item-form-dialog.component';
 import { CatalogItem } from './catalog-item.model';
@@ -51,6 +53,7 @@ const SEARCH_DEBOUNCE_MS = 300;
     LabelComponent,
     LoadingOverlayDirective,
     PaginatorComponent,
+    PreloadDirective,
     TableComponent,
   ],
   templateUrl: './catalog-items.component.html',
@@ -64,6 +67,7 @@ export class CatalogItemsComponent {
   readonly searchParam = input('', { alias: 'search' });
 
   protected readonly store = inject(CatalogItemsStore);
+  private readonly authStore = inject(AuthStore);
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -80,6 +84,21 @@ export class CatalogItemsComponent {
   });
 
   protected readonly trackBy = (catalogItem: CatalogItem) => catalogItem.id;
+
+  protected readonly catalogItemFormDialogLoader = () =>
+    import('./catalog-item-form-dialog/catalog-item-form-dialog.component').then(
+      (m) => m.CatalogItemFormDialogComponent,
+    );
+
+  protected readonly canCreateCatalogItem = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { catalogItem: ['create'] } }),
+  );
+  protected readonly canUpdateCatalogItem = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { catalogItem: ['update'] } }),
+  );
+  protected readonly canDeleteCatalogItem = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { catalogItem: ['delete'] } }),
+  );
 
   private readonly statusTemplate = viewChild.required<TemplateRef<TableEvent>>('statusTemplate');
   private readonly actionsTemplate = viewChild.required<TemplateRef<TableEvent>>('actionsTemplate');
@@ -140,10 +159,7 @@ export class CatalogItemsComponent {
     // `injector` is required so the dialog's child injector can resolve the
     // component-scoped CatalogItemsStore (CDK Dialog otherwise uses the root injector).
     this.dialogService.open<CatalogItem | undefined, CatalogItemFormDialogData>(
-      () =>
-        import('./catalog-item-form-dialog/catalog-item-form-dialog.component').then(
-          (m) => m.CatalogItemFormDialogComponent,
-        ),
+      this.catalogItemFormDialogLoader,
       {
         data,
         injector: this.injector,

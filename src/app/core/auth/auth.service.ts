@@ -30,7 +30,7 @@ export class AuthService {
       if (value.isPending) {
         return;
       }
-      this.authStore.setOrgRole(toOrgRole(value.data?.role) ?? null);
+      this.setOrgRole(value.data?.role);
     });
   }
 
@@ -44,6 +44,10 @@ export class AuthService {
     } else {
       this.authStore.reset();
     }
+  }
+
+  setOrgRole(role: string | undefined) {
+    this.authStore.setOrgRole(toOrgRole(role) ?? null);
   }
 
   signOut() {
