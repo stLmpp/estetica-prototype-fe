@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { LucideDynamicIcon, LucideIcon } from '@lucide/angular';
+import { LucideDynamicIcon, LucideIconInput } from '@lucide/angular';
 
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type IconColor =
@@ -29,7 +29,7 @@ export class IconComponent {
     xl: 32,
   };
 
-  readonly icon = input.required<LucideIcon>();
+  readonly icon = input.required<LucideIconInput>();
   readonly size = input<IconSize>('md');
   readonly color = input<IconColor>('inherit');
   readonly strokeWidth = input<number>(2);
