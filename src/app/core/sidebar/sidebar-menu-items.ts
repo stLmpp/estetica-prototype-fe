@@ -1,4 +1,5 @@
 import {
+  LucideBriefcase,
   LucideBuilding,
   LucideHouse,
   LucideLayoutDashboard,
@@ -32,6 +33,12 @@ export const SIDEBAR_MAIN_MENU_ITEMS: MenuItem[] = [
     link: '/customers',
     icon: LucideUsers,
     permission: { orgPermissions: { customer: ['get'] } },
+  },
+  {
+    title: 'Funcionários',
+    link: '/employees',
+    icon: LucideBriefcase,
+    permission: { orgPermissions: { employee: ['get'] } },
   },
 ];
 

@@ -1,0 +1,93 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Funcionários</h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Gerencie os funcionários cadastrados.
+    </p>
+  </div>
+  @if (canCreateEmployee()) {
+    <button
+      btn
+      btnPrimary
+      type="button"
+      [appPreloadLoader]="employeeFormDialogLoader"
+      (click)="openCreateDialog()"
+    >
+      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      Novo funcionário
+    </button>
+  }
+</div>
+
+<app-form-field>
+  <label appLabel for="employee-search">Buscar por nome</label>
+  <input
+    appInput
+    [formField]="searchForm.name"
+    id="employee-search"
+    type="search"
+    placeholder="Ex: João Souza"
+  />
+</app-form-field>
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
+
+@if (!store.loading() && store.entities().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhum funcionário encontrado.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+/>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    @let canUpdate = canUpdateEmployee();
+    @defer (when canUpdate) {
+      @if (canUpdate) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucidePencil"
+          ariaLabel="Editar funcionário"
+          size="sm"
+          [appPreloadLoader]="employeeFormDialogLoader"
+          (click)="openEditDialog(row)"
+        ></button>
+      }
+    }
+
+    @let canDelete = canDeleteEmployee();
+    @defer (when canDelete) {
+      @if (canDelete) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucideTrash2"
+          ariaLabel="Excluir funcionário"
+          size="sm"
+          (click)="openDeleteDialog(row)"
+        ></button>
+      }
+    }
+  </div>
+</ng-template>

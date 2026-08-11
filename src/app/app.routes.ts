@@ -48,6 +48,15 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'employees',
+    loadComponent: () =>
+      import('./routes/employees/employees.component').then((m) => m.EmployeesComponent),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { employee: ['get'] } }),
+    ],
+  },
+  {
     path: 'raw-ds',
     loadComponent: () => import('./temp.component').then((m) => m.TempComponent),
   },

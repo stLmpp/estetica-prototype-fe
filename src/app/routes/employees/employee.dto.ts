@@ -1,38 +1,39 @@
 import { PaginationMetadata } from '../../shared/pagination.model';
-import { Customer } from './customer.model';
 import { MaritalStatus } from '../../model/marital-status.enum';
 import { PhoneType } from '../../model/phone-type.enum';
+import { Employee } from './employee.model';
 
-export interface CustomerPhonePayload {
+export interface EmployeePhonePayload {
   type: PhoneType;
   number: string;
 }
 
-export interface CustomerPayload {
+export interface EmployeePayload {
   name: string;
+  role: string;
   birthDate?: string;
   address?: string;
   zipCode?: string;
   neighborhood?: string;
   city?: string;
   state?: string;
-  jobName?: string;
   maritalStatus?: MaritalStatus;
   email?: string;
-  phones?: CustomerPhonePayload[];
+  phones?: EmployeePhonePayload[];
 }
 
-// The update endpoint doesn't accept `phones` - a customer's phones can only
+// The update endpoint doesn't accept `phones` - an employee's phones can only
 // be set at creation time.
-export type UpdateCustomerPayload = Partial<Omit<CustomerPayload, 'phones'>>;
+export type UpdateEmployeePayload = Partial<Omit<EmployeePayload, 'phones'>>;
 
-export interface ListCustomerFilter {
+export interface ListEmployeeFilter {
   page?: number;
   limit?: 10 | 25 | 50 | 100;
   name?: string;
+  role?: string;
 }
 
-export interface ListCustomerResult {
-  items: Customer[];
+export interface ListEmployeeResult {
+  items: Employee[];
   meta: PaginationMetadata;
 }

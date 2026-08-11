@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { applyEach, form, FormField, FormRoot, required } from '@angular/forms/signals';
 import { catchError, firstValueFrom, map, Observable, of } from 'rxjs';
+import { NgxMaskDirective } from 'ngx-mask';
 import { ButtonComponent } from '../../../components/button/button.component';
 import { FormFieldComponent } from '../../../components/form-field/form-field.component';
 import { InputDirective } from '../../../components/input/input.directive';
@@ -9,16 +10,15 @@ import { LabelComponent } from '../../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../../components/loading-overlay/loading-overlay.directive';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { extractApiErrorMessage } from '../../../model/api-error';
-import { CustomerPayload, UpdateCustomerPayload } from '../customer.dto';
-import { Customer, CustomerDetail, CustomerPhone } from '../customer.model';
-import { CustomerService } from '../customer.service';
-import { CustomersStore } from '../customers.store';
 import { MaritalStatus } from '../../../model/marital-status.enum';
 import { PhoneType } from '../../../model/phone-type.enum';
-import { NgxMaskDirective } from 'ngx-mask';
+import { EmployeePayload, UpdateEmployeePayload } from '../employee.dto';
+import { Employee, EmployeeDetail, EmployeePhone } from '../employee.model';
+import { EmployeeService } from '../employee.service';
+import { EmployeesStore } from '../employees.store';
 
-export interface CustomerFormDialogData {
-  customerId?: string;
+export interface EmployeeFormDialogData {
+  employeeId?: string;
 }
 
 interface PhoneFormValue {
@@ -26,59 +26,59 @@ interface PhoneFormValue {
   number: string;
 }
 
-interface CustomerFormModel {
+interface EmployeeFormModel {
   name: string;
+  role: string;
   birthDate: string;
   address: string;
   zipCode: string;
   neighborhood: string;
   city: string;
   state: string;
-  jobName: string;
   maritalStatus: MaritalStatus | '';
   email: string;
   phones: PhoneFormValue[];
 }
 
-type SaveResult = { ok: true; customer: Customer } | { ok: false; message: string };
+type SaveResult = { ok: true; employee: Employee } | { ok: false; message: string };
 
-const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar o cliente. Tente novamente.';
-const DEFAULT_LOAD_ERROR_MESSAGE = 'Não foi possível carregar os dados do cliente.';
+const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar o funcionário. Tente novamente.';
+const DEFAULT_LOAD_ERROR_MESSAGE = 'Não foi possível carregar os dados do funcionário.';
 
-function emptyModel(): CustomerFormModel {
+function emptyModel(): EmployeeFormModel {
   return {
     name: '',
+    role: '',
     birthDate: '',
     address: '',
     zipCode: '',
     neighborhood: '',
     city: '',
     state: '',
-    jobName: '',
     maritalStatus: '',
     email: '',
     phones: [],
   };
 }
 
-function toFormModel(customer: CustomerDetail): CustomerFormModel {
+function toFormModel(employee: EmployeeDetail): EmployeeFormModel {
   return {
-    name: customer.name,
-    birthDate: customer.birthDate ?? '',
-    address: customer.address ?? '',
-    zipCode: customer.zipCode ?? '',
-    neighborhood: customer.neighborhood ?? '',
-    city: customer.city ?? '',
-    state: customer.state ?? '',
-    jobName: customer.jobName ?? '',
-    maritalStatus: customer.maritalStatus ?? '',
-    email: customer.email ?? '',
+    name: employee.name,
+    role: employee.role,
+    birthDate: employee.birthDate ?? '',
+    address: employee.address ?? '',
+    zipCode: employee.zipCode ?? '',
+    neighborhood: employee.neighborhood ?? '',
+    city: employee.city ?? '',
+    state: employee.state ?? '',
+    maritalStatus: employee.maritalStatus ?? '',
+    email: employee.email ?? '',
     phones: [],
   };
 }
 
 @Component({
-  selector: 'app-customer-form-dialog',
+  selector: 'app-employee-form-dialog',
   imports: [
     ButtonComponent,
     FormField,
@@ -90,25 +90,25 @@ function toFormModel(customer: CustomerDetail): CustomerFormModel {
     NgxMaskDirective,
     SelectDirective,
   ],
-  templateUrl: './customer-form-dialog.component.html',
+  templateUrl: './employee-form-dialog.component.html',
   host: {
     class: 'block w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
   },
 })
-export class CustomerFormDialogComponent {
-  protected readonly data = inject<CustomerFormDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<Customer | undefined>);
-  private readonly store = inject(CustomersStore);
-  private readonly customerService = inject(CustomerService);
+export class EmployeeFormDialogComponent {
+  protected readonly data = inject<EmployeeFormDialogData>(DIALOG_DATA);
+  private readonly dialogRef = inject(DialogRef<Employee | undefined>);
+  private readonly store = inject(EmployeesStore);
+  private readonly employeeService = inject(EmployeeService);
 
-  protected readonly isEditing = !!this.data.customerId;
+  protected readonly isEditing = !!this.data.employeeId;
   protected readonly MaritalStatus = MaritalStatus;
   protected readonly PhoneType = PhoneType;
   protected readonly submitErrorMessage = signal<string | null>(null);
 
   protected readonly loading = signal(this.isEditing);
   protected readonly loadErrorMessage = signal<string | null>(null);
-  protected readonly existingPhones = signal<CustomerPhone[]>([]);
+  protected readonly existingPhones = signal<EmployeePhone[]>([]);
 
   protected readonly model = signal(emptyModel());
 
@@ -116,6 +116,7 @@ export class CustomerFormDialogComponent {
     this.model,
     (schema) => {
       required(schema.name, { message: 'Nome é obrigatório' });
+      required(schema.role, { message: 'Cargo é obrigatório' });
       applyEach(schema.phones, (phone) => {
         required(phone.number, { message: 'Número é obrigatório' });
         required(phone.type, { message: 'Tipo é obrigatório' });
@@ -136,18 +137,18 @@ export class CustomerFormDialogComponent {
             return;
           }
 
-          this.dialogRef.close(result.customer);
+          this.dialogRef.close(result.employee);
         },
       },
     },
   );
 
   constructor() {
-    if (this.data.customerId) {
-      this.customerService.getById(this.data.customerId).subscribe({
-        next: (customer) => {
-          this.model.set(toFormModel(customer));
-          this.existingPhones.set(customer.phones ?? []);
+    if (this.data.employeeId) {
+      this.employeeService.getById(this.data.employeeId).subscribe({
+        next: (employee) => {
+          this.model.set(toFormModel(employee));
+          this.existingPhones.set(employee.phones ?? []);
           this.loading.set(false);
         },
         error: (error: unknown) => {
@@ -160,16 +161,16 @@ export class CustomerFormDialogComponent {
     }
   }
 
-  private buildCreatePayload(value: CustomerFormModel): CustomerPayload {
+  private buildCreatePayload(value: EmployeeFormModel): EmployeePayload {
     return {
       name: value.name.trim(),
+      role: value.role.trim(),
       birthDate: value.birthDate || undefined,
       address: value.address.trim() || undefined,
       zipCode: value.zipCode.trim() || undefined,
       neighborhood: value.neighborhood.trim() || undefined,
       city: value.city.trim() || undefined,
       state: value.state.trim() || undefined,
-      jobName: value.jobName.trim() || undefined,
       maritalStatus: value.maritalStatus || undefined,
       email: value.email.trim() || undefined,
       phones: value.phones.length
@@ -178,35 +179,39 @@ export class CustomerFormDialogComponent {
     };
   }
 
-  private buildUpdatePayload(value: CustomerFormModel): UpdateCustomerPayload {
+  private buildUpdatePayload(value: EmployeeFormModel): UpdateEmployeePayload {
     return {
       name: value.name.trim(),
+      role: value.role.trim(),
       birthDate: value.birthDate || undefined,
       address: value.address.trim() || undefined,
       zipCode: value.zipCode.trim() || undefined,
       neighborhood: value.neighborhood.trim() || undefined,
       city: value.city.trim() || undefined,
       state: value.state.trim() || undefined,
-      jobName: value.jobName.trim() || undefined,
       maritalStatus: value.maritalStatus || undefined,
       email: value.email.trim() || undefined,
     };
   }
 
-  private save(payload: CustomerPayload | UpdateCustomerPayload): Promise<SaveResult> {
+  private save(payload: EmployeePayload | UpdateEmployeePayload): Promise<SaveResult> {
     const request$: Observable<SaveResult> =
-      this.isEditing && this.data.customerId
-        ? this.store.updateCustomer(this.data.customerId, payload).pipe(
+      this.isEditing && this.data.employeeId
+        ? this.store.updateEmployee(this.data.employeeId, payload).pipe(
             map(
               (): SaveResult => ({
                 ok: true,
-                customer: { id: this.data.customerId!, name: payload.name ?? '' },
+                employee: {
+                  id: this.data.employeeId!,
+                  name: payload.name ?? '',
+                  role: payload.role ?? '',
+                },
               }),
             ),
           )
         : this.store
-            .createCustomer(payload as CustomerPayload)
-            .pipe(map((customer) => ({ ok: true, customer })));
+            .createEmployee(payload as EmployeePayload)
+            .pipe(map((employee) => ({ ok: true, employee })));
 
     return firstValueFrom(
       request$.pipe(
