@@ -9,8 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { AuthStore } from '../better-auth/auth.store';
-import { AuthService } from '../better-auth/auth.service';
+import { AuthStore } from '../auth/auth.store';
+import { AuthService } from '../auth/auth.service';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
 import { LucideLogOut, LucideMenu, LucideMoon, LucideSun } from '@lucide/angular';
 import { switchMap } from 'rxjs';

@@ -2,7 +2,7 @@ import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { appConfig } from './app.config';
 import { serverRoutes } from './app.routes.server';
-import { provideBetterAuthServer } from './core/better-auth/better-auth.provider';
+import { provideBetterAuthServer } from './core/auth/better-auth.provider';
 
 const serverConfig: ApplicationConfig = {
   providers: [provideServerRendering(withRoutes(serverRoutes)), provideBetterAuthServer()],

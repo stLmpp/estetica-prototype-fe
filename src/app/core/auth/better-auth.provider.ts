@@ -147,7 +147,7 @@ export type AuthClientType = ReturnType<typeof createClient>;
 export type BetterAuthSession = AuthClientType['$Infer']['Session']['session'];
 export type BetterAuthOrganization = AuthClientType['$Infer']['Organization'];
 
-export const AuthClient = new InjectionToken<AuthClientType>('better-auth.client');
+export const AuthClient = new InjectionToken<AuthClientType>('auth.client');
 
 export function provideBetterAuthClient(): Provider[] {
   return [

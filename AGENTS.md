@@ -19,6 +19,20 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use strict type checking
 - Prefer type inference when the type is obvious
 - Avoid the `any` type; use `unknown` when type is uncertain
+- Prefer `function` declarations over arrow functions for top-level/global functions (e.g. route guards, resolvers, standalone utilities). Reserve arrow functions for callbacks, higher-order functions, and other inline/nested usages.
+- Add an explicit return type whenever it can't be inferred — most notably Angular-specific functional constructs (guards, resolvers, interceptors, etc.), where the exported function should return the Angular type rather than being typed as it directly:
+  ```ts
+  export function requireAuthenticatedGuard(): CanActivateFn {
+    return (route, state) => {
+      /* ... */
+    };
+  }
+  ```
+  Omit the annotation when the return type is already obvious/inferable (e.g. the function just delegates to another already-typed call) — don't add a redundant explicit type.
+
+## Tooling
+
+- Use the available MCP servers instead of falling back to generic shell/CLI commands when an MCP tool covers the task (e.g. use the `angular-cli` MCP for Angular workspace discovery, best practices, generation, and running targets rather than invoking `ng`/`npm` directly via shell).
 
 ## Code Comments
 
@@ -35,6 +49,15 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Do NOT use the `@HostBinding` and `@HostListener` decorators. Put host bindings inside the `host` object of the `@Component` or `@Directive` decorator instead
 - Use `NgOptimizedImage` for all static images.
   - `NgOptimizedImage` does not work for inline base64 images.
+- Always wrap Angular functional constructs (guards, resolvers, interceptors, etc.) in a factory function that returns the typed function, even when it currently takes no parameters — don't export the typed function directly. This makes it trivial to add options/parameters later without changing the shape at every call site:
+  ```ts
+  export function requireAuthenticatedGuard(): CanActivateFn {
+    return () => {
+      /* ... */
+    };
+  }
+  ```
+  Used as `canActivate: [requireAuthenticatedGuard()]`.
 
 ## Server-Side Rendering (SSR)
 

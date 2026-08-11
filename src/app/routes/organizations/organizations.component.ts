@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { AuthStore } from '../../core/better-auth/auth.store';
-import { OrganizationService } from '../../core/better-auth/organization.service';
-import { BetterAuthOrganization } from '../../core/better-auth/better-auth.provider';
+import { AuthStore } from '../../core/auth/auth.store';
+import { OrganizationService } from '../../core/auth/organization.service';
+import { BetterAuthOrganization } from '../../core/auth/better-auth.provider';
 import { Router } from '@angular/router';
 import { Observable, of, switchMap } from 'rxjs';
 

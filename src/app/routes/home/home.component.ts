@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { JsonPipe } from '@angular/common';
-import { AuthStore } from '../../core/better-auth/auth.store';
+import { AuthStore } from '../../core/auth/auth.store';
 
 @Component({
   selector: 'app-home',
