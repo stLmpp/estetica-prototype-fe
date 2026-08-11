@@ -2,14 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import {
-  CatalogItem,
-  CatalogItemPayload,
-  ListCatalogItemFilter,
-  ListCatalogItemResult,
-  PaginationMetadata,
-} from './catalog-item.model';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
+import { PaginationMetadata } from '../../shared/pagination.model';
+import { CatalogItemPayload, ListCatalogItemFilter, ListCatalogItemResult } from './catalog-item.dto';
+import { CatalogItem } from './catalog-item.model';
 
 interface CatalogItemResponse {
   data: { catalogItem: CatalogItem };

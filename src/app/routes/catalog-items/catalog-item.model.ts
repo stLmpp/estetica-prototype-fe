@@ -1,9 +1,4 @@
-export const CatalogItemType = {
-  Product: 'Produto',
-  Service: 'Serviço',
-} as const;
-
-export type CatalogItemType = (typeof CatalogItemType)[keyof typeof CatalogItemType];
+import { CatalogItemType } from './catalog-item-type.enum';
 
 export interface CatalogItem {
   id: string;
@@ -11,28 +6,4 @@ export interface CatalogItem {
   itemType: CatalogItemType;
   defaultPrice?: string | null;
   active: boolean;
-}
-
-export interface CatalogItemPayload {
-  name: string;
-  itemType: CatalogItemType;
-  defaultPrice?: string | null;
-  active: boolean;
-}
-
-export interface ListCatalogItemFilter {
-  page?: number;
-  limit?: 10 | 25 | 50 | 100;
-  name?: string;
-}
-
-export interface PaginationMetadata {
-  total: number;
-  page: number;
-  limit: number;
-}
-
-export interface ListCatalogItemResult {
-  items: CatalogItem[];
-  meta: PaginationMetadata;
 }

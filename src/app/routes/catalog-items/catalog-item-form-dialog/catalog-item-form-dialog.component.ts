@@ -10,7 +10,9 @@ import { LabelComponent } from '../../../components/label/label.component';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { SwitchComponent } from '../../../components/switch/switch.component';
 import { extractApiErrorMessage } from '../../../model/api-error';
-import { CatalogItem, CatalogItemPayload, CatalogItemType } from '../catalog-item.model';
+import { CatalogItemType } from '../catalog-item-type.enum';
+import { CatalogItemPayload } from '../catalog-item.dto';
+import { CatalogItem } from '../catalog-item.model';
 import { CatalogItemsStore } from '../catalog-items.store';
 import { NgxMaskDirective } from 'ngx-mask';
 

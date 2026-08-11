@@ -18,7 +18,8 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
 import { extractApiErrorMessage } from '../../model/api-error';
-import { CatalogItem, CatalogItemPayload } from './catalog-item.model';
+import { CatalogItemPayload } from './catalog-item.dto';
+import { CatalogItem } from './catalog-item.model';
 import { CatalogItemService } from './catalog-item.service';
 
 export const PAGE_SIZE = 10;
