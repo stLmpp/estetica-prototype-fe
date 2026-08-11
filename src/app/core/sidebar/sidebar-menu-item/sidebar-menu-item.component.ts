@@ -12,6 +12,6 @@ import { LucideIconInput } from '@lucide/angular';
 export class SidebarMenuItemComponent {
   readonly title = input.required<string>();
   readonly link = input.required<string>();
-  readonly linkActiveOptions = input<RouterLinkActive['routerLinkActiveOptions']>();
+  readonly linkActiveOptions = input<RouterLinkActive['routerLinkActiveOptions']>({ exact: false });
   readonly icon = input<LucideIconInput>();
 }

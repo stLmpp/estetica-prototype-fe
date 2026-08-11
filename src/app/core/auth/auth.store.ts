@@ -1,10 +1,10 @@
 import { computed } from '@angular/core';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
-import { User } from 'better-auth/client';
-import { BetterAuthOrganization, BetterAuthSession } from './better-auth.provider';
+import { BetterAuthOrganization, BetterAuthSession, BetterAuthUser } from './better-auth.provider';
+import { HasPermissionOptions, hasPermission, OrgRole, toAdminRole } from './has-permission';
 
 export interface AuthStateSession {
-  user: User;
+  user: BetterAuthUser;
   session: BetterAuthSession;
   activeOrganization?: BetterAuthOrganization;
 }
@@ -12,11 +12,13 @@ export interface AuthStateSession {
 export interface AuthState {
   session: AuthStateSession | null;
   organizations: BetterAuthOrganization[];
+  orgRole: OrgRole | null;
 }
 
 const initialAuthState: AuthState = {
   session: null,
   organizations: [],
+  orgRole: null,
 };
 
 function withPreservedActiveOrganization(
@@ -59,6 +61,17 @@ export const AuthStore = signalStore(
 
     setOrganizations(organizations: BetterAuthOrganization[]) {
       patchState(store, { organizations });
+    },
+
+    setOrgRole(orgRole: OrgRole | null) {
+      patchState(store, { orgRole });
+    },
+
+    hasPermission(options: HasPermissionOptions): boolean {
+      return hasPermission(options, {
+        role: toAdminRole(store.session()?.user.role),
+        orgRole: store.orgRole() ?? undefined,
+      });
     },
 
     reset() {

@@ -3,6 +3,7 @@ import { AuthClient } from './better-auth.provider';
 import { from, map, skip, Subject, tap } from 'rxjs';
 import { AuthStateSession, AuthStore } from './auth.store';
 import { refreshMap } from '../../shared/operators/refresh-map';
+import { toOrgRole } from './has-permission';
 
 @Service()
 export class AuthService {
@@ -23,6 +24,13 @@ export class AuthService {
         return;
       }
       this.setUserSession(data);
+    });
+
+    this.client.useActiveMemberRole.subscribe((value) => {
+      if (value.isPending) {
+        return;
+      }
+      this.authStore.setOrgRole(toOrgRole(value.data?.role) ?? null);
     });
   }
 

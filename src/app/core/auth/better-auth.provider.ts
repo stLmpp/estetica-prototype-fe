@@ -11,6 +11,8 @@ import {
 import { safe, safeAsync } from '../../shared/safe';
 import { lastValueFrom } from 'rxjs';
 import { isApiErrorResponse } from '../../model/api-error';
+import { adminAccessControl } from './admin-access-control';
+import { organizationAccessControl } from './organization-access-control';
 
 async function getRequestBody(req: Request): Promise<string | null> {
   if (req.method === 'GET' || req.method === 'HEAD') {
@@ -73,7 +75,25 @@ export function createAuthConfig(httpClient: HttpClient) {
   return {
     baseURL: environment.api,
     basePath: '/v1/auth',
-    plugins: [adminClient(), anonymousClient(), usernameClient(), organizationClient()],
+    plugins: [
+      adminClient({
+        ac: adminAccessControl.ac,
+        roles: {
+          admin: adminAccessControl.admin,
+          user: adminAccessControl.user,
+        },
+      }),
+      anonymousClient(),
+      usernameClient(),
+      organizationClient({
+        ac: organizationAccessControl.ac,
+        roles: {
+          owner: organizationAccessControl.owner,
+          admin: organizationAccessControl.admin,
+          member: organizationAccessControl.member,
+        },
+      }),
+    ],
     fetchOptions: {
       customFetchImpl: async (input, init) => {
         const req = new Request(input, init);
@@ -145,6 +165,7 @@ export function createClient(options: ReturnType<typeof createAuthConfig>) {
 
 export type AuthClientType = ReturnType<typeof createClient>;
 export type BetterAuthSession = AuthClientType['$Infer']['Session']['session'];
+export type BetterAuthUser = AuthClientType['$Infer']['Session']['user'];
 export type BetterAuthOrganization = AuthClientType['$Infer']['Organization'];
 
 export const AuthClient = new InjectionToken<AuthClientType>('auth.client');

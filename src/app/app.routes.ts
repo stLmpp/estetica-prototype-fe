@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import {
+  hasPermissionGuard,
   redirectIfAuthenticatedGuard,
   requireAuthenticatedGuard,
   requireAuthenticatedWithOrganizationGuard,
@@ -32,7 +33,10 @@ export const routes: Routes = [
     path: 'catalog-items',
     loadComponent: () =>
       import('./routes/catalog-items/catalog-items.component').then((m) => m.CatalogItemsComponent),
-    canActivate: [requireAuthenticatedWithOrganizationGuard()],
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { catalogItem: ['get'] } }),
+    ],
   },
   {
     path: 'raw-ds',

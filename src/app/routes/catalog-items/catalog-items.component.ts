@@ -11,7 +11,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Dialog } from '@angular/cdk/dialog';
 import { debounce, form, FormField } from '@angular/forms/signals';
 import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
@@ -31,10 +30,8 @@ import { PaginatorComponent } from '../../components/paginator/paginator.compone
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
 import { TableComponent } from '../../components/table/table.component';
-import {
-  CatalogItemFormDialogComponent,
-  CatalogItemFormDialogData,
-} from './catalog-item-form-dialog/catalog-item-form-dialog.component';
+import { DialogService } from '../../core/dialog/dialog.service';
+import { type CatalogItemFormDialogData } from './catalog-item-form-dialog/catalog-item-form-dialog.component';
 import { CatalogItem } from './catalog-item.model';
 import { CatalogItemsStore, PAGE_SIZE } from './catalog-items.store';
 
@@ -67,7 +64,7 @@ export class CatalogItemsComponent {
   readonly searchParam = input('', { alias: 'search' });
 
   protected readonly store = inject(CatalogItemsStore);
-  private readonly dialog = inject(Dialog);
+  private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly injector = inject(Injector);
@@ -142,8 +139,11 @@ export class CatalogItemsComponent {
     // createCatalogItem/updateCatalogItem), so there's nothing to do here on close.
     // `injector` is required so the dialog's child injector can resolve the
     // component-scoped CatalogItemsStore (CDK Dialog otherwise uses the root injector).
-    this.dialog.open<CatalogItem | undefined, CatalogItemFormDialogData>(
-      CatalogItemFormDialogComponent,
+    this.dialogService.open<CatalogItem | undefined, CatalogItemFormDialogData>(
+      () =>
+        import('./catalog-item-form-dialog/catalog-item-form-dialog.component').then(
+          (m) => m.CatalogItemFormDialogComponent,
+        ),
       {
         data,
         injector: this.injector,
@@ -154,7 +154,7 @@ export class CatalogItemsComponent {
   }
 
   protected openDeleteDialog(catalogItem: CatalogItem) {
-    const dialogRef = this.dialog.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
+    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
       data: {
         title: 'Excluir item',
         message: `Tem certeza que deseja excluir "${catalogItem.name}"? Essa ação não pode ser desfeita.`,
