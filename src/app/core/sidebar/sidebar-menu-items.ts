@@ -5,6 +5,7 @@ import {
   LucidePackage,
   LucideSettings,
   LucideUser,
+  LucideUsers,
 } from '@lucide/angular';
 import { MenuItem } from './menu-item.model';
 
@@ -25,6 +26,12 @@ export const SIDEBAR_MAIN_MENU_ITEMS: MenuItem[] = [
     link: '/catalog-items',
     icon: LucidePackage,
     permission: { orgPermissions: { catalogItem: ['get'] } },
+  },
+  {
+    title: 'Clientes',
+    link: '/customers',
+    icon: LucideUsers,
+    permission: { orgPermissions: { customer: ['get'] } },
   },
 ];
 

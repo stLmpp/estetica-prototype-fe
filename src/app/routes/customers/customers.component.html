@@ -1,0 +1,93 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Clientes</h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Gerencie os clientes cadastrados.
+    </p>
+  </div>
+  @if (canCreateCustomer()) {
+    <button
+      btn
+      btnPrimary
+      type="button"
+      [appPreloadLoader]="customerFormDialogLoader"
+      (click)="openCreateDialog()"
+    >
+      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      Novo cliente
+    </button>
+  }
+</div>
+
+<app-form-field>
+  <label appLabel for="customer-search">Buscar por nome</label>
+  <input
+    appInput
+    [formField]="searchForm.name"
+    id="customer-search"
+    type="search"
+    placeholder="Ex: Maria Silva"
+  />
+</app-form-field>
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
+
+@if (!store.loading() && store.entities().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhum cliente encontrado.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+/>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    @let canUpdate = canUpdateCustomer();
+    @defer (when canUpdate) {
+      @if (canUpdate) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucidePencil"
+          ariaLabel="Editar cliente"
+          size="sm"
+          [appPreloadLoader]="customerFormDialogLoader"
+          (click)="openEditDialog(row)"
+        ></button>
+      }
+    }
+
+    @let canDelete = canDeleteCustomer();
+    @defer (when canDelete) {
+      @if (canDelete) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucideTrash2"
+          ariaLabel="Excluir cliente"
+          size="sm"
+          (click)="openDeleteDialog(row)"
+        ></button>
+      }
+    }
+  </div>
+</ng-template>

@@ -39,6 +39,15 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'customers',
+    loadComponent: () =>
+      import('./routes/customers/customers.component').then((m) => m.CustomersComponent),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { customer: ['get'] } }),
+    ],
+  },
+  {
     path: 'raw-ds',
     loadComponent: () => import('./temp.component').then((m) => m.TempComponent),
   },
