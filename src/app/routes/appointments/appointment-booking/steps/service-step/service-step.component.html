@@ -2,34 +2,19 @@
   @if (store.servicesErrorMessage(); as message) {
     <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
   } @else if (!store.servicesLoading()) {
-    <!--  TODO(claude) like I said in the other comment, we need a standard list component  -->
-    <ul
-      role="radiogroup"
+    <app-listbox
       aria-label="Serviços"
-      class="flex max-h-96 flex-col gap-0.5 overflow-y-auto"
+      [cdkListboxValue]="selectedServiceIds()"
+      (cdkListboxValueChange)="onServiceChange($event)"
     >
       @for (service of store.services(); track service.id) {
-        <li
-          role="radio"
-          tabindex="0"
-          [attr.aria-checked]="store.service()?.id === service.id"
-          class="cursor-pointer rounded-lg px-3 py-2 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
-          [class.bg-primary-100]="store.service()?.id === service.id"
-          [class.dark:bg-primary-900]="store.service()?.id === service.id"
-          [class.hover:bg-neutral-100]="store.service()?.id !== service.id"
-          [class.dark:hover:bg-neutral-700]="store.service()?.id !== service.id"
-          (click)="selectService(service)"
-          (keydown.enter)="selectService(service)"
-          (keydown.space)="selectService(service); $event.preventDefault()"
-        >
-          {{ service.name }}
-        </li>
+        <app-listbox-option [cdkOption]="service.id">{{ service.name }}</app-listbox-option>
       } @empty {
-        <li class="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <p class="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
           Nenhum serviço com profissional disponível.
-        </li>
+        </p>
       }
-    </ul>
+    </app-listbox>
   }
 </div>
 

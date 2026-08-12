@@ -17,3 +17,11 @@ export interface AppointmentDetail extends Appointment {
   notes?: string;
   priceApplied: string;
 }
+
+export interface DayScheduleAppointment {
+  id: string;
+  startTime: string;
+  endTime: string;
+  customerName: string;
+  catalogItemName: string;
+}

@@ -1,13 +1,24 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
+import dayjs from 'dayjs';
 import { ButtonComponent } from '../../../../../components/button/button.component';
+import { CalendarComponent } from '../../../../../components/calendar/calendar.component';
 import { FormFieldComponent } from '../../../../../components/form-field/form-field.component';
 import { InputDirective } from '../../../../../components/input/input.directive';
 import { LabelComponent } from '../../../../../components/label/label.component';
+import { LoadingOverlayDirective } from '../../../../../components/loading-overlay/loading-overlay.directive';
 import { AppointmentBookingStore } from '../../appointment-booking.store';
 
 const PRICE_REGEXP = /^\d{1,8}(\.\d{1,2})?$/;
+const DAY_START_HOUR = 8;
+const DAY_END_HOUR = 20;
+const SLOT_MINUTES = 30;
+
+interface TimeSlot {
+  time: string;
+  busy: boolean;
+}
 
 function pad(value: number): string {
   return String(value).padStart(2, '0');
@@ -15,11 +26,20 @@ function pad(value: number): string {
 
 @Component({
   selector: 'app-appointment-booking-schedule-step',
-  imports: [ButtonComponent, FormField, FormFieldComponent, FormRoot, InputDirective, LabelComponent],
+  imports: [
+    ButtonComponent,
+    CalendarComponent,
+    FormField,
+    FormFieldComponent,
+    FormRoot,
+    InputDirective,
+    LabelComponent,
+    LoadingOverlayDirective,
+  ],
   templateUrl: './schedule-step.component.html',
 })
 export class ScheduleStepComponent {
-  private readonly store = inject(AppointmentBookingStore);
+  protected readonly store = inject(AppointmentBookingStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -50,6 +70,39 @@ export class ScheduleStepComponent {
       return { kind: 'invalidPrice', message: 'Preço inválido' };
     });
   });
+
+  protected readonly timeSlots = computed<TimeSlot[]>(() => {
+    const date = this.model().date;
+    const appointments = this.store.daySchedule();
+    const slots: TimeSlot[] = [];
+    for (let minutes = DAY_START_HOUR * 60; minutes < DAY_END_HOUR * 60; minutes += SLOT_MINUTES) {
+      const time = `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
+      const slotStart = dayjs(`${date}T${time}`);
+      const slotEnd = slotStart.add(SLOT_MINUTES, 'minute');
+      const busy = appointments.some((appointment) => {
+        const start = dayjs(appointment.startTime);
+        const end = dayjs(appointment.endTime);
+        return slotStart.isBefore(end) && slotEnd.isAfter(start);
+      });
+      slots.push({ time, busy });
+    }
+    return slots;
+  });
+
+  constructor() {
+    effect(() => {
+      const date = this.f.date().value();
+      console.log({ date });
+      untracked(() => this.store.loadDaySchedule(date));
+    });
+  }
+
+  protected selectStartTime(slot: TimeSlot) {
+    if (slot.busy) {
+      return;
+    }
+    this.model.update((current) => ({ ...current, startTime: slot.time }));
+  }
 
   protected computeEndTimeLabel(): string {
     const { startTime, durationMinutes } = this.f().value();

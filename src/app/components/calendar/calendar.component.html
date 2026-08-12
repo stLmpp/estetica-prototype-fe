@@ -1,0 +1,48 @@
+<div class="flex items-center justify-between">
+  <button
+    iconBtn
+    size="sm"
+    [icon]="LucideChevronLeft"
+    ariaLabel="Mês anterior"
+    [disabled]="disabled()"
+    (click)="previousMonth()"
+  ></button>
+  <span class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ monthLabel() }}</span>
+  <button
+    iconBtn
+    size="sm"
+    [icon]="LucideChevronRight"
+    ariaLabel="Próximo mês"
+    [disabled]="disabled()"
+    (click)="nextMonth()"
+  ></button>
+</div>
+
+<div class="mt-3 grid grid-cols-7 gap-1 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400">
+  @for (label of weekdayLabels; track label) {
+    <span>{{ label }}</span>
+  }
+</div>
+
+<div class="mt-1 grid grid-cols-7 gap-1">
+  @for (day of days(); track day.date) {
+    <button
+      type="button"
+      class="rounded-lg py-1.5 text-sm transition-colors"
+      [class.text-neutral-400]="!day.isCurrentMonth"
+      [class.dark:text-neutral-600]="!day.isCurrentMonth"
+      [class.text-neutral-800]="day.isCurrentMonth && value() !== day.date"
+      [class.dark:text-neutral-100]="day.isCurrentMonth && value() !== day.date"
+      [class.hover:bg-neutral-100]="value() !== day.date"
+      [class.dark:hover:bg-neutral-700]="value() !== day.date"
+      [class.bg-primary-500]="value() === day.date"
+      [class.text-white]="value() === day.date"
+      [class.ring-2]="day.isToday && value() !== day.date"
+      [class.ring-primary-400]="day.isToday && value() !== day.date"
+      [disabled]="disabled()"
+      (click)="selectDay(day)"
+    >
+      {{ day.dayOfMonth }}
+    </button>
+  }
+</div>

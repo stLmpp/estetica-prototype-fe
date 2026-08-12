@@ -1,13 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { ButtonComponent } from '../../../../../components/button/button.component';
+import { ListboxOptionComponent } from '../../../../../components/listbox/listbox-option.component';
+import { ListboxComponent } from '../../../../../components/listbox/listbox.component';
 import { LoadingOverlayDirective } from '../../../../../components/loading-overlay/loading-overlay.directive';
-import { Employee } from '../../../../employees/employee.model';
 import { AppointmentBookingStore } from '../../appointment-booking.store';
 
 @Component({
   selector: 'app-appointment-booking-professional-step',
-  imports: [ButtonComponent, LoadingOverlayDirective],
+  imports: [ButtonComponent, ListboxComponent, ListboxOptionComponent, LoadingOverlayDirective],
   templateUrl: './professional-step.component.html',
 })
 export class ProfessionalStepComponent {
@@ -15,8 +17,16 @@ export class ProfessionalStepComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected selectEmployee(employee: Employee) {
-    this.store.setEmployee(employee);
+  protected readonly selectedEmployeeIds = computed(() => {
+    const employee = this.store.employee();
+    return employee ? [employee.id] : [];
+  });
+
+  protected onEmployeeChange(event: ListboxValueChangeEvent<string>) {
+    const employee = this.store.employees().find((item) => item.id === event.value[0]);
+    if (employee) {
+      this.store.setEmployee(employee);
+    }
   }
 
   protected back() {

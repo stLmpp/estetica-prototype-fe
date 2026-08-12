@@ -1,15 +1,37 @@
 <form [formRoot]="f" class="flex flex-col gap-4">
-  <!-- TODO(claude) this is nothing like we discussed, we need a calendar component here, not a form -->
-  <div class="grid grid-cols-2 gap-4">
-    <app-form-field>
-      <label appLabel for="appointment-date">Data</label>
-      <input appInput [formField]="f.date" id="appointment-date" type="date" />
-    </app-form-field>
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-[auto_1fr]">
+    <app-calendar [formField]="f.date" />
 
-    <app-form-field>
-      <label appLabel for="appointment-start-time">Horário de início</label>
-      <input appInput [formField]="f.startTime" id="appointment-start-time" type="time" />
-    </app-form-field>
+    <div [loadingOverlay]="store.dayScheduleLoading()">
+      @if (store.dayScheduleErrorMessage(); as message) {
+        <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
+      } @else {
+        <p class="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+          Horário de início
+        </p>
+        <div class="grid grid-cols-4 gap-2 sm:grid-cols-6">
+          @for (slot of timeSlots(); track slot.time) {
+            <button
+              type="button"
+              class="rounded-lg py-1.5 text-sm transition-colors"
+              [disabled]="slot.busy"
+              [class.bg-primary-500]="f.startTime().value() === slot.time"
+              [class.text-white]="f.startTime().value() === slot.time"
+              [class.text-neutral-400]="slot.busy && f.startTime().value() !== slot.time"
+              [class.dark:text-neutral-600]="slot.busy && f.startTime().value() !== slot.time"
+              [class.line-through]="slot.busy"
+              [class.text-neutral-800]="!slot.busy && f.startTime().value() !== slot.time"
+              [class.dark:text-neutral-100]="!slot.busy && f.startTime().value() !== slot.time"
+              [class.hover:bg-neutral-100]="!slot.busy && f.startTime().value() !== slot.time"
+              [class.dark:hover:bg-neutral-700]="!slot.busy && f.startTime().value() !== slot.time"
+              (click)="selectStartTime(slot)"
+            >
+              {{ slot.time }}
+            </button>
+          }
+        </div>
+      }
+    </div>
   </div>
 
   <app-form-field>
@@ -24,7 +46,7 @@
   </app-form-field>
 
   <p class="text-sm text-neutral-500 dark:text-neutral-400">
-    Término previsto: {{ computeEndTimeLabel() }}
+    Início: {{ f.startTime().value() }} — Término previsto: {{ computeEndTimeLabel() }}
   </p>
 
   <app-form-field>

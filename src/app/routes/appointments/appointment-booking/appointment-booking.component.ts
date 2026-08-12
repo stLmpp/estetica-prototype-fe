@@ -4,7 +4,6 @@ import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from 
 import { filter, map, startWith } from 'rxjs';
 import { StepComponent } from '../../../components/stepper/step.component';
 import { StepperComponent } from '../../../components/stepper/stepper.component';
-import { AppointmentBookingStore } from './appointment-booking.store';
 
 interface WizardStep {
   path: string;
@@ -26,7 +25,6 @@ const STEPS: WizardStep[] = [
   host: {
     class: 'mx-auto flex max-w-3xl flex-col gap-6 p-6',
   },
-  providers: [AppointmentBookingStore],
 })
 export class AppointmentBookingComponent {
   private readonly router = inject(Router);
@@ -34,19 +32,18 @@ export class AppointmentBookingComponent {
 
   protected readonly steps = STEPS;
 
-  // TODO(claude) Add the INDEX to the route data instead of checking for url.includes path
   protected readonly currentStepIndex = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map(() => this.computeIndexFromUrl()),
-      startWith(this.computeIndexFromUrl()),
+      map(() => this.computeIndexFromRouteData()),
+      startWith(this.computeIndexFromRouteData()),
     ),
     { initialValue: 0 },
   );
 
-  private computeIndexFromUrl(): number {
-    const index = this.steps.findIndex((step) => this.router.url.includes(`/${step.path}`));
-    return index === -1 ? 0 : index;
+  private computeIndexFromRouteData(): number {
+    const index = this.route.snapshot.firstChild?.data['index'];
+    return typeof index === 'number' ? index : 0;
   }
 
   protected onHeaderClick(index: number) {

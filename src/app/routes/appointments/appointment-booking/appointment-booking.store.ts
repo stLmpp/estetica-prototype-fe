@@ -1,6 +1,16 @@
 import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
+import { withStorageSync, type SyncConfig } from '@angular-architects/ngrx-toolkit';
+import {
+  getState,
+  patchState,
+  signalStore,
+  withHooks,
+  withMethods,
+  withState,
+  type WritableStateSource,
+} from '@ngrx/signals';
+import dayjs from 'dayjs';
 import { catchError, of, tap } from 'rxjs';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { CatalogItemType } from '../../catalog-items/catalog-item-type.enum';
@@ -10,23 +20,20 @@ import { Customer } from '../../customers/customer.model';
 import { Employee } from '../../employees/employee.model';
 import { EmployeeService } from '../../employees/employee.service';
 import { AppointmentPayload } from '../appointment.dto';
+import { DayScheduleAppointment } from '../appointment.model';
 import { AppointmentService } from '../appointment.service';
 
+const STORAGE_KEY = 'appointment-booking';
 const MAX_LIMIT = 100;
 const DEFAULT_DURATION_MINUTES = '60';
 const DEFAULT_SERVICES_ERROR_MESSAGE = 'Não foi possível carregar os serviços.';
 const DEFAULT_EMPLOYEES_ERROR_MESSAGE = 'Não foi possível carregar os profissionais.';
+const DEFAULT_DAY_SCHEDULE_ERROR_MESSAGE = 'Não foi possível carregar a agenda do profissional.';
 const DEFAULT_SUBMIT_ERROR_MESSAGE = 'Não foi possível criar o agendamento. Tente novamente.';
 const CONFLICT_ERROR_MESSAGE = 'Este profissional já possui um agendamento nesse horário.';
 
-function pad(value: number): string {
-  return String(value).padStart(2, '0');
-}
-
-// TODO(claude) use dayjs
 function todayDateInputValue(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  return dayjs().format('YYYY-MM-DD');
 }
 
 interface AppointmentBookingState {
@@ -39,6 +46,9 @@ interface AppointmentBookingState {
   employees: Employee[];
   employeesLoading: boolean;
   employeesErrorMessage: string | null;
+  daySchedule: DayScheduleAppointment[];
+  dayScheduleLoading: boolean;
+  dayScheduleErrorMessage: string | null;
   date: string;
   startTime: string;
   durationMinutes: string;
@@ -58,6 +68,9 @@ const initialState: AppointmentBookingState = {
   employees: [],
   employeesLoading: false,
   employeesErrorMessage: null,
+  daySchedule: [],
+  dayScheduleLoading: false,
+  dayScheduleErrorMessage: null,
   date: todayDateInputValue(),
   startTime: '09:00',
   durationMinutes: DEFAULT_DURATION_MINUTES,
@@ -69,6 +82,19 @@ const initialState: AppointmentBookingState = {
 
 export const AppointmentBookingStore = signalStore(
   withState(initialState),
+  withStorageSync({
+    key: STORAGE_KEY,
+    select: (state) => ({
+      customer: state.customer,
+      service: state.service,
+      employee: state.employee,
+      date: state.date,
+      startTime: state.startTime,
+      durationMinutes: state.durationMinutes,
+      notes: state.notes,
+      priceApplied: state.priceApplied,
+    }),
+  }),
   withMethods(
     (
       store,
@@ -128,6 +154,33 @@ export const AppointmentBookingStore = signalStore(
         patchState(store, { employee });
       },
 
+      loadDaySchedule(date: string) {
+        const employee = store.employee();
+
+        if (!employee) {
+          return;
+        }
+
+        const from = dayjs(date).startOf('day').toISOString();
+        const to = dayjs(date).endOf('day').toISOString();
+
+        patchState(store, { dayScheduleLoading: true, dayScheduleErrorMessage: null });
+        appointmentService.getDaySchedule(employee.id, from, to).subscribe({
+          next: (appointments) => {
+            patchState(store, { daySchedule: appointments, dayScheduleLoading: false });
+          },
+          error: (error: unknown) => {
+            patchState(store, {
+              dayScheduleLoading: false,
+              dayScheduleErrorMessage: extractApiErrorMessage(
+                error,
+                DEFAULT_DAY_SCHEDULE_ERROR_MESSAGE,
+              ),
+            });
+          },
+        });
+      },
+
       setSchedule(
         patch: Partial<{
           date: string;
@@ -148,10 +201,8 @@ export const AppointmentBookingStore = signalStore(
           return of(null);
         }
 
-        // TODO(claude) use dayjs
-        const startDate = new Date(`${store.date()}T${store.startTime()}:00`);
-        // TODO(claude) use dayjs
-        const endDate = new Date(startDate.getTime() + Number(store.durationMinutes()) * 60_000);
+        const startDate = dayjs(`${store.date()}T${store.startTime()}`);
+        const endDate = startDate.add(Number(store.durationMinutes()), 'minute');
 
         const payload: AppointmentPayload = {
           customerId: customer.id,
@@ -166,7 +217,10 @@ export const AppointmentBookingStore = signalStore(
         patchState(store, { submitting: true, submitErrorMessage: null });
 
         return appointmentService.create(payload).pipe(
-          tap(() => patchState(store, { submitting: false })),
+          tap(() => {
+            patchState(store, { submitting: false });
+            store.clearStorage();
+          }),
           catchError((error: unknown) => {
             patchState(store, {
               submitting: false,
@@ -187,3 +241,5 @@ export const AppointmentBookingStore = signalStore(
     },
   }),
 );
+
+export type AppointmentBookingStore = InstanceType<typeof AppointmentBookingStore>;

@@ -11,7 +11,7 @@ import {
   UpdateAppointmentPayload,
   UpdateAppointmentStatusPayload,
 } from './appointment.dto';
-import { Appointment, AppointmentDetail } from './appointment.model';
+import { Appointment, AppointmentDetail, DayScheduleAppointment } from './appointment.model';
 
 interface AppointmentResponse {
   data: { appointment: AppointmentDetail };
@@ -20,6 +20,10 @@ interface AppointmentResponse {
 interface ListAppointmentResponse {
   data: { items: Appointment[] };
   meta: PaginationMetadata;
+}
+
+interface GetDayScheduleResponse {
+  data: { appointments: DayScheduleAppointment[] };
 }
 
 @Service()
@@ -74,5 +78,12 @@ export class AppointmentService {
 
   delete(appointmentId: string) {
     return this.http.delete<void>(`${this.baseUrl}/${appointmentId}`);
+  }
+
+  getDaySchedule(employeeId: string, from: string, to: string) {
+    const params = httpParamsFromObject({ employeeId, from, to });
+    return this.http
+      .get<GetDayScheduleResponse>(`${this.baseUrl}/day-schedule`, { params })
+      .pipe(map((response) => response.data.appointments));
   }
 }

@@ -18,6 +18,7 @@ import { ColDef } from './components/table/model/col-def';
 import { TableComponent } from './components/table/table.component';
 import { PaginatorComponent } from './components/paginator/paginator.component';
 import { TransferListComponent, TransferListItem } from './components/transfer-list/transfer-list.component';
+import { CalendarComponent } from './components/calendar/calendar.component';
 
 const formModel = signal({
   buttonToggle: 'corporal',
@@ -26,6 +27,7 @@ const formModel = signal({
   check: false,
   switch: true,
   transferList: ['2', '4'] as string[],
+  calendar: '',
 });
 
 @Component({
@@ -49,6 +51,7 @@ const formModel = signal({
     TableComponent,
     PaginatorComponent,
     TransferListComponent,
+    CalendarComponent,
   ],
   templateUrl: './ds.component.html',
   styles: `

@@ -11,6 +11,10 @@ interface CreateEmployeeServiceResponse {
   data: { employeeService: EmployeeServiceModel };
 }
 
+interface SyncEmployeeServiceResponse {
+  data: { employeeServices: EmployeeServiceModel[] };
+}
+
 interface ListEmployeeServiceResponse {
   data: { items: EmployeeServiceModel[] };
   meta: PaginationMetadata;
@@ -46,5 +50,11 @@ export class EmployeeServiceService {
 
   delete(employeeServiceId: string) {
     return this.http.delete<void>(`${this.baseUrl}/${employeeServiceId}`);
+  }
+
+  sync(employeeId: string, catalogItemIds: string[]) {
+    return this.http
+      .put<SyncEmployeeServiceResponse>(`${this.baseUrl}/employee/${employeeId}`, { catalogItemIds })
+      .pipe(map((response) => response.data.employeeServices));
   }
 }
