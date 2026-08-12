@@ -5,5 +5,6 @@ export interface CatalogItem {
   name: string;
   itemType: CatalogItemType;
   defaultPrice?: string | null;
+  defaultDuration?: string | null;
   active: boolean;
 }

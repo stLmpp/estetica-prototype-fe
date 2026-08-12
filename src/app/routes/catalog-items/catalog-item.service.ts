@@ -26,6 +26,9 @@ export class CatalogItemService {
       page: filter.page,
       limit: filter.limit,
       name: filter.name,
+      itemType: filter.itemType,
+      active: filter.active,
+      hasEmployees: filter.hasEmployees,
     });
     return this.http.get<ListCatalogItemResponse>(this.baseUrl, { params }).pipe(
       map((response): ListCatalogItemResult => ({

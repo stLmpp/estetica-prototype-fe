@@ -1,0 +1,15 @@
+<div>
+  <a routerLink="/appointments" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+    ← Voltar para agendamentos
+  </a>
+</div>
+
+<h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Novo agendamento</h1>
+
+<app-stepper [selectedIndex]="currentStepIndex()" (headerClick)="onHeaderClick($event)">
+  @for (step of steps; track step.path) {
+    <app-step [label]="step.label" />
+  }
+</app-stepper>
+
+<router-outlet />

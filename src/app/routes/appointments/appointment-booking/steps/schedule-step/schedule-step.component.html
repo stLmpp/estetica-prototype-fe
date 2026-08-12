@@ -1,0 +1,51 @@
+<form [formRoot]="f" class="flex flex-col gap-4">
+  <!-- TODO(claude) this is nothing like we discussed, we need a calendar component here, not a form -->
+  <div class="grid grid-cols-2 gap-4">
+    <app-form-field>
+      <label appLabel for="appointment-date">Data</label>
+      <input appInput [formField]="f.date" id="appointment-date" type="date" />
+    </app-form-field>
+
+    <app-form-field>
+      <label appLabel for="appointment-start-time">Horário de início</label>
+      <input appInput [formField]="f.startTime" id="appointment-start-time" type="time" />
+    </app-form-field>
+  </div>
+
+  <app-form-field>
+    <label appLabel for="appointment-duration">Duração (minutos)</label>
+    <input
+      appInput
+      [formField]="f.durationMinutes"
+      id="appointment-duration"
+      type="number"
+      inputmode="numeric"
+    />
+  </app-form-field>
+
+  <p class="text-sm text-neutral-500 dark:text-neutral-400">
+    Término previsto: {{ computeEndTimeLabel() }}
+  </p>
+
+  <app-form-field>
+    <label appLabel for="appointment-price">Preço aplicado</label>
+    <input
+      appInput
+      [formField]="f.priceApplied"
+      id="appointment-price"
+      type="text"
+      inputmode="decimal"
+      placeholder="Deixe em branco para usar o preço padrão do serviço"
+    />
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="appointment-notes">Observações</label>
+    <input appInput [formField]="f.notes" id="appointment-notes" type="text" />
+  </app-form-field>
+</form>
+
+<div class="mt-6 flex justify-between">
+  <button btn btnOutline type="button" (click)="back()">Voltar</button>
+  <button btn btnPrimary type="button" [disabled]="f().invalid()" (click)="next()">Avançar</button>
+</div>

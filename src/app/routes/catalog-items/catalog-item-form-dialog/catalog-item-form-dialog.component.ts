@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { form, FormField, FormRoot, required } from '@angular/forms/signals';
+import { form, FormField, FormRoot, hidden, required, validate } from '@angular/forms/signals';
 import { catchError, firstValueFrom, map, Observable, of } from 'rxjs';
 import { ButtonComponent } from '../../../components/button/button.component';
 import { FormFieldComponent } from '../../../components/form-field/form-field.component';
@@ -10,6 +10,7 @@ import { LabelComponent } from '../../../components/label/label.component';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { SwitchComponent } from '../../../components/switch/switch.component';
 import { extractApiErrorMessage } from '../../../model/api-error';
+import { isoDurationToMinutes, minutesToIsoDuration } from '../../../shared/duration.util';
 import { CatalogItemType } from '../catalog-item-type.enum';
 import { CatalogItemPayload } from '../catalog-item.dto';
 import { CatalogItem } from '../catalog-item.model';
@@ -56,6 +57,9 @@ export class CatalogItemFormDialogComponent {
     name: this.data.catalogItem?.name ?? '',
     itemType: this.data.catalogItem?.itemType ?? CatalogItemType.Product,
     defaultPrice: this.data.catalogItem?.defaultPrice ?? '',
+    defaultDuration: this.data.catalogItem?.defaultDuration
+      ? String(isoDurationToMinutes(this.data.catalogItem.defaultDuration))
+      : '',
     active: this.data.catalogItem?.active ?? true,
   });
 
@@ -64,6 +68,20 @@ export class CatalogItemFormDialogComponent {
     (schema) => {
       required(schema.name, { message: 'Nome é obrigatório' });
       required(schema.itemType, { message: 'Tipo é obrigatório' });
+      hidden(schema.defaultDuration, {
+        when: (ctx) => ctx.valueOf(schema.itemType) !== CatalogItemType.Service,
+      });
+      required(schema.defaultDuration, {
+        message: 'Duração é obrigatória para serviços',
+        when: (ctx) => ctx.valueOf(schema.itemType) === CatalogItemType.Service,
+      });
+      validate(schema.defaultDuration, ({ value }) => {
+        const trimmed = value().trim();
+        if (!trimmed || (Number.isInteger(Number(trimmed)) && Number(trimmed) > 0)) {
+          return null;
+        }
+        return { kind: 'invalidDuration', message: 'Duração inválida' };
+      });
     },
     {
       submission: {
@@ -75,6 +93,10 @@ export class CatalogItemFormDialogComponent {
             name: value.name.trim(),
             itemType: value.itemType,
             defaultPrice: value.defaultPrice.trim() || null,
+            defaultDuration:
+              value.itemType === CatalogItemType.Service && value.defaultDuration.trim()
+                ? minutesToIsoDuration(Number(value.defaultDuration.trim()))
+                : null,
             active: value.active,
           };
 

@@ -1,0 +1,152 @@
+<div class="flex min-h-0 flex-col gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600">
+  <div
+    class="flex items-center justify-between border-b border-neutral-200 px-3 py-2 dark:border-neutral-700"
+  >
+    <app-checkbox
+      [checked]="allLeftSelected()"
+      (checkedChange)="toggleSelectAllLeft($event)"
+      [disabled]="disabled() || !filteredLeftItems().length"
+    >
+      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+        {{ leftLabel() }} ({{ leftItems().length }})
+      </span>
+    </app-checkbox>
+  </div>
+
+  <div class="px-3 pt-2">
+    <input
+      appInput
+      type="search"
+      class="w-full !py-1.5"
+      placeholder="Buscar..."
+      [attr.aria-label]="'Buscar em ' + leftLabel()"
+      [value]="leftFilter()"
+      (input)="setLeftFilterFromEvent($event)"
+    />
+  </div>
+
+  <ul
+    role="listbox"
+    aria-multiselectable="true"
+    [attr.aria-label]="leftLabel()"
+    class="flex h-56 flex-col gap-0.5 overflow-y-auto px-2 pb-2"
+  >
+    @for (item of filteredLeftItems(); track item.id) {
+      <li
+        role="option"
+        tabindex="0"
+        [attr.aria-selected]="selectedLeftIds().has(item.id)"
+        class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
+        [class.bg-primary-100]="selectedLeftIds().has(item.id)"
+        [class.dark:bg-primary-900]="selectedLeftIds().has(item.id)"
+        [class.hover:bg-neutral-100]="!selectedLeftIds().has(item.id)"
+        [class.dark:hover:bg-neutral-700]="!selectedLeftIds().has(item.id)"
+        (click)="toggleLeftSelection(item.id)"
+        (keydown.enter)="toggleLeftSelection(item.id)"
+        (keydown.space)="toggleLeftSelection(item.id); $event.preventDefault()"
+      >
+        {{ item.label }}
+      </li>
+    } @empty {
+      <li class="px-2 py-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+        {{ emptyLeftMessage() }}
+      </li>
+    }
+  </ul>
+</div>
+
+<div class="flex flex-col items-center justify-center gap-2">
+  <button
+    iconBtn
+    btnOutline
+    type="button"
+    [icon]="LucideChevronRight"
+    ariaLabel="Mover selecionados para a direita"
+    [disabled]="disabled() || !selectedLeftIds().size"
+    (click)="moveSelectedToRight()"
+  ></button>
+  <button
+    iconBtn
+    btnOutline
+    type="button"
+    [icon]="LucideChevronsRight"
+    ariaLabel="Mover todos para a direita"
+    [disabled]="disabled() || !leftItems().length"
+    (click)="moveAllToRight()"
+  ></button>
+  <button
+    iconBtn
+    btnOutline
+    type="button"
+    [icon]="LucideChevronsLeft"
+    ariaLabel="Mover todos para a esquerda"
+    [disabled]="disabled() || !rightItems().length"
+    (click)="moveAllToLeft()"
+  ></button>
+  <button
+    iconBtn
+    btnOutline
+    type="button"
+    [icon]="LucideChevronLeft"
+    ariaLabel="Mover selecionados para a esquerda"
+    [disabled]="disabled() || !selectedRightIds().size"
+    (click)="moveSelectedToLeft()"
+  ></button>
+</div>
+
+<div class="flex min-h-0 flex-col gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600">
+  <div
+    class="flex items-center justify-between border-b border-neutral-200 px-3 py-2 dark:border-neutral-700"
+  >
+    <app-checkbox
+      [checked]="allRightSelected()"
+      (checkedChange)="toggleSelectAllRight($event)"
+      [disabled]="disabled() || !filteredRightItems().length"
+    >
+      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+        {{ rightLabel() }} ({{ rightItems().length }})
+      </span>
+    </app-checkbox>
+  </div>
+
+  <div class="px-3 pt-2">
+    <input
+      appInput
+      type="search"
+      class="w-full !py-1.5"
+      placeholder="Buscar..."
+      [attr.aria-label]="'Buscar em ' + rightLabel()"
+      [value]="rightFilter()"
+      (input)="setRightFilterFromEvent($event)"
+    />
+  </div>
+
+  <ul
+    role="listbox"
+    aria-multiselectable="true"
+    [attr.aria-label]="rightLabel()"
+    class="flex h-56 flex-col gap-0.5 overflow-y-auto px-2 pb-2"
+  >
+    @for (item of filteredRightItems(); track item.id) {
+      <li
+        role="option"
+        tabindex="0"
+        [attr.aria-selected]="selectedRightIds().has(item.id)"
+        class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
+        [class.bg-primary-100]="selectedRightIds().has(item.id)"
+        [class.dark:bg-primary-900]="selectedRightIds().has(item.id)"
+        [class.hover:bg-neutral-100]="!selectedRightIds().has(item.id)"
+        [class.dark:hover:bg-neutral-700]="!selectedRightIds().has(item.id)"
+        (click)="toggleRightSelection(item.id)"
+        (keydown.enter)="toggleRightSelection(item.id)"
+        (keydown.space)="toggleRightSelection(item.id); $event.preventDefault()"
+      >
+        {{ item.label }}
+      </li>
+    } @empty {
+      <li class="px-2 py-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+        {{ emptyRightMessage() }}
+      </li>
+    }
+  </ul>
+</div>

@@ -1,6 +1,7 @@
 import {
   LucideBriefcase,
   LucideBuilding,
+  LucideCalendarDays,
   LucideHouse,
   LucideLayoutDashboard,
   LucidePackage,
@@ -39,6 +40,12 @@ export const SIDEBAR_MAIN_MENU_ITEMS: MenuItem[] = [
     link: '/employees',
     icon: LucideBriefcase,
     permission: { orgPermissions: { employee: ['get'] } },
+  },
+  {
+    title: 'Agendamentos',
+    link: '/appointments',
+    icon: LucideCalendarDays,
+    permission: { orgPermissions: { appointment: ['get'] } },
   },
 ];
 

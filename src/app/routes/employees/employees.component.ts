@@ -10,9 +10,9 @@ import {
   viewChild,
   TemplateRef,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounce, form, FormField } from '@angular/forms/signals';
-import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
+import { LucideEye, LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { ButtonComponent } from '../../components/button/button.component';
 import {
@@ -52,6 +52,7 @@ const SEARCH_DEBOUNCE_MS = 300;
     LoadingOverlayDirective,
     PaginatorComponent,
     PreloadDirective,
+    RouterLink,
     TableComponent,
   ],
   templateUrl: './employees.component.html',
@@ -74,6 +75,7 @@ export class EmployeesComponent {
   protected readonly LucidePlus = LucidePlus;
   protected readonly LucidePencil = LucidePencil;
   protected readonly LucideTrash2 = LucideTrash2;
+  protected readonly LucideEye = LucideEye;
   protected readonly pageSize = PAGE_SIZE;
 
   protected readonly searchModel = signal({ name: this.searchParam() });

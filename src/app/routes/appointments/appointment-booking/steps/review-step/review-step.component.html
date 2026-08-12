@@ -1,0 +1,45 @@
+<div class="flex flex-col gap-3 text-sm">
+  <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2">
+    <span class="font-medium text-neutral-500 dark:text-neutral-400">Cliente</span>
+    <span class="text-neutral-800 dark:text-neutral-100">{{ store.customer()?.name }}</span>
+
+    <span class="font-medium text-neutral-500 dark:text-neutral-400">Serviço</span>
+    <span class="text-neutral-800 dark:text-neutral-100">{{ store.service()?.name }}</span>
+
+    <span class="font-medium text-neutral-500 dark:text-neutral-400">Profissional</span>
+    <span class="text-neutral-800 dark:text-neutral-100">{{ store.employee()?.name }}</span>
+
+    <span class="font-medium text-neutral-500 dark:text-neutral-400">Data</span>
+    <span class="text-neutral-800 dark:text-neutral-100">
+      {{ store.date() }} · {{ store.startTime() }} – {{ computeEndTimeLabel() }}
+    </span>
+
+    @if (store.priceApplied().trim()) {
+      <span class="font-medium text-neutral-500 dark:text-neutral-400">Preço</span>
+      <span class="text-neutral-800 dark:text-neutral-100">{{ store.priceApplied() }}</span>
+    }
+
+    @if (store.notes().trim()) {
+      <span class="font-medium text-neutral-500 dark:text-neutral-400">Observações</span>
+      <span class="text-neutral-800 dark:text-neutral-100">{{ store.notes() }}</span>
+    }
+  </div>
+
+  @if (store.submitErrorMessage(); as message) {
+    <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
+  }
+</div>
+
+<div class="mt-6 flex justify-between">
+  <button btn btnOutline type="button" [disabled]="store.submitting()" (click)="back()">Voltar</button>
+  <button
+    btn
+    btnPrimary
+    type="button"
+    [btnLoading]="store.submitting()"
+    [disabled]="!store.customer() || !store.service() || !store.employee()"
+    (click)="confirm()"
+  >
+    Confirmar
+  </button>
+</div>

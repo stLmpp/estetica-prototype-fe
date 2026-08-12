@@ -36,6 +36,20 @@
     <app-hint start>Opcional. Use ponto para casas decimais, ex: 19.90</app-hint>
   </app-form-field>
 
+  @if (f.itemType().value() === CatalogItemType.Service) {
+    <app-form-field>
+      <label appLabel for="catalog-item-duration">Duração padrão (minutos)</label>
+      <input
+        appInput
+        [formField]="f.defaultDuration"
+        id="catalog-item-duration"
+        type="number"
+        inputmode="numeric"
+        placeholder="60"
+      />
+    </app-form-field>
+  }
+
   <app-form-field>
     <app-switch [formField]="f.active">Ativo</app-switch>
   </app-form-field>

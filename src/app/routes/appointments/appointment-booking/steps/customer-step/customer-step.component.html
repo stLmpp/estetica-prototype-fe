@@ -1,0 +1,12 @@
+<app-typeahead
+  [searchFn]="searchFn"
+  [initialItem]="initialItem()"
+  (itemSelected)="onItemSelected($event)"
+  label="Cliente"
+  placeholder="Buscar cliente por nome"
+  emptyMessage="Nenhum cliente encontrado."
+/>
+
+<div class="mt-6 flex justify-end">
+  <button btn btnPrimary type="button" [disabled]="!store.customer()" (click)="next()">Avançar</button>
+</div>

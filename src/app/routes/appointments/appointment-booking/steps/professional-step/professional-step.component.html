@@ -1,0 +1,41 @@
+<div [loadingOverlay]="store.employeesLoading()">
+  @if (store.employeesErrorMessage(); as message) {
+    <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
+  } @else if (!store.employeesLoading()) {
+    <!--  TODO(claude) we should standardize the list into a DS component, I like the approach the angular components team used for the list in the Material  -->
+    <ul
+      role="radiogroup"
+      aria-label="Profissionais"
+      class="flex max-h-96 flex-col gap-0.5 overflow-y-auto"
+    >
+      @for (employee of store.employees(); track employee.id) {
+        <li
+          role="radio"
+          tabindex="0"
+          [attr.aria-checked]="store.employee()?.id === employee.id"
+          class="cursor-pointer rounded-lg px-3 py-2 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
+          [class.bg-primary-100]="store.employee()?.id === employee.id"
+          [class.dark:bg-primary-900]="store.employee()?.id === employee.id"
+          [class.hover:bg-neutral-100]="store.employee()?.id !== employee.id"
+          [class.dark:hover:bg-neutral-700]="store.employee()?.id !== employee.id"
+          (click)="selectEmployee(employee)"
+          (keydown.enter)="selectEmployee(employee)"
+          (keydown.space)="selectEmployee(employee); $event.preventDefault()"
+        >
+          {{ employee.name }}
+        </li>
+      } @empty {
+        <li class="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
+          Nenhum profissional realiza este serviço.
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+<div class="mt-6 flex justify-between">
+  <button btn btnOutline type="button" (click)="back()">Voltar</button>
+  <button btn btnPrimary type="button" [disabled]="!store.employee()" (click)="next()">
+    Avançar
+  </button>
+</div>

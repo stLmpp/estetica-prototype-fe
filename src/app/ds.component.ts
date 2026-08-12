@@ -17,6 +17,7 @@ import { SwitchComponent } from './components/switch/switch.component';
 import { ColDef } from './components/table/model/col-def';
 import { TableComponent } from './components/table/table.component';
 import { PaginatorComponent } from './components/paginator/paginator.component';
+import { TransferListComponent, TransferListItem } from './components/transfer-list/transfer-list.component';
 
 const formModel = signal({
   buttonToggle: 'corporal',
@@ -24,6 +25,7 @@ const formModel = signal({
   select: '1',
   check: false,
   switch: true,
+  transferList: ['2', '4'] as string[],
 });
 
 @Component({
@@ -46,6 +48,7 @@ const formModel = signal({
     SwitchComponent,
     TableComponent,
     PaginatorComponent,
+    TransferListComponent,
   ],
   templateUrl: './ds.component.html',
   styles: `
@@ -76,6 +79,15 @@ export class DsComponent {
   }
 
   readonly options = [{ id: 1 }, { id: 2 }, { id: 3 }];
+
+  readonly transferListItems: TransferListItem[] = [
+    { id: '1', label: 'Limpeza de Pele' },
+    { id: '2', label: 'Microagulhamento' },
+    { id: '3', label: 'Massagem Modeladora' },
+    { id: '4', label: 'Drenagem Linfática' },
+    { id: '5', label: 'Peeling Químico' },
+    { id: '6', label: 'Depilação a Laser' },
+  ];
 
   readonly f = form(formModel, (schema) => {
     // disabled(schema.buttonToggle);

@@ -3,7 +3,7 @@ import { LucideIcon } from '@lucide/angular';
 import { IconComponent, IconSize } from '../icon/icon.component';
 
 @Component({
-  selector: 'button[iconBtn]',
+  selector: 'button[iconBtn],a[iconBtn]',
   imports: [IconComponent],
   template: `
     @if (btnLoading()) {

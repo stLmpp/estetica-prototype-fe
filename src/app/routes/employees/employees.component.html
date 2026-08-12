@@ -61,6 +61,14 @@
 
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
+    <a
+      iconBtn
+      [icon]="LucideEye"
+      ariaLabel="Ver detalhes do funcionário"
+      size="sm"
+      [routerLink]="['/employees', row.id]"
+    ></a>
+
     @let canUpdate = canUpdateEmployee();
     @defer (when canUpdate) {
       @if (canUpdate) {

@@ -47,6 +47,7 @@ export const routes: Routes = [
       hasPermissionGuard({ orgPermissions: { customer: ['get'] } }),
     ],
   },
+  // TODO(claude) create employee.routes.ts to handle employee routes
   {
     path: 'employees',
     loadComponent: () =>
@@ -54,6 +55,76 @@ export const routes: Routes = [
     canActivate: [
       requireAuthenticatedWithOrganizationGuard(),
       hasPermissionGuard({ orgPermissions: { employee: ['get'] } }),
+    ],
+  },
+  {
+    path: 'employees/:employeeId',
+    loadComponent: () =>
+      import('./routes/employees/employee-details/employee-details.component').then(
+        (m) => m.EmployeeDetailsComponent,
+      ),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { employee: ['get'] } }),
+    ],
+  },
+  // TODO(claude) create appointments.routes.ts to handle appointment routes
+  {
+    path: 'appointments',
+    loadComponent: () =>
+      import('./routes/appointments/appointments.component').then((m) => m.AppointmentsComponent),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { appointment: ['get'] } }),
+    ],
+  },
+  {
+    path: 'appointments/new',
+    loadComponent: () =>
+      import('./routes/appointments/appointment-booking/appointment-booking.component').then(
+        (m) => m.AppointmentBookingComponent,
+      ),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { appointment: ['create'] } }),
+    ],
+    children: [
+      { path: '', redirectTo: 'customer', pathMatch: 'full' },
+      {
+        path: 'customer',
+        loadComponent: () =>
+          import('./routes/appointments/appointment-booking/steps/customer-step/customer-step.component').then(
+            (m) => m.CustomerStepComponent,
+          ),
+      },
+      {
+        path: 'service',
+        loadComponent: () =>
+          import('./routes/appointments/appointment-booking/steps/service-step/service-step.component').then(
+            (m) => m.ServiceStepComponent,
+          ),
+      },
+      {
+        path: 'professional',
+        loadComponent: () =>
+          import('./routes/appointments/appointment-booking/steps/professional-step/professional-step.component').then(
+            (m) => m.ProfessionalStepComponent,
+          ),
+      },
+      {
+        path: 'schedule',
+        loadComponent: () =>
+          import('./routes/appointments/appointment-booking/steps/schedule-step/schedule-step.component').then(
+            (m) => m.ScheduleStepComponent,
+          ),
+      },
+      {
+        path: 'review',
+        loadComponent: () =>
+          import('./routes/appointments/appointment-booking/steps/review-step/review-step.component').then(
+            (m) => m.ReviewStepComponent,
+          ),
+      },
     ],
   },
   {

@@ -1,0 +1,153 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Agendamentos</h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Gerencie os agendamentos da sua agenda.
+    </p>
+  </div>
+  @if (canCreateAppointment()) {
+    <a btn btnPrimary routerLink="/appointments/new" [appPreloadLoader]="bookingRouteLoader">
+      <app-icon [icon]="LucideCalendarPlus" size="sm" color="white" />
+      Novo agendamento
+    </a>
+  }
+</div>
+
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <!--  TODO instead of using $any here, use a signal form for the filters -->
+  <app-form-field>
+    <label appLabel for="appointment-status-filter">Status</label>
+    <select
+      appSelect
+      id="appointment-status-filter"
+      [value]="store.status()"
+      (change)="onStatusChange($any($event.target).value)"
+    >
+      <option value="">Todos</option>
+      @for (status of statusOptions; track status) {
+        <option [value]="status">{{ status }}</option>
+      }
+    </select>
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="appointment-service-filter">Serviço</label>
+    <select
+      appSelect
+      id="appointment-service-filter"
+      [value]="store.catalogItemId()"
+      (change)="onServiceChange($any($event.target).value)"
+    >
+      <option value="">Todos</option>
+      @for (service of services(); track service.id) {
+        <option [value]="service.id">{{ service.name }}</option>
+      }
+    </select>
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="appointment-employee-filter">Profissional</label>
+    <select
+      appSelect
+      id="appointment-employee-filter"
+      [value]="store.employeeId()"
+      (change)="onEmployeeChange($any($event.target).value)"
+    >
+      <option value="">Todos</option>
+      @for (employee of employees(); track employee.id) {
+        <option [value]="employee.id">{{ employee.name }}</option>
+      }
+    </select>
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="appointment-from-date">A partir de</label>
+    <input
+      appInput
+      id="appointment-from-date"
+      type="date"
+      [value]="fromDate()"
+      (change)="onFromDateChange($any($event.target).value)"
+    />
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="appointment-to-date">Até</label>
+    <input
+      appInput
+      id="appointment-to-date"
+      type="date"
+      [value]="toDate()"
+      (change)="onToDateChange($any($event.target).value)"
+    />
+  </app-form-field>
+
+  <app-typeahead
+    [searchFn]="customerSearchFn"
+    (itemSelected)="onCustomerSelected($event)"
+    label="Cliente"
+    placeholder="Buscar cliente por nome"
+    emptyMessage="Nenhum cliente encontrado."
+  />
+</div>
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
+
+@if (!store.loading() && store.entities().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhum agendamento encontrado.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+/>
+
+<ng-template #statusTemplate let-row="row">
+  @switch (row.status) {
+    @case (AppointmentStatus.Scheduled) {
+      <app-badge primary>{{ row.status }}</app-badge>
+    }
+    @case (AppointmentStatus.Completed) {
+      <app-badge secondary>{{ row.status }}</app-badge>
+    }
+    @default {
+      <app-badge>{{ row.status }}</app-badge>
+    }
+  }
+</ng-template>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    @let canCancel = canCancelAppointment() && row.status === AppointmentStatus.Scheduled;
+    @defer (when canCancel) {
+      @if (canCancel) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucideX"
+          ariaLabel="Cancelar agendamento"
+          size="sm"
+          (click)="openCancelDialog(row)"
+        ></button>
+      }
+    }
+  </div>
+</ng-template>

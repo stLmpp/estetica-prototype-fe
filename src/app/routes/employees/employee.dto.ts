@@ -22,8 +22,6 @@ export interface EmployeePayload {
   phones?: EmployeePhonePayload[];
 }
 
-// The update endpoint doesn't accept `phones` - an employee's phones can only
-// be set at creation time.
 export type UpdateEmployeePayload = Partial<Omit<EmployeePayload, 'phones'>>;
 
 export interface ListEmployeeFilter {
@@ -31,6 +29,7 @@ export interface ListEmployeeFilter {
   limit?: 10 | 25 | 50 | 100;
   name?: string;
   role?: string;
+  catalogItemId?: string;
 }
 
 export interface ListEmployeeResult {

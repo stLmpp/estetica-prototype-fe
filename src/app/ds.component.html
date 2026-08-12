@@ -84,6 +84,24 @@
   </section>
 </section>
 
+<!-- Transfer List -->
+<section aria-labelledby="sec-transfer-list">
+  <h2 id="sec-transfer-list" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">
+    Transfer List
+  </h2>
+
+  <app-transfer-list
+    [formField]="f.transferList"
+    [items]="transferListItems"
+    leftLabel="Serviços disponíveis"
+    rightLabel="Serviços do profissional"
+  />
+
+  <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+    Value: {{ f().value().transferList | json }}
+  </p>
+</section>
+
 <!-- Badges and chips -->
 <section aria-labelledby="sec-badges">
   <h2 id="sec-badges" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">

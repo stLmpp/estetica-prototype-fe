@@ -1,0 +1,46 @@
+@if (label()) {
+  <label [for]="inputId" class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ label() }}</label>
+}
+
+@if (selectedItem(); as item) {
+  <div
+    class="flex items-center justify-between rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100"
+  >
+    {{ item.label }}
+    <button
+      iconBtn
+      type="button"
+      size="xs"
+      [icon]="LucideX"
+      ariaLabel="Limpar seleção"
+      [disabled]="disabled()"
+      (click)="clear()"
+    ></button>
+  </div>
+} @else {
+  <input
+    #inputEl
+    appInput
+    [formField]="searchForm.query"
+    [id]="inputId"
+    type="text"
+    role="combobox"
+    aria-autocomplete="list"
+    [attr.aria-expanded]="panelOpen()"
+    [attr.aria-controls]="panelId"
+    [placeholder]="placeholder()"
+    (focus)="onFocus()"
+    (blur)="closePanel()"
+    (keydown)="onKeydown($event)"
+  />
+}
+
+<ng-template #panelTemplate>
+  <app-typeahead-panel
+    [panelId]="panelId"
+    [items]="results()"
+    [loading]="loading()"
+    [emptyMessage]="emptyMessage()"
+    (optionSelected)="select($event)"
+  />
+</ng-template>

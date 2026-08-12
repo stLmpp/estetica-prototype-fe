@@ -32,6 +32,7 @@ export class EmployeeService {
       limit: filter.limit,
       name: filter.name,
       role: filter.role,
+      catalogItemId: filter.catalogItemId,
     });
     return this.http.get<ListEmployeeResponse>(this.baseUrl, { params }).pipe(
       map(

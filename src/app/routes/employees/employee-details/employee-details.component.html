@@ -1,0 +1,60 @@
+<div>
+  <a routerLink="/employees" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+    ← Voltar para funcionários
+  </a>
+</div>
+
+@if (loadErrorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+} @else {
+  <div [loadingOverlay]="loading()">
+    @if (!loading() && employee(); as employee) {
+      <div class="flex flex-col gap-6">
+        <div>
+          <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">{{ employee.name }}</h1>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ employee.role }}</p>
+        </div>
+
+        <div>
+          <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Serviços</h2>
+          <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+            Selecione os serviços que este profissional pode realizar.
+          </p>
+
+          <form [formRoot]="servicesForm">
+            <app-transfer-list
+              [formField]="servicesForm.catalogItemIds"
+              [items]="services()"
+              leftLabel="Serviços disponíveis"
+              rightLabel="Serviços do profissional"
+              emptyLeftMessage="Nenhum serviço disponível."
+              emptyRightMessage="Nenhum serviço vinculado."
+            />
+
+            @if (saveErrorMessage(); as message) {
+              <app-alert error class="mt-4">{{ message }}</app-alert>
+            }
+            @if (saveSuccessMessage(); as message) {
+              <app-alert success class="mt-4">{{ message }}</app-alert>
+            }
+
+            @if (canManageServices()) {
+              <div class="mt-4 flex justify-end">
+                <button
+                  btn
+                  btnPrimary
+                  type="button"
+                  [disabled]="!isDirty() || saving()"
+                  [btnLoading]="saving()"
+                  (click)="save()"
+                >
+                  Salvar
+                </button>
+              </div>
+            }
+          </form>
+        </div>
+      </div>
+    }
+  </div>
+}
