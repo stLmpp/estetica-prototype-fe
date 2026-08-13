@@ -31,7 +31,9 @@
 </div>
 
 <div class="mt-6 flex justify-between">
-  <button btn btnOutline type="button" [disabled]="store.submitting()" (click)="back()">Voltar</button>
+  <a btn btnOutline type="button" [disabled]="store.submitting()" routerLink="../schedule">
+    Voltar
+  </a>
   <button
     btn
     btnPrimary

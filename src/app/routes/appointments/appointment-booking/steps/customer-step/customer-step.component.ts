@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ButtonComponent } from '../../../../../components/button/button.component';
 import { TypeaheadComponent, TypeaheadItem } from '../../../../../components/typeahead/typeahead.component';
@@ -8,13 +8,11 @@ import { AppointmentBookingStore } from '../../appointment-booking.store';
 
 @Component({
   selector: 'app-appointment-booking-customer-step',
-  imports: [ButtonComponent, TypeaheadComponent],
+  imports: [ButtonComponent, RouterLink, TypeaheadComponent],
   templateUrl: './customer-step.component.html',
 })
 export class CustomerStepComponent {
   protected readonly store = inject(AppointmentBookingStore);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
   private readonly customerService = inject(CustomerService);
 
   protected readonly initialItem = computed<TypeaheadItem | null>(() => {
@@ -29,9 +27,5 @@ export class CustomerStepComponent {
 
   protected onItemSelected(item: TypeaheadItem | null) {
     this.store.setCustomer(item ? { id: item.id, name: item.label } : null);
-  }
-
-  protected next() {
-    this.router.navigate(['../service'], { relativeTo: this.route });
   }
 }

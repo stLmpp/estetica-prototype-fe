@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { ButtonComponent } from '../../../../../components/button/button.component';
 import { ListboxOptionComponent } from '../../../../../components/listbox/listbox-option.component';
@@ -9,13 +9,11 @@ import { AppointmentBookingStore } from '../../appointment-booking.store';
 
 @Component({
   selector: 'app-appointment-booking-professional-step',
-  imports: [ButtonComponent, ListboxComponent, ListboxOptionComponent, LoadingOverlayDirective],
+  imports: [ButtonComponent, ListboxComponent, ListboxOptionComponent, LoadingOverlayDirective, RouterLink],
   templateUrl: './professional-step.component.html',
 })
 export class ProfessionalStepComponent {
   protected readonly store = inject(AppointmentBookingStore);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   protected readonly selectedEmployeeIds = computed(() => {
     const employee = this.store.employee();
@@ -27,13 +25,5 @@ export class ProfessionalStepComponent {
     if (employee) {
       this.store.setEmployee(employee);
     }
-  }
-
-  protected back() {
-    this.router.navigate(['../service'], { relativeTo: this.route });
-  }
-
-  protected next() {
-    this.router.navigate(['../schedule'], { relativeTo: this.route });
   }
 }

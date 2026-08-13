@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { ButtonComponent } from '../../../../../components/button/button.component';
 import { ListboxOptionComponent } from '../../../../../components/listbox/listbox-option.component';
@@ -9,13 +9,11 @@ import { AppointmentBookingStore } from '../../appointment-booking.store';
 
 @Component({
   selector: 'app-appointment-booking-service-step',
-  imports: [ButtonComponent, ListboxComponent, ListboxOptionComponent, LoadingOverlayDirective],
+  imports: [ButtonComponent, ListboxComponent, ListboxOptionComponent, LoadingOverlayDirective, RouterLink],
   templateUrl: './service-step.component.html',
 })
 export class ServiceStepComponent {
   protected readonly store = inject(AppointmentBookingStore);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   protected readonly selectedServiceIds = computed(() => {
     const service = this.store.service();
@@ -27,13 +25,5 @@ export class ServiceStepComponent {
     if (service) {
       this.store.setService(service);
     }
-  }
-
-  protected back() {
-    this.router.navigate(['../customer'], { relativeTo: this.route });
-  }
-
-  protected next() {
-    this.router.navigate(['../professional'], { relativeTo: this.route });
   }
 }

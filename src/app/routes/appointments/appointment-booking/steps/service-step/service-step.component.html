@@ -19,8 +19,6 @@
 </div>
 
 <div class="mt-6 flex justify-between">
-  <button btn btnOutline type="button" (click)="back()">Voltar</button>
-  <button btn btnPrimary type="button" [disabled]="!store.service()" (click)="next()">
-    Avançar
-  </button>
+  <a btn btnOutline routerLink="../customer">Voltar</a>
+  <a btn btnPrimary [disabled]="!store.service()" routerLink="../professional">Avançar</a>
 </div>

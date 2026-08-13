@@ -1,5 +1,5 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
 import dayjs from 'dayjs';
 import { ButtonComponent } from '../../../../../components/button/button.component';
@@ -71,6 +71,7 @@ function firstAvailableSlotTime(slots: TimeSlot[], preferredTime: string): strin
     LabelComponent,
     LoadingOverlayDirective,
     NgxMaskDirective,
+    RouterLink,
   ],
   templateUrl: './schedule-step.component.html',
 })
@@ -80,8 +81,6 @@ export class ScheduleStepComponent {
   }
 
   protected readonly store = inject(AppointmentBookingStore);
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   protected readonly minDate = dayjs().format('YYYY-MM-DD');
 
@@ -141,7 +140,6 @@ export class ScheduleStepComponent {
 
   protected back() {
     this.store.setSchedule(this.model());
-    this.router.navigate(['../professional'], { relativeTo: this.route });
   }
 
   protected next() {
@@ -149,6 +147,5 @@ export class ScheduleStepComponent {
       return;
     }
     this.store.setSchedule(this.model());
-    this.router.navigate(['../review'], { relativeTo: this.route });
   }
 }

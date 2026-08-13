@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../../components/button/button.component';
 import { AppointmentBookingStore } from '../../appointment-booking.store';
 
 @Component({
   selector: 'app-appointment-booking-review-step',
-  imports: [ButtonComponent],
+  imports: [ButtonComponent, RouterLink],
   templateUrl: './review-step.component.html',
 })
 export class ReviewStepComponent {
@@ -22,10 +22,6 @@ export class ReviewStepComponent {
     const endHours = Math.floor(totalMinutes / 60) % 24;
     const endMinutes = totalMinutes % 60;
     return `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
-  }
-
-  protected back() {
-    this.router.navigate(['../schedule'], { relativeTo: this.route });
   }
 
   protected confirm() {
