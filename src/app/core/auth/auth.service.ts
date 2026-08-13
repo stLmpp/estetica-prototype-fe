@@ -1,6 +1,6 @@
 import { inject, Service } from '@angular/core';
 import { AuthClient } from './better-auth.provider';
-import { from, map, skip, Subject, tap } from 'rxjs';
+import { distinctUntilChanged, filter, from, map, skip, Subject, tap } from 'rxjs';
 import { AuthStateSession, AuthStore } from './auth.store';
 import { refreshMap } from '../../shared/operators/refresh-map';
 import { toOrgRole } from './has-permission';
@@ -10,6 +10,7 @@ export class AuthService {
   private readonly client = inject(AuthClient);
   private readonly authStore = inject(AuthStore);
   private readonly useSession$ = new Subject<AuthStateSession | null>();
+  private readonly useActiveMemberRole$ = new Subject<string | undefined>();
 
   constructor() {
     this.client.useSession.listen((value) => {
@@ -30,8 +31,21 @@ export class AuthService {
       if (value.isPending) {
         return;
       }
-      this.setOrgRole(value.data?.role);
+      this.useActiveMemberRole$.next(value.data?.role);
     });
+
+    this.useActiveMemberRole$
+      .pipe(
+        skip(1),
+        distinctUntilChanged(),
+        filter((role) => {
+          const currentRole = this.authStore.orgRole();
+          return !!role && currentRole === role;
+        }),
+      )
+      .subscribe((role) => {
+        this.setOrgRole(role);
+      });
   }
 
   getSession() {

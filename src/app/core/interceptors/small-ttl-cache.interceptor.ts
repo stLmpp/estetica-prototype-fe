@@ -38,14 +38,11 @@ interface TransferStateData {
   headers: Record<string, string[]>;
 }
 
-// Scoped via `providedIn: 'root'` so the SSR bootstrap (which creates a fresh
-// root injector per request) gives every request its own cache and in-flight
-// map, instead of sharing one across all users on the server.
 @Injectable({ providedIn: 'root' })
 class SmallTtlCacheStore {
   readonly memoryCache = new CacheableMemory({
-    ttl: 50,
-    maxTtl: 50,
+    ttl: 100,
+    maxTtl: 100,
     useClone: false,
   });
 
@@ -70,7 +67,13 @@ console.log(
 
 function logRequest(req: HttpRequest<unknown>, flag: Flag) {
   // TODO add logger
-  console.log(`${symbolMap[flag]} [HTTP] ${req.method} ${req.urlWithParams}`);
+  const url = new URL(req.urlWithParams);
+  const args: unknown[] = [`${symbolMap[flag]} [HTTP] ${req.method} ${url.pathname}`];
+  if (url.searchParams.size) {
+    const params = Object.fromEntries(url.searchParams.entries());
+    args.push(params);
+  }
+  console.log(...args);
 }
 
 export function smallTtlCacheInterceptor(): HttpInterceptorFn {

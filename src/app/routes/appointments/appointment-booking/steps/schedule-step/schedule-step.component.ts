@@ -11,6 +11,8 @@ import { LoadingOverlayDirective } from '../../../../../components/loading-overl
 import { DayScheduleAppointment } from '../../../appointment.model';
 import { AppointmentBookingStore } from '../../appointment-booking.store';
 import { NgxMaskDirective } from 'ngx-mask';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { skip } from 'rxjs';
 
 const PRICE_REGEXP = /^\d{1,8}(\.\d{1,2})?$/;
 const DAY_START_HOUR = 8;
@@ -73,6 +75,10 @@ function firstAvailableSlotTime(slots: TimeSlot[], preferredTime: string): strin
   templateUrl: './schedule-step.component.html',
 })
 export class ScheduleStepComponent {
+  constructor() {
+    this.store.loadDaySchedule(toObservable(this.f.date().value).pipe(skip(1)));
+  }
+
   protected readonly store = inject(AppointmentBookingStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -114,38 +120,6 @@ export class ScheduleStepComponent {
     buildTimeSlots(this.f.date().value(), this.store.daySchedule()),
   );
 
-  constructor() {
-    // `scheduleDayScheduleResolver` already loaded the schedule for the initial
-    // date before this component was constructed, so skip this effect's first
-    // (automatic) run and only reload when the date actually changes afterward.
-    let isInitialRun = true;
-    effect(() => {
-      const date = this.f.date().value();
-      untracked(() => {
-        if (isInitialRun) {
-          isInitialRun = false;
-          return;
-        }
-        this.store.loadDaySchedule(date).subscribe();
-      });
-    });
-
-    // The initial `startTime` above is picked before `store.daySchedule()` has
-    // actually loaded, so it can't know about real conflicts yet. Once the
-    // schedule loads (or the date changes), re-validate it against the real
-    // busy slots and move off of it if it turned out to be taken.
-    effect(() => {
-      const slots = this.timeSlots();
-      untracked(() => {
-        const currentStartTime = this.f.startTime().value();
-        const nextStartTime = firstAvailableSlotTime(slots, currentStartTime);
-        if (nextStartTime !== currentStartTime) {
-          this.f.startTime().value.set(nextStartTime);
-        }
-      });
-    });
-  }
-
   protected selectStartTime(slot: TimeSlot) {
     if (!isSlotAvailable(slot)) {
       return;
@@ -166,7 +140,7 @@ export class ScheduleStepComponent {
   }
 
   protected back() {
-    this.store.setSchedule(this.f().value());
+    this.store.setSchedule(this.model());
     this.router.navigate(['../professional'], { relativeTo: this.route });
   }
 
@@ -174,7 +148,7 @@ export class ScheduleStepComponent {
     if (this.f().invalid()) {
       return;
     }
-    this.store.setSchedule(this.f().value());
+    this.store.setSchedule(this.model());
     this.router.navigate(['../review'], { relativeTo: this.route });
   }
 }

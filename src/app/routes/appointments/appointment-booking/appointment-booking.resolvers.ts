@@ -31,6 +31,6 @@ export function professionalStepEmployeesResolver(): ResolveFn<unknown> {
 export function scheduleDayScheduleResolver(): ResolveFn<unknown> {
   return () => {
     const store = inject(AppointmentBookingStore);
-    return store.loadDaySchedule(store.date());
+    return store.fetchDaySchedule(store.date());
   };
 }

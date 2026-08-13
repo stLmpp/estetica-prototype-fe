@@ -118,6 +118,26 @@ This app is server-rendered (`provideClientHydration()` in `app.config.ts`). Eve
   - Provide feature stores at the component level (`providers: [MyStore]`), not `providedIn: 'root'`, unless the state is genuinely app-wide.
   - Wrap async side effects (HTTP calls, debounced search, etc.) in `rxMethod()` (`@ngrx/signals/rxjs-interop`) rather than driving them from a manual `effect()` in a component. Use `signalMethod()` instead when the side effect is synchronous and doesn't need RxJS operators.
   - Connect a store's `rxMethod`/`signalMethod` reactively by calling it with a `Signal`/`computed()` (typically from `withHooks({ onInit })`), so state changes drive the effect declaratively — don't call the store's action methods imperatively from a component `effect()` just to trigger a refetch.
+  - When a store needs both a one-off, awaitable load (e.g. from a router resolver, which needs a real `Observable` to block navigation on) and a reactive reload driven by a signal/form field changing, don't duplicate the fetch or force one caller to work around the other's shape — extract the fetch into a private function inside the `withMethods` factory closure and expose it two ways: raw, for imperative/resolver callers that need the `Observable` back; and wrapped in `rxMethod()`, for reactive callers. Use `tapResponse({ next, error })` (`@ngrx/operators`) instead of `tap()` + `catchError()` inside the private function — a plain `catchError` that doesn't return a replacement observable would kill the shared source on the first error, taking the `rxMethod` down with it. Connect the reactive variant by feeding it the caller's signal — `store.loadX(toObservable(field).pipe(skip(1)))` when a resolver/initial load already covers the current value and only later changes should trigger a reload, or a plain `Signal`/`computed()` otherwise. Never `.subscribe()` it manually.
+    ```ts
+    withMethods((store, service = inject(SomeService)) => {
+      function fetchX(id: string) {
+        patchState(store, { loading: true, errorMessage: null });
+        return service.getX(id).pipe(
+          tapResponse({
+            next: (x) => patchState(store, { x, loading: false }),
+            error: (error: unknown) =>
+              patchState(store, { loading: false, errorMessage: extractApiErrorMessage(error) }),
+          }),
+        );
+      }
+
+      return {
+        fetchX, // resolver: `return store.fetchX(id)`
+        loadX: rxMethod<string>(pipe(switchMap(fetchX))), // component: `store.loadX(toObservable(idSignal).pipe(skip(1)))`
+      };
+    }),
+    ```
   - If a component that provides a store opens an Angular CDK `Dialog`, pass `injector: this.injector` (via `inject(Injector)`) in `Dialog.open()`'s config. CDK Dialog otherwise resolves the dialog content against the root injector, which cannot see component-level providers like the store.
 
 ## Templates
