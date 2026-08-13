@@ -9,6 +9,7 @@ interface CalendarDay {
   dayOfMonth: number;
   isCurrentMonth: boolean;
   isToday: boolean;
+  isDisabled: boolean;
 }
 
 const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -39,6 +40,7 @@ const DAYS_IN_GRID = 42;
 export class CalendarComponent implements FormValueControl<string> {
   readonly value = model<string>('');
   readonly disabled = input(false);
+  readonly minDate = input<string | null>(null);
 
   protected readonly LucideChevronLeft = LucideChevronLeft;
   protected readonly LucideChevronRight = LucideChevronRight;
@@ -56,6 +58,7 @@ export class CalendarComponent implements FormValueControl<string> {
     const monthStart = this.viewMonth();
     const gridStart = monthStart.startOf('week');
     const today = dayjs().format('YYYY-MM-DD');
+    const minDate = this.minDate();
     return Array.from({ length: DAYS_IN_GRID }, (_, index) => {
       const date = gridStart.add(index, 'day');
       const iso = date.format('YYYY-MM-DD');
@@ -64,6 +67,7 @@ export class CalendarComponent implements FormValueControl<string> {
         dayOfMonth: date.date(),
         isCurrentMonth: date.month() === monthStart.month(),
         isToday: iso === today,
+        isDisabled: minDate !== null && iso < minDate,
       };
     });
   });
@@ -77,7 +81,7 @@ export class CalendarComponent implements FormValueControl<string> {
   }
 
   protected selectDay(day: CalendarDay) {
-    if (this.disabled()) {
+    if (this.disabled() || day.isDisabled) {
       return;
     }
     this.value.set(day.date);

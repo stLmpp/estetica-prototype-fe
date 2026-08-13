@@ -20,6 +20,7 @@ const SLOT_MINUTES = 30;
 interface TimeSlot {
   time: string;
   busy: boolean;
+  past: boolean;
 }
 
 function pad(value: number): string {
@@ -28,6 +29,7 @@ function pad(value: number): string {
 
 function buildTimeSlots(date: string, appointments: DayScheduleAppointment[]): TimeSlot[] {
   const slots: TimeSlot[] = [];
+  const now = dayjs();
   for (let minutes = DAY_START_HOUR * 60; minutes < DAY_END_HOUR * 60; minutes += SLOT_MINUTES) {
     const time = `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
     const slotStart = dayjs(`${date}T${time}`);
@@ -37,17 +39,22 @@ function buildTimeSlots(date: string, appointments: DayScheduleAppointment[]): T
       const end = dayjs(appointment.endTime);
       return slotStart.isBefore(end) && slotEnd.isAfter(start);
     });
-    slots.push({ time, busy });
+    const past = slotStart.isBefore(now);
+    slots.push({ time, busy, past });
   }
   return slots;
 }
 
+function isSlotAvailable(slot: TimeSlot): boolean {
+  return !slot.busy && !slot.past;
+}
+
 function firstAvailableSlotTime(slots: TimeSlot[], preferredTime: string): string {
   const preferred = slots.find((slot) => slot.time === preferredTime);
-  if (preferred && !preferred.busy) {
+  if (preferred && isSlotAvailable(preferred)) {
     return preferred.time;
   }
-  return slots.find((slot) => !slot.busy)?.time ?? '';
+  return slots.find(isSlotAvailable)?.time ?? '';
 }
 
 @Component({
@@ -69,6 +76,8 @@ export class ScheduleStepComponent {
   protected readonly store = inject(AppointmentBookingStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+
+  protected readonly minDate = dayjs().format('YYYY-MM-DD');
 
   protected readonly model = signal({
     date: this.store.date(),
@@ -138,7 +147,7 @@ export class ScheduleStepComponent {
   }
 
   protected selectStartTime(slot: TimeSlot) {
-    if (slot.busy) {
+    if (!isSlotAvailable(slot)) {
       return;
     }
     this.f.startTime().value.set(slot.time);
