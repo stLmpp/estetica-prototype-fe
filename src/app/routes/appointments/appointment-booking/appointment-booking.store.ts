@@ -5,7 +5,6 @@ import {
   getState,
   patchState,
   signalStore,
-  withHooks,
   withMethods,
   withState,
   type WritableStateSource,
@@ -34,6 +33,44 @@ const CONFLICT_ERROR_MESSAGE = 'Este profissional já possui um agendamento ness
 
 function todayDateInputValue(): string {
   return dayjs().format('YYYY-MM-DD');
+}
+
+/**
+ * `withStorageSync`'s own `isPlatformServer` check isn't enough: Angular's SSR route
+ * extraction step evaluates guards (and therefore constructs this store) in a Node
+ * context where `PLATFORM_ID` isn't reliably `'server'`, so it falls through to the
+ * real `localStorage` global, which doesn't exist there. Checking for the global
+ * directly, in addition to `useStubs`, is what actually prevents the crash.
+ */
+function browserLocalStorageStrategy<State extends object>() {
+  const factory = (config: Required<SyncConfig<State>>, store: WritableStateSource<State>, useStubs: boolean) => {
+    if (useStubs || typeof localStorage === 'undefined') {
+      return {
+        clearStorage: () => undefined,
+        readFromStorage: () => undefined,
+        writeToStorage: () => undefined,
+      };
+    }
+    return {
+      clearStorage() {
+        localStorage.removeItem(config.key);
+      },
+      readFromStorage() {
+        const stateString = localStorage.getItem(config.key);
+        if (stateString) {
+          patchState(store, config.parse(stateString));
+        }
+      },
+      writeToStorage() {
+        // `stringify` is typed as taking the full `State`, but it's meant to receive
+        // whatever `select` narrowed it down to — the library's own internal
+        // implementation does the same untyped pass-through.
+        localStorage.setItem(config.key, config.stringify(config.select(getState(store)) as State));
+      },
+    };
+  };
+  factory.type = 'sync' as const;
+  return factory;
 }
 
 interface AppointmentBookingState {
@@ -82,19 +119,22 @@ const initialState: AppointmentBookingState = {
 
 export const AppointmentBookingStore = signalStore(
   withState(initialState),
-  withStorageSync({
-    key: STORAGE_KEY,
-    select: (state) => ({
-      customer: state.customer,
-      service: state.service,
-      employee: state.employee,
-      date: state.date,
-      startTime: state.startTime,
-      durationMinutes: state.durationMinutes,
-      notes: state.notes,
-      priceApplied: state.priceApplied,
-    }),
-  }),
+  withStorageSync(
+    {
+      key: STORAGE_KEY,
+      select: (state: AppointmentBookingState) => ({
+        customer: state.customer,
+        service: state.service,
+        employee: state.employee,
+        date: state.date,
+        startTime: state.startTime,
+        durationMinutes: state.durationMinutes,
+        notes: state.notes,
+        priceApplied: state.priceApplied,
+      }),
+    },
+    browserLocalStorageStrategy<AppointmentBookingState>(),
+  ),
   withMethods(
     (
       store,
@@ -104,24 +144,25 @@ export const AppointmentBookingStore = signalStore(
     ) => ({
       loadServices() {
         patchState(store, { servicesLoading: true, servicesErrorMessage: null });
-        catalogItemService
+        return catalogItemService
           .list({
             itemType: CatalogItemType.Service,
             active: true,
             hasEmployees: true,
             limit: MAX_LIMIT,
           })
-          .subscribe({
-            next: (result) => {
+          .pipe(
+            tap((result) => {
               patchState(store, { services: result.items, servicesLoading: false });
-            },
-            error: (error: unknown) => {
+            }),
+            catchError((error: unknown) => {
               patchState(store, {
                 servicesLoading: false,
                 servicesErrorMessage: extractApiErrorMessage(error, DEFAULT_SERVICES_ERROR_MESSAGE),
               });
-            },
-          });
+              return of(null);
+            }),
+          );
       },
 
       setCustomer(customer: Customer | null) {
@@ -133,21 +174,25 @@ export const AppointmentBookingStore = signalStore(
           service,
           employee: null,
           employees: [],
+          employeesErrorMessage: null,
           priceApplied: service.defaultPrice || store.priceApplied(),
         });
+      },
 
+      loadEmployees(catalogItemId: string) {
         patchState(store, { employeesLoading: true, employeesErrorMessage: null });
-        employeeService.list({ catalogItemId: service.id, limit: MAX_LIMIT }).subscribe({
-          next: (result) => {
+        return employeeService.list({ catalogItemId, limit: MAX_LIMIT }).pipe(
+          tap((result) => {
             patchState(store, { employees: result.items, employeesLoading: false });
-          },
-          error: (error: unknown) => {
+          }),
+          catchError((error: unknown) => {
             patchState(store, {
               employeesLoading: false,
               employeesErrorMessage: extractApiErrorMessage(error, DEFAULT_EMPLOYEES_ERROR_MESSAGE),
             });
-          },
-        });
+            return of(null);
+          }),
+        );
       },
 
       setEmployee(employee: Employee) {
@@ -158,18 +203,18 @@ export const AppointmentBookingStore = signalStore(
         const employee = store.employee();
 
         if (!employee) {
-          return;
+          return of(null);
         }
 
         const from = dayjs(date).startOf('day').toISOString();
         const to = dayjs(date).endOf('day').toISOString();
 
         patchState(store, { dayScheduleLoading: true, dayScheduleErrorMessage: null });
-        appointmentService.getDaySchedule(employee.id, from, to).subscribe({
-          next: (appointments) => {
+        return appointmentService.getDaySchedule(employee.id, from, to).pipe(
+          tap((appointments) => {
             patchState(store, { daySchedule: appointments, dayScheduleLoading: false });
-          },
-          error: (error: unknown) => {
+          }),
+          catchError((error: unknown) => {
             patchState(store, {
               dayScheduleLoading: false,
               dayScheduleErrorMessage: extractApiErrorMessage(
@@ -177,8 +222,9 @@ export const AppointmentBookingStore = signalStore(
                 DEFAULT_DAY_SCHEDULE_ERROR_MESSAGE,
               ),
             });
-          },
-        });
+            return of(null);
+          }),
+        );
       },
 
       setSchedule(
@@ -235,11 +281,6 @@ export const AppointmentBookingStore = signalStore(
       },
     }),
   ),
-  withHooks({
-    onInit(store) {
-      store.loadServices();
-    },
-  }),
 );
 
 export type AppointmentBookingStore = InstanceType<typeof AppointmentBookingStore>;

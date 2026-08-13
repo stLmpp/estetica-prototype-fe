@@ -1,6 +1,11 @@
 import { Routes } from '@angular/router';
 import { hasPermissionGuard, requireAuthenticatedWithOrganizationGuard } from '../../core/auth/auth.guards';
 import { appointmentBookingStepGuard } from './appointment-booking/appointment-booking-step.guard';
+import {
+  professionalStepEmployeesResolver,
+  scheduleDayScheduleResolver,
+  serviceStepServicesResolver,
+} from './appointment-booking/appointment-booking.resolvers';
 import { AppointmentBookingStore } from './appointment-booking/appointment-booking.store';
 
 export const APPOINTMENT_ROUTES: Routes = [
@@ -37,6 +42,7 @@ export const APPOINTMENT_ROUTES: Routes = [
         path: 'service',
         data: { index: 1 },
         canActivate: [appointmentBookingStepGuard(['customer'])],
+        resolve: { services: serviceStepServicesResolver() },
         loadComponent: () =>
           import('./appointment-booking/steps/service-step/service-step.component').then(
             (m) => m.ServiceStepComponent,
@@ -46,6 +52,7 @@ export const APPOINTMENT_ROUTES: Routes = [
         path: 'professional',
         data: { index: 2 },
         canActivate: [appointmentBookingStepGuard(['customer', 'service'])],
+        resolve: { employees: professionalStepEmployeesResolver() },
         loadComponent: () =>
           import('./appointment-booking/steps/professional-step/professional-step.component').then(
             (m) => m.ProfessionalStepComponent,
@@ -55,6 +62,7 @@ export const APPOINTMENT_ROUTES: Routes = [
         path: 'schedule',
         data: { index: 3 },
         canActivate: [appointmentBookingStepGuard(['customer', 'service', 'employee'])],
+        resolve: { daySchedule: scheduleDayScheduleResolver() },
         loadComponent: () =>
           import('./appointment-booking/steps/schedule-step/schedule-step.component').then(
             (m) => m.ScheduleStepComponent,

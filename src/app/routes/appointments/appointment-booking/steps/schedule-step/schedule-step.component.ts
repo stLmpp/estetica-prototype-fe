@@ -8,7 +8,9 @@ import { FormFieldComponent } from '../../../../../components/form-field/form-fi
 import { InputDirective } from '../../../../../components/input/input.directive';
 import { LabelComponent } from '../../../../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../../../../components/loading-overlay/loading-overlay.directive';
+import { DayScheduleAppointment } from '../../../appointment.model';
 import { AppointmentBookingStore } from '../../appointment-booking.store';
+import { NgxMaskDirective } from 'ngx-mask';
 
 const PRICE_REGEXP = /^\d{1,8}(\.\d{1,2})?$/;
 const DAY_START_HOUR = 8;
@@ -24,6 +26,30 @@ function pad(value: number): string {
   return String(value).padStart(2, '0');
 }
 
+function buildTimeSlots(date: string, appointments: DayScheduleAppointment[]): TimeSlot[] {
+  const slots: TimeSlot[] = [];
+  for (let minutes = DAY_START_HOUR * 60; minutes < DAY_END_HOUR * 60; minutes += SLOT_MINUTES) {
+    const time = `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
+    const slotStart = dayjs(`${date}T${time}`);
+    const slotEnd = slotStart.add(SLOT_MINUTES, 'minute');
+    const busy = appointments.some((appointment) => {
+      const start = dayjs(appointment.startTime);
+      const end = dayjs(appointment.endTime);
+      return slotStart.isBefore(end) && slotEnd.isAfter(start);
+    });
+    slots.push({ time, busy });
+  }
+  return slots;
+}
+
+function firstAvailableSlotTime(slots: TimeSlot[], preferredTime: string): string {
+  const preferred = slots.find((slot) => slot.time === preferredTime);
+  if (preferred && !preferred.busy) {
+    return preferred.time;
+  }
+  return slots.find((slot) => !slot.busy)?.time ?? '';
+}
+
 @Component({
   selector: 'app-appointment-booking-schedule-step',
   imports: [
@@ -35,6 +61,7 @@ function pad(value: number): string {
     InputDirective,
     LabelComponent,
     LoadingOverlayDirective,
+    NgxMaskDirective,
   ],
   templateUrl: './schedule-step.component.html',
 })
@@ -45,7 +72,10 @@ export class ScheduleStepComponent {
 
   protected readonly model = signal({
     date: this.store.date(),
-    startTime: this.store.startTime(),
+    startTime: firstAvailableSlotTime(
+      buildTimeSlots(this.store.date(), this.store.daySchedule()),
+      this.store.startTime(),
+    ),
     durationMinutes: this.store.durationMinutes(),
     priceApplied: this.store.priceApplied(),
     notes: this.store.notes(),
@@ -71,29 +101,39 @@ export class ScheduleStepComponent {
     });
   });
 
-  protected readonly timeSlots = computed<TimeSlot[]>(() => {
-    const date = this.model().date;
-    const appointments = this.store.daySchedule();
-    const slots: TimeSlot[] = [];
-    for (let minutes = DAY_START_HOUR * 60; minutes < DAY_END_HOUR * 60; minutes += SLOT_MINUTES) {
-      const time = `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
-      const slotStart = dayjs(`${date}T${time}`);
-      const slotEnd = slotStart.add(SLOT_MINUTES, 'minute');
-      const busy = appointments.some((appointment) => {
-        const start = dayjs(appointment.startTime);
-        const end = dayjs(appointment.endTime);
-        return slotStart.isBefore(end) && slotEnd.isAfter(start);
-      });
-      slots.push({ time, busy });
-    }
-    return slots;
-  });
+  protected readonly timeSlots = computed<TimeSlot[]>(() =>
+    buildTimeSlots(this.f.date().value(), this.store.daySchedule()),
+  );
 
   constructor() {
+    // `scheduleDayScheduleResolver` already loaded the schedule for the initial
+    // date before this component was constructed, so skip this effect's first
+    // (automatic) run and only reload when the date actually changes afterward.
+    let isInitialRun = true;
     effect(() => {
       const date = this.f.date().value();
-      console.log({ date });
-      untracked(() => this.store.loadDaySchedule(date));
+      untracked(() => {
+        if (isInitialRun) {
+          isInitialRun = false;
+          return;
+        }
+        this.store.loadDaySchedule(date).subscribe();
+      });
+    });
+
+    // The initial `startTime` above is picked before `store.daySchedule()` has
+    // actually loaded, so it can't know about real conflicts yet. Once the
+    // schedule loads (or the date changes), re-validate it against the real
+    // busy slots and move off of it if it turned out to be taken.
+    effect(() => {
+      const slots = this.timeSlots();
+      untracked(() => {
+        const currentStartTime = this.f.startTime().value();
+        const nextStartTime = firstAvailableSlotTime(slots, currentStartTime);
+        if (nextStartTime !== currentStartTime) {
+          this.f.startTime().value.set(nextStartTime);
+        }
+      });
     });
   }
 
@@ -101,7 +141,7 @@ export class ScheduleStepComponent {
     if (slot.busy) {
       return;
     }
-    this.model.update((current) => ({ ...current, startTime: slot.time }));
+    this.f.startTime().value.set(slot.time);
   }
 
   protected computeEndTimeLabel(): string {

@@ -1,16 +1,20 @@
 import {
   booleanAttribute,
   ComponentRef,
+  debounced,
   Directive,
   effect,
   ElementRef,
   inject,
   input,
+  numberAttribute,
   OnDestroy,
   Renderer2,
   ViewContainerRef,
 } from '@angular/core';
 import { LoadingOverlayContentComponent } from './loading-overlay-content.component';
+
+const DEFAULT_SHOW_DELAY_MS = 200;
 
 @Directive({
   selector: '[loadingOverlay]',
@@ -21,16 +25,31 @@ import { LoadingOverlayContentComponent } from './loading-overlay-content.compon
 export class LoadingOverlayDirective implements OnDestroy {
   readonly loadingOverlay = input(false, { transform: booleanAttribute });
   readonly loadingOverlayLabel = input('Carregando');
+  readonly loadingOverlayShowDelay = input(DEFAULT_SHOW_DELAY_MS, {
+    transform: (value) => {
+      let newValue = numberAttribute(value, DEFAULT_SHOW_DELAY_MS);
+      if (newValue < 0) {
+        newValue = DEFAULT_SHOW_DELAY_MS;
+      }
+      return newValue;
+    },
+  });
 
   private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
   private readonly renderer = inject(Renderer2);
   private readonly viewContainerRef = inject(ViewContainerRef);
 
+  private readonly debouncedLoadingOverlay = debounced(this.loadingOverlay, (show) =>
+    show
+      ? new Promise<void>((resolve) => setTimeout(resolve, this.loadingOverlayShowDelay()))
+      : undefined,
+  );
+
   private overlayRef: ComponentRef<LoadingOverlayContentComponent> | null = null;
 
   constructor() {
     effect(() => {
-      if (this.loadingOverlay()) {
+      if (this.debouncedLoadingOverlay.value()) {
         this.attachOverlay();
       } else {
         this.detachOverlay();

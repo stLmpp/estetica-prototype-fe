@@ -59,6 +59,7 @@ coding conventions it points to.
   }
   ```
   Used as `canActivate: [requireAuthenticatedGuard()]`.
+- Avoid calling `.subscribe()` yourself; prefer declarative alternatives that let Angular own the subscription (and its cleanup) instead: the async pipe in templates, `toSignal()`/`toObservable()` for signal interop, returning the Observable directly from a router guard/resolver (the Router subscribes and unsubscribes for you), and `rxMethod()` inside a SignalStore (see State Management below). If nothing framework-owned fits, a manual `.subscribe()` is the last resort — pair it with `takeUntilDestroyed()` so it doesn't outlive the component/service.
 
 ## Authorization
 
@@ -103,6 +104,7 @@ This app is server-rendered (`provideClientHydration()` in `app.config.ts`). Eve
 - Do NOT use `ngClass`, use `class` bindings instead
 - Do NOT use `ngStyle`, use `style` bindings instead
 - When using external templates/styles, use paths relative to the component TS file.
+- Favor declarative code: derive values with `computed()` and react to state changes with `effect()`, instead of imperative methods that recompute something on demand (e.g. a `getX()` called from another field's initializer). A declarative derivation re-runs automatically whenever its signal dependencies change and isn't sensitive to class field/method declaration order; an imperative method only reflects the latest state when something remembers to call it again.
 
 ## State Management
 
@@ -124,6 +126,7 @@ This app is server-rendered (`provideClientHydration()` in `app.config.ts`). Eve
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
 - Use the async pipe to handle observables
 - Do not assume globals like (`new Date()`) are available.
+- Use `@let` to name a signal read or a repeated condition once per template/block instead of calling the same signal or re-evaluating the same expression multiple times (e.g. `@let isSelected = value() === option.id;`, then reuse `isSelected` in every binding that needs it).
 
 ### Deferred Loading (`@defer`)
 

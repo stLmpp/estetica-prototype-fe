@@ -11,19 +11,21 @@
         </p>
         <div class="grid grid-cols-4 gap-2 sm:grid-cols-6">
           @for (slot of timeSlots(); track slot.time) {
+            @let startTime = f.startTime().value();
+            @let isSlotSelected = startTime === slot.time;
             <button
               type="button"
               class="rounded-lg py-1.5 text-sm transition-colors"
               [disabled]="slot.busy"
-              [class.bg-primary-500]="f.startTime().value() === slot.time"
-              [class.text-white]="f.startTime().value() === slot.time"
-              [class.text-neutral-400]="slot.busy && f.startTime().value() !== slot.time"
-              [class.dark:text-neutral-600]="slot.busy && f.startTime().value() !== slot.time"
+              [class.bg-primary-500]="!slot.busy && isSlotSelected"
+              [class.text-white]="!slot.busy && isSlotSelected"
+              [class.text-neutral-400]="slot.busy"
+              [class.dark:text-neutral-600]="slot.busy"
               [class.line-through]="slot.busy"
-              [class.text-neutral-800]="!slot.busy && f.startTime().value() !== slot.time"
-              [class.dark:text-neutral-100]="!slot.busy && f.startTime().value() !== slot.time"
-              [class.hover:bg-neutral-100]="!slot.busy && f.startTime().value() !== slot.time"
-              [class.dark:hover:bg-neutral-700]="!slot.busy && f.startTime().value() !== slot.time"
+              [class.text-neutral-800]="!slot.busy"
+              [class.dark:text-neutral-100]="!slot.busy"
+              [class.hover:bg-neutral-100]="!slot.busy"
+              [class.dark:hover:bg-neutral-700]="!slot.busy"
               (click)="selectStartTime(slot)"
             >
               {{ slot.time }}
@@ -58,6 +60,8 @@
       type="text"
       inputmode="decimal"
       placeholder="Deixe em branco para usar o preço padrão do serviço"
+      mask="separator.2"
+      prefix="R$ "
     />
   </app-form-field>
 
