@@ -43,3 +43,7 @@
 .cdk-overlay-dark-backdrop {
   background: rgba(0, 0, 0, 0.5);
 }
+
+.page-container {
+  @apply mx-auto flex max-w-7xl flex-col gap-6 p-6;
+}

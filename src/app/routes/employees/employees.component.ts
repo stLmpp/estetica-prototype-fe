@@ -57,7 +57,7 @@ const SEARCH_DEBOUNCE_MS = 300;
   ],
   templateUrl: './employees.component.html',
   host: {
-    class: 'mx-auto flex max-w-5xl flex-col gap-6 p-6',
+    class: 'page-container',
   },
   providers: [EmployeesStore],
 })

@@ -85,7 +85,7 @@ function toRangeEndIso(date: string): string | undefined {
   ],
   templateUrl: './appointments.component.html',
   host: {
-    class: 'mx-auto flex max-w-5xl flex-col gap-6 p-6',
+    class: 'page-container',
   },
   providers: [AppointmentsStore],
 })

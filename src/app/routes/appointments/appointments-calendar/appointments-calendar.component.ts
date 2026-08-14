@@ -186,7 +186,7 @@ const STATUS_OPTIONS: MultiSelectBadgeOption<AppointmentStatus>[] = [
   ],
   templateUrl: './appointments-calendar.component.html',
   host: {
-    class: 'mx-auto flex max-w-5xl flex-col gap-6 p-6',
+    class: 'page-container',
   },
   providers: [AppointmentsCalendarStore],
 })

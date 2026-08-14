@@ -39,7 +39,7 @@ const MAX_LIMIT = 100;
   ],
   templateUrl: './employee-details.component.html',
   host: {
-    class: 'mx-auto flex max-w-5xl flex-col gap-6 p-6',
+    class: 'page-container',
   },
 })
 export class EmployeeDetailsComponent {
