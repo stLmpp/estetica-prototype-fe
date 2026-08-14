@@ -35,12 +35,9 @@ import { TableComponent } from '../../components/table/table.component';
 import { TypeaheadComponent } from '../../components/typeahead/typeahead.component';
 import { AuthStore } from '../../core/auth/auth.store';
 import { DialogService } from '../../core/dialog/dialog.service';
-import { CatalogItemType } from '../catalog-items/catalog-item-type.enum';
 import { CatalogItem } from '../catalog-items/catalog-item.model';
-import { CatalogItemService } from '../catalog-items/catalog-item.service';
 import { CustomerService } from '../customers/customer.service';
 import { Employee } from '../employees/employee.model';
-import { EmployeeService } from '../employees/employee.service';
 import { AppointmentStatus } from './appointment-status.enum';
 import { Appointment } from './appointment.model';
 import { AppointmentsStore, PAGE_SIZE } from './appointments.store';
@@ -93,13 +90,13 @@ function toRangeEndIso(date: string): string | undefined {
 })
 export class AppointmentsComponent {
   readonly pageParam = input(1, { alias: 'page', transform: (value: string) => numberAttribute(value, 1) });
+  readonly services = input.required<CatalogItem[]>();
+  readonly employees = input.required<Employee[]>();
 
   protected readonly store = inject(AppointmentsStore);
   private readonly authStore = inject(AuthStore);
   private readonly dialogService = inject(DialogService);
   private readonly customerService = inject(CustomerService);
-  private readonly catalogItemService = inject(CatalogItemService);
-  private readonly employeeService = inject(EmployeeService);
 
   protected readonly LucideCalendarPlus = LucideCalendarPlus;
   protected readonly LucideX = LucideX;
@@ -144,9 +141,6 @@ export class AppointmentsComponent {
   });
   protected readonly filtersForm = form(this.filtersModel);
 
-  protected readonly services = signal<CatalogItem[]>([]);
-  protected readonly employees = signal<Employee[]>([]);
-
   protected readonly customerSearchFn = (query: string) =>
     this.customerService
       .list({ name: query, limit: 10 })
@@ -157,13 +151,6 @@ export class AppointmentsComponent {
     if (initialPage > 1) {
       this.store.setPage(initialPage);
     }
-
-    this.catalogItemService.list({ itemType: CatalogItemType.Service, limit: 100 }).subscribe({
-      next: (result) => this.services.set(result.items),
-    });
-    this.employeeService.list({ limit: 100 }).subscribe({
-      next: (result) => this.employees.set(result.items),
-    });
 
     toObservable(this.filtersForm().value)
       .pipe(skip(1), takeUntilDestroyed())

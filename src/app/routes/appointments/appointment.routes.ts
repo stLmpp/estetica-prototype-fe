@@ -7,6 +7,7 @@ import {
   serviceStepServicesResolver,
 } from './appointment-booking/appointment-booking.resolvers';
 import { AppointmentBookingStore } from './appointment-booking/appointment-booking.store';
+import { appointmentsEmployeesResolver, appointmentsServicesResolver } from './appointments.resolvers';
 
 export const APPOINTMENT_ROUTES: Routes = [
   {
@@ -16,6 +17,10 @@ export const APPOINTMENT_ROUTES: Routes = [
       requireAuthenticatedWithOrganizationGuard(),
       hasPermissionGuard({ orgPermissions: { appointment: ['get'] } }),
     ],
+    resolve: {
+      services: appointmentsServicesResolver(),
+      employees: appointmentsEmployeesResolver(),
+    },
   },
   {
     path: 'new',
