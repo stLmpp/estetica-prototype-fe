@@ -6,10 +6,15 @@ import { skip } from 'rxjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
 import { AlertComponent } from '../../../components/alert/alert.component';
+import { ButtonComponent } from '../../../components/button/button.component';
 import { FormFieldComponent } from '../../../components/form-field/form-field.component';
 import { IconButtonComponent } from '../../../components/icon-button/icon-button.component';
 import { LabelComponent } from '../../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../../components/loading-overlay/loading-overlay.directive';
+import {
+  MultiSelectBadgeOption,
+  MultiSelectBadgesComponent,
+} from '../../../components/multi-select-badges/multi-select-badges.component';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { AppointmentStatus } from '../appointment-status.enum';
 import { CalendarAppointment } from '../appointment.model';
@@ -80,7 +85,10 @@ function buildGridDays(
   });
 }
 
-function buildMonthDays(anchorDate: string, appointments: CalendarAppointment[]): CalendarMonthDay[] {
+function buildMonthDays(
+  anchorDate: string,
+  appointments: CalendarAppointment[],
+): CalendarMonthDay[] {
   const byDate = groupByDate(appointments);
   const monthStart = dayjs(anchorDate).startOf('month');
   const gridStart = monthStart.startOf('week');
@@ -120,12 +128,21 @@ function periodLabel(anchorDate: string, view: CalendarView): string {
 
 interface FiltersFormModel {
   employeeId: string;
+  statuses: AppointmentStatus[];
 }
+
+const STATUS_OPTIONS: MultiSelectBadgeOption<AppointmentStatus>[] = [
+  { value: AppointmentStatus.Scheduled, label: AppointmentStatus.Scheduled, variant: 'primary' },
+  { value: AppointmentStatus.Completed, label: AppointmentStatus.Completed, variant: 'secondary' },
+  { value: AppointmentStatus.Cancelled, label: AppointmentStatus.Cancelled },
+  { value: AppointmentStatus.NoShow, label: AppointmentStatus.NoShow },
+];
 
 @Component({
   selector: 'app-appointments-calendar',
   imports: [
     AlertComponent,
+    ButtonComponent,
     CalendarMonthGridComponent,
     CalendarTimeGridComponent,
     FormField,
@@ -134,6 +151,7 @@ interface FiltersFormModel {
     IconButtonComponent,
     LabelComponent,
     LoadingOverlayDirective,
+    MultiSelectBadgesComponent,
     RouterLink,
     SelectDirective,
   ],
@@ -150,24 +168,35 @@ export class AppointmentsCalendarComponent {
 
   protected readonly LucideChevronLeft = LucideChevronLeft;
   protected readonly LucideChevronRight = LucideChevronRight;
-  protected readonly AppointmentStatus = AppointmentStatus;
   protected readonly views: { value: CalendarView; label: string }[] = [
     { value: 'day', label: 'Dia' },
     { value: 'week', label: 'Semana' },
     { value: 'month', label: 'Mês' },
   ];
 
-  protected readonly filtersModel = signal<FiltersFormModel>({ employeeId: '' });
+  protected readonly statusOptions = STATUS_OPTIONS;
+
+  protected readonly filtersModel = signal<FiltersFormModel>({
+    employeeId: '',
+    statuses: Object.values(AppointmentStatus),
+  });
   protected readonly filtersForm = form(this.filtersModel);
 
-  protected readonly periodLabel = computed(() => periodLabel(this.store.anchorDate(), this.store.view()));
+  protected readonly periodLabel = computed(() =>
+    periodLabel(this.store.anchorDate(), this.store.view()),
+  );
+
+  protected readonly filteredAppointments = computed(() => {
+    const statuses = this.filtersForm.statuses().value();
+    return this.store.appointments().filter((appointment) => statuses.includes(appointment.status));
+  });
 
   protected readonly gridDays = computed(() =>
-    buildGridDays(this.store.anchorDate(), this.store.view(), this.store.appointments()),
+    buildGridDays(this.store.anchorDate(), this.store.view(), this.filteredAppointments()),
   );
 
   protected readonly monthDays = computed(() =>
-    buildMonthDays(this.store.anchorDate(), this.store.appointments()),
+    buildMonthDays(this.store.anchorDate(), this.filteredAppointments()),
   );
 
   constructor() {

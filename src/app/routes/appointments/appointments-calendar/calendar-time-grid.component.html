@@ -1,51 +1,58 @@
-<div class="flex overflow-x-auto">
-  <div class="flex flex-col pt-6" style="width: 52px">
-    @for (hour of hours; track hour) {
-      <div
-        class="pr-2 text-right text-xs text-neutral-400 dark:text-neutral-500"
-        [style.height.px]="hourHeightPx"
-      >
-        {{ hourLabel(hour) }}
-      </div>
-    }
-  </div>
-  <div class="flex min-w-0 flex-1">
-    @for (column of columns(); track column.day.date) {
-      <div class="min-w-[90px] flex-1 border-l border-neutral-200 dark:border-neutral-700">
+<div
+  class="overflow-x-auto overflow-y-hidden rounded-xl border border-neutral-200 dark:border-neutral-700"
+>
+  <div class="flex">
+    <div class="flex flex-col pt-6" style="width: 52px">
+      @for (hour of hours; track hour) {
         <div
-          class="h-6 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400"
-          [class.text-primary-600]="column.day.isToday"
-          [class.dark:text-primary-400]="column.day.isToday"
+          class="pr-2 text-right text-xs text-neutral-400 dark:text-neutral-500"
+          [style.height.px]="hourHeightPx"
         >
-          {{ column.day.label }}
+          {{ hourLabel(hour) }}
         </div>
-        <div class="relative" [style.height.px]="gridHeightPx">
-          @for (hour of hours; track hour) {
-            <div
-              class="border-b border-neutral-100 dark:border-neutral-800"
-              [style.height.px]="hourHeightPx"
-            ></div>
-          }
-          <div class="absolute inset-0 px-0.5">
-            @for (block of column.blocks; track block.appointment.id) {
+      }
+    </div>
+    <div class="flex min-w-0 flex-1">
+      @for (column of columns(); track column.day.date) {
+        <div class="min-w-[90px] flex-1 border-l border-neutral-200 dark:border-neutral-700">
+          <div
+            class="h-6 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400"
+            [class.text-primary-600]="column.day.isToday"
+            [class.dark:text-primary-400]="column.day.isToday"
+          >
+            {{ column.day.label }}
+          </div>
+          <div
+            class="relative border-t border-neutral-100 dark:border-neutral-800"
+            [style.height.px]="gridHeightPx"
+          >
+            @for (hour of hours; track hour) {
               <div
-                class="absolute overflow-hidden rounded px-1 py-0.5 text-[11px] leading-tight"
-                [class]="block.colorClass"
-                [class.line-through]="block.appointment.status === AppointmentStatus.Cancelled"
-                [class.opacity-70]="block.appointment.status === AppointmentStatus.Cancelled"
-                [style.top.%]="block.topPercent"
-                [style.height.%]="block.heightPercent"
-                [style.left.%]="(block.column / block.columnCount) * 100"
-                [style.width.%]="(1 / block.columnCount) * 100"
-              >
-                <div class="font-semibold">{{ block.appointment.startTime | date: 'HH:mm' }}</div>
-                <div>{{ block.appointment.customerName }}</div>
-                <div class="opacity-80">{{ block.appointment.catalogItemName }}</div>
-              </div>
+                class="border-b border-neutral-100 dark:border-neutral-800"
+                [style.height.px]="hourHeightPx"
+              ></div>
             }
+            <div class="absolute inset-0 px-0.5">
+              @for (block of column.blocks; track block.appointment.id) {
+                <div
+                  class="absolute overflow-hidden rounded px-1 py-0.5 text-[11px] leading-tight"
+                  [class]="block.colorClass"
+                  [class.line-through]="block.appointment.status === AppointmentStatus.Cancelled"
+                  [class.opacity-70]="block.appointment.status === AppointmentStatus.Cancelled"
+                  [style.top.%]="block.topPercent"
+                  [style.height.%]="block.heightPercent"
+                  [style.left.%]="(block.column / block.columnCount) * 100"
+                  [style.width.%]="(1 / block.columnCount) * 100"
+                >
+                  <div class="font-semibold">{{ block.appointment.startTime | date: 'HH:mm' }}</div>
+                  <div>{{ block.appointment.customerName }}</div>
+                  <div class="opacity-80">{{ block.appointment.catalogItemName }}</div>
+                </div>
+              }
+            </div>
           </div>
         </div>
-      </div>
-    }
+      }
+    </div>
   </div>
 </div>

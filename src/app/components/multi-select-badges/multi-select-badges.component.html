@@ -1,0 +1,19 @@
+@for (option of options(); track option.value; let i = $index) {
+  @let checked = isChecked(option);
+  <label
+    [for]="idPrefix + '-' + i"
+    class="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs font-bold transition-colors select-none"
+    [class]="variantClasses(option.variant ?? 'default', checked)"
+  >
+    <input
+      #checkbox
+      type="checkbox"
+      class="sr-only"
+      [id]="idPrefix + '-' + i"
+      [checked]="checked"
+      [disabled]="disabled()"
+      (change)="toggle(option, checkbox.checked)"
+    />
+    {{ option.label }}
+  </label>
+}
