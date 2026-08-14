@@ -10,11 +10,9 @@ import { LabelComponent } from '../../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../../components/loading-overlay/loading-overlay.directive';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { ToastService } from '../../../components/toast/toast.service';
-import { WorkingHoursEditorComponent } from '../../../components/working-hours-editor/working-hours-editor.component';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { MaritalStatus } from '../../../model/marital-status.enum';
 import { PhoneType } from '../../../model/phone-type.enum';
-import { EMPTY_WEEKLY_WORKING_HOURS, WeeklyWorkingHours } from '../../../model/working-hours.model';
 import { EmployeePayload, UpdateEmployeePayload } from '../employee.dto';
 import { Employee, EmployeeDetail, EmployeePhone } from '../employee.model';
 import { EmployeeService } from '../employee.service';
@@ -41,7 +39,6 @@ interface EmployeeFormModel {
   maritalStatus: MaritalStatus | '';
   email: string;
   phones: PhoneFormValue[];
-  workingHours: WeeklyWorkingHours;
 }
 
 type SaveResult = { ok: true; employee: Employee } | { ok: false; message: string };
@@ -62,7 +59,6 @@ function emptyModel(): EmployeeFormModel {
     maritalStatus: '',
     email: '',
     phones: [],
-    workingHours: EMPTY_WEEKLY_WORKING_HOURS,
   };
 }
 
@@ -79,7 +75,6 @@ function toFormModel(employee: EmployeeDetail): EmployeeFormModel {
     maritalStatus: employee.maritalStatus ?? '',
     email: employee.email ?? '',
     phones: [],
-    workingHours: employee.workingHours ?? EMPTY_WEEKLY_WORKING_HOURS,
   };
 }
 
@@ -95,7 +90,6 @@ function toFormModel(employee: EmployeeDetail): EmployeeFormModel {
     LoadingOverlayDirective,
     NgxMaskDirective,
     SelectDirective,
-    WorkingHoursEditorComponent,
   ],
   templateUrl: './employee-form-dialog.component.html',
   host: {
@@ -187,7 +181,6 @@ export class EmployeeFormDialogComponent {
       phones: value.phones.length
         ? value.phones.map((phone) => ({ type: phone.type, number: phone.number.trim() }))
         : undefined,
-      workingHours: value.workingHours,
     };
   }
 
@@ -203,7 +196,6 @@ export class EmployeeFormDialogComponent {
       state: value.state.trim() || undefined,
       maritalStatus: value.maritalStatus || undefined,
       email: value.email.trim() || undefined,
-      workingHours: value.workingHours,
     };
   }
 

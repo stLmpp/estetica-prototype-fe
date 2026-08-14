@@ -40,12 +40,14 @@
         <button
           type="button"
           class="px-3 py-1.5 text-sm transition-colors"
-          [class.bg-primary-500]="isActive"
-          [class.text-white]="isActive"
-          [class.text-neutral-600]="!isActive"
-          [class.dark:text-neutral-300]="!isActive"
-          [class.hover:bg-neutral-100]="!isActive"
-          [class.dark:hover:bg-neutral-700]="!isActive"
+          [class]="{
+            'bg-primary-500': isActive,
+            'text-white': isActive,
+            'text-neutral-600': !isActive,
+            'dark:text-neutral-300': !isActive,
+            'hover:bg-neutral-100': !isActive,
+            'dark:hover:bg-neutral-700': !isActive,
+          }"
           (click)="setView(option.value)"
         >
           {{ option.label }}

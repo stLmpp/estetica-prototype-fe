@@ -11,15 +11,18 @@ import {
   TransferListComponent,
   TransferListItem,
 } from '../../../components/transfer-list/transfer-list.component';
+import { WorkingHoursEditorComponent } from '../../../components/working-hours-editor/working-hours-editor.component';
 import { AuthStore } from '../../../core/auth/auth.store';
 import { extractApiErrorMessage } from '../../../model/api-error';
+import { EMPTY_WEEKLY_WORKING_HOURS, WeeklyWorkingHours } from '../../../model/working-hours.model';
 import { CatalogItemType } from '../../catalog-items/catalog-item-type.enum';
 import { CatalogItemService } from '../../catalog-items/catalog-item.service';
 import { EmployeeServiceService } from '../employee-service.service';
 import { EmployeeService } from '../employee.service';
 
 const DEFAULT_LOAD_ERROR_MESSAGE = 'Não foi possível carregar os dados do funcionário.';
-const DEFAULT_SAVE_ERROR_MESSAGE = 'Não foi possível salvar os serviços do funcionário.';
+const DEFAULT_SERVICES_SAVE_ERROR_MESSAGE = 'Não foi possível salvar os serviços do funcionário.';
+const DEFAULT_WORKING_HOURS_SAVE_ERROR_MESSAGE = 'Não foi possível salvar o horário de trabalho.';
 const MAX_LIMIT = 100;
 
 @Component({
@@ -32,6 +35,7 @@ const MAX_LIMIT = 100;
     LoadingOverlayDirective,
     RouterLink,
     TransferListComponent,
+    WorkingHoursEditorComponent,
   ],
   templateUrl: './employee-details.component.html',
   host: {
@@ -84,7 +88,7 @@ export class EmployeeDetailsComponent {
   }));
   protected readonly servicesForm = form(this.servicesModel, (schema) => {
     disabled(schema.catalogItemIds, {
-      when: () => !this.canManageServices() || this.saving(),
+      when: () => !this.canManageServices() || this.servicesSaving(),
     });
   });
 
@@ -94,25 +98,61 @@ export class EmployeeDetailsComponent {
     return current.length !== initial.length || current.some((id, index) => id !== initial[index]);
   });
 
-  protected readonly saving = signal(false);
-  protected readonly saveErrorMessage = signal<string | null>(null);
+  protected readonly servicesSaving = signal(false);
+  protected readonly servicesSaveErrorMessage = signal<string | null>(null);
 
-  protected save() {
+  protected saveServices() {
     const employeeId = this.employeeId();
     const catalogItemIds = this.servicesForm.catalogItemIds().value();
 
-    this.saving.set(true);
-    this.saveErrorMessage.set(null);
+    this.servicesSaving.set(true);
+    this.servicesSaveErrorMessage.set(null);
 
     this.employeeServiceService.sync(employeeId, catalogItemIds).subscribe({
       next: () => {
-        this.saving.set(false);
+        this.servicesSaving.set(false);
         this.toastService.success('Serviços atualizados com sucesso.');
         this.employeeResource.reload();
       },
       error: (error: unknown) => {
-        this.saving.set(false);
-        this.saveErrorMessage.set(extractApiErrorMessage(error, DEFAULT_SAVE_ERROR_MESSAGE));
+        this.servicesSaving.set(false);
+        this.servicesSaveErrorMessage.set(
+          extractApiErrorMessage(error, DEFAULT_SERVICES_SAVE_ERROR_MESSAGE),
+        );
+      },
+    });
+  }
+
+  protected readonly canManageEmployee = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { employee: ['update'] } }),
+  );
+
+  protected readonly workingHoursModel = linkedSignal<WeeklyWorkingHours>(
+    () => this.employee()?.workingHours ?? EMPTY_WEEKLY_WORKING_HOURS,
+  );
+  protected readonly workingHoursForm = form(this.workingHoursModel);
+
+  protected readonly workingHoursSaving = signal(false);
+  protected readonly workingHoursSaveErrorMessage = signal<string | null>(null);
+
+  protected saveWorkingHours() {
+    const employeeId = this.employeeId();
+    const workingHours = this.workingHoursForm().value();
+
+    this.workingHoursSaving.set(true);
+    this.workingHoursSaveErrorMessage.set(null);
+
+    this.employeeService.update(employeeId, { workingHours }).subscribe({
+      next: () => {
+        this.workingHoursSaving.set(false);
+        this.toastService.success('Horário de trabalho atualizado com sucesso.');
+        this.employeeResource.reload();
+      },
+      error: (error: unknown) => {
+        this.workingHoursSaving.set(false);
+        this.workingHoursSaveErrorMessage.set(
+          extractApiErrorMessage(error, DEFAULT_WORKING_HOURS_SAVE_ERROR_MESSAGE),
+        );
       },
     });
   }

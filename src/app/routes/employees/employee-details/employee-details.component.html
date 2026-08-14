@@ -31,7 +31,7 @@
               emptyRightMessage="Nenhum serviço vinculado."
             />
 
-            @if (saveErrorMessage(); as message) {
+            @if (servicesSaveErrorMessage(); as message) {
               <app-alert error class="mt-4">{{ message }}</app-alert>
             }
 
@@ -41,9 +41,42 @@
                   btn
                   btnPrimary
                   type="button"
-                  [disabled]="!isDirty() || saving()"
-                  [btnLoading]="saving()"
-                  (click)="save()"
+                  [disabled]="!isDirty() || servicesSaving()"
+                  [btnLoading]="servicesSaving()"
+                  (click)="saveServices()"
+                >
+                  Salvar
+                </button>
+              </div>
+            }
+          </form>
+        </div>
+
+        <div>
+          <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+            Horário de trabalho
+          </h2>
+          <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+            Dias e horários em que este profissional atende. Quando não configurado, o horário da
+            organização é usado como padrão.
+          </p>
+
+          <form [formRoot]="workingHoursForm">
+            <app-working-hours-editor [formField]="workingHoursForm" />
+
+            @if (workingHoursSaveErrorMessage(); as message) {
+              <app-alert error class="mt-4">{{ message }}</app-alert>
+            }
+
+            @if (canManageEmployee()) {
+              <div class="mt-4 flex justify-end">
+                <button
+                  btn
+                  btnPrimary
+                  type="button"
+                  [disabled]="!workingHoursForm().dirty()"
+                  [btnLoading]="workingHoursSaving()"
+                  (click)="saveWorkingHours()"
                 >
                   Salvar
                 </button>

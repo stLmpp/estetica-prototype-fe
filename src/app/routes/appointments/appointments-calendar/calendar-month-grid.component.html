@@ -11,18 +11,19 @@
   @for (cell of cells(); track cell.day.date) {
     <div
       class="min-h-[86px] border-r border-b border-neutral-200 p-1.5 dark:border-neutral-700"
-      [class.bg-neutral-50]="!cell.day.isCurrentMonth"
-      [class.dark:bg-neutral-900]="!cell.day.isCurrentMonth"
+      [class]="{ 'bg-neutral-50': !cell.day.isCurrentMonth, 'dark:bg-neutral-900': !cell.day.isCurrentMonth }"
     >
       <div
         class="mb-1 text-xs"
-        [class.text-neutral-800]="cell.day.isCurrentMonth"
-        [class.dark:text-neutral-100]="cell.day.isCurrentMonth"
-        [class.text-neutral-400]="!cell.day.isCurrentMonth"
-        [class.dark:text-neutral-600]="!cell.day.isCurrentMonth"
-        [class.font-semibold]="cell.day.isToday"
-        [class.text-primary-600]="cell.day.isToday"
-        [class.dark:text-primary-400]="cell.day.isToday"
+        [class]="{
+          'text-neutral-800': cell.day.isCurrentMonth,
+          'dark:text-neutral-100': cell.day.isCurrentMonth,
+          'text-neutral-400': !cell.day.isCurrentMonth,
+          'dark:text-neutral-600': !cell.day.isCurrentMonth,
+          'font-semibold': cell.day.isToday,
+          'text-primary-600': cell.day.isToday,
+          'dark:text-primary-400': cell.day.isToday,
+        }"
       >
         {{ cell.day.dayOfMonth }}
       </div>
