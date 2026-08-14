@@ -6,9 +6,9 @@
 
 <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Novo agendamento</h1>
 
-<app-stepper [selectedIndex]="currentStepIndex()" (headerClick)="onHeaderClick($event)">
-  @for (step of steps; track step.path) {
-    <app-step [label]="step.label" />
+<app-stepper [linear]="true" [selectedIndex]="currentStepIndex()" (headerClick)="onHeaderClick($event)">
+  @for (step of steps; track step.path; let i = $index) {
+    <app-step [label]="step.label" [completed]="stepReachable()[i]" />
   }
 </app-stepper>
 

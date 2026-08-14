@@ -1,9 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { StepComponent } from '../../../components/stepper/step.component';
 import { StepperComponent } from '../../../components/stepper/stepper.component';
+import { isBookingStepReachable } from './appointment-booking-step.guard';
+import { AppointmentBookingStore } from './appointment-booking.store';
 
 interface WizardStep {
   path: string;
@@ -29,6 +31,7 @@ const STEPS: WizardStep[] = [
 export class AppointmentBookingComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly store = inject(AppointmentBookingStore);
 
   protected readonly steps = STEPS;
 
@@ -39,6 +42,10 @@ export class AppointmentBookingComponent {
       startWith(this.computeIndexFromRouteData()),
     ),
     { initialValue: 0 },
+  );
+
+  protected readonly stepReachable = computed(() =>
+    this.steps.map((_, index) => isBookingStepReachable(index, this.store)),
   );
 
   private computeIndexFromRouteData(): number {

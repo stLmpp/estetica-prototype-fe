@@ -4,7 +4,10 @@ import {
   requireAuthenticatedWithOrganizationGuard,
 } from '../../core/auth/auth.guards';
 import { appointmentBookingCanDeactivateGuard } from './appointment-booking/appointment-booking-can-deactivate.guard';
-import { appointmentBookingStepGuard } from './appointment-booking/appointment-booking-step.guard';
+import {
+  appointmentBookingStepGuard,
+  BOOKING_STEP_REQUIREMENTS,
+} from './appointment-booking/appointment-booking-step.guard';
 import {
   professionalStepEmployeesResolver,
   scheduleDayScheduleResolver,
@@ -66,7 +69,7 @@ export const APPOINTMENT_ROUTES: Routes = [
       {
         path: 'service',
         data: { index: 1 },
-        canActivate: [appointmentBookingStepGuard(['customer'])],
+        canActivate: [appointmentBookingStepGuard(BOOKING_STEP_REQUIREMENTS[1])],
         resolve: { services: serviceStepServicesResolver() },
         loadComponent: () =>
           import('./appointment-booking/steps/service-step/service-step.component').then(
@@ -76,7 +79,7 @@ export const APPOINTMENT_ROUTES: Routes = [
       {
         path: 'professional',
         data: { index: 2 },
-        canActivate: [appointmentBookingStepGuard(['customer', 'service'])],
+        canActivate: [appointmentBookingStepGuard(BOOKING_STEP_REQUIREMENTS[2])],
         resolve: { employees: professionalStepEmployeesResolver() },
         loadComponent: () =>
           import('./appointment-booking/steps/professional-step/professional-step.component').then(
@@ -86,7 +89,7 @@ export const APPOINTMENT_ROUTES: Routes = [
       {
         path: 'schedule',
         data: { index: 3 },
-        canActivate: [appointmentBookingStepGuard(['customer', 'service', 'employee'])],
+        canActivate: [appointmentBookingStepGuard(BOOKING_STEP_REQUIREMENTS[3])],
         resolve: { daySchedule: scheduleDayScheduleResolver() },
         loadComponent: () =>
           import('./appointment-booking/steps/schedule-step/schedule-step.component').then(
@@ -96,7 +99,7 @@ export const APPOINTMENT_ROUTES: Routes = [
       {
         path: 'review',
         data: { index: 4 },
-        canActivate: [appointmentBookingStepGuard(['customer', 'service', 'employee'])],
+        canActivate: [appointmentBookingStepGuard(BOOKING_STEP_REQUIREMENTS[4])],
         loadComponent: () =>
           import('./appointment-booking/steps/review-step/review-step.component').then(
             (m) => m.ReviewStepComponent,
