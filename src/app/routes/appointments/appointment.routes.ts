@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { hasPermissionGuard, requireAuthenticatedWithOrganizationGuard } from '../../core/auth/auth.guards';
+import { appointmentBookingCanDeactivateGuard } from './appointment-booking/appointment-booking-can-deactivate.guard';
 import { appointmentBookingStepGuard } from './appointment-booking/appointment-booking-step.guard';
 import {
   professionalStepEmployeesResolver,
@@ -46,6 +47,7 @@ export const APPOINTMENT_ROUTES: Routes = [
       requireAuthenticatedWithOrganizationGuard(),
       hasPermissionGuard({ orgPermissions: { appointment: ['create'] } }),
     ],
+    canDeactivate: [appointmentBookingCanDeactivateGuard()],
     providers: [AppointmentBookingStore],
     children: [
       { path: '', redirectTo: 'customer', pathMatch: 'full' },

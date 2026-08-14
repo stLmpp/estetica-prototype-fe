@@ -287,7 +287,6 @@ export const AppointmentBookingStore = signalStore(
           return appointmentService.create(payload).pipe(
             tap(() => {
               patchState(store, { submitting: false });
-              store.clearStorage();
             }),
             catchError((error: unknown) => {
               patchState(store, {
@@ -300,6 +299,11 @@ export const AppointmentBookingStore = signalStore(
               return of(null);
             }),
           );
+        },
+
+        reset() {
+          patchState(store, initialState);
+          store.clearStorage();
         },
       };
     },
