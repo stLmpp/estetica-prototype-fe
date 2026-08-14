@@ -11,7 +11,12 @@ import {
   UpdateAppointmentPayload,
   UpdateAppointmentStatusPayload,
 } from './appointment.dto';
-import { Appointment, AppointmentDetail, DayScheduleAppointment } from './appointment.model';
+import {
+  Appointment,
+  AppointmentDetail,
+  CalendarAppointment,
+  DayScheduleAppointment,
+} from './appointment.model';
 
 interface AppointmentResponse {
   data: { appointment: AppointmentDetail };
@@ -24,6 +29,10 @@ interface ListAppointmentResponse {
 
 interface GetDayScheduleResponse {
   data: { appointments: DayScheduleAppointment[] };
+}
+
+interface GetCalendarRangeResponse {
+  data: { appointments: CalendarAppointment[] };
 }
 
 @Service()
@@ -84,6 +93,13 @@ export class AppointmentService {
     const params = httpParamsFromObject({ employeeId, from, to });
     return this.http
       .get<GetDayScheduleResponse>(`${this.baseUrl}/day-schedule`, { params })
+      .pipe(map((response) => response.data.appointments));
+  }
+
+  getCalendarRange(from: string, to: string, employeeId: string | null) {
+    const params = httpParamsFromObject({ from, to, employeeId: employeeId || undefined });
+    return this.http
+      .get<GetCalendarRangeResponse>(`${this.baseUrl}/calendar-range`, { params })
       .pipe(map((response) => response.data.appointments));
   }
 }

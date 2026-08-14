@@ -5,12 +5,15 @@
       Gerencie os agendamentos da sua agenda.
     </p>
   </div>
-  @if (canCreateAppointment()) {
-    <a btn btnPrimary routerLink="/appointments/new" [appPreloadLoader]="bookingRouteLoader">
-      <app-icon [icon]="LucideCalendarPlus" size="sm" color="white" />
-      Novo agendamento
-    </a>
-  }
+  <div class="flex items-center gap-3">
+    <a btn btnOutline routerLink="/appointments/calendar">Calendário</a>
+    @if (canCreateAppointment()) {
+      <a btn btnPrimary routerLink="/appointments/new" [appPreloadLoader]="bookingRouteLoader">
+        <app-icon [icon]="LucideCalendarPlus" size="sm" color="white" />
+        Novo agendamento
+      </a>
+    }
+  </div>
 </div>
 
 <form [formRoot]="filtersForm" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

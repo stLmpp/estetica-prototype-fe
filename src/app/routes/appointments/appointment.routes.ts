@@ -23,6 +23,20 @@ export const APPOINTMENT_ROUTES: Routes = [
     },
   },
   {
+    path: 'calendar',
+    loadComponent: () =>
+      import('./appointments-calendar/appointments-calendar.component').then(
+        (m) => m.AppointmentsCalendarComponent,
+      ),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { appointment: ['get'] } }),
+    ],
+    resolve: {
+      employees: appointmentsEmployeesResolver(),
+    },
+  },
+  {
     path: 'new',
     loadComponent: () =>
       import('./appointment-booking/appointment-booking.component').then(

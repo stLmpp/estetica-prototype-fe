@@ -1,0 +1,98 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Calendário</h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Visão geral dos agendamentos por dia, semana ou mês.
+    </p>
+  </div>
+  <a btn btnOutline routerLink="..">Voltar à lista</a>
+</div>
+
+<div class="flex flex-wrap items-center gap-3">
+  <div class="flex items-center gap-1">
+    <button
+      iconBtn
+      type="button"
+      [icon]="LucideChevronLeft"
+      ariaLabel="Período anterior"
+      size="sm"
+      (click)="store.goPrevious()"
+    ></button>
+    <button btn btnOutline type="button" (click)="store.goToday()">Hoje</button>
+    <button
+      iconBtn
+      type="button"
+      [icon]="LucideChevronRight"
+      ariaLabel="Próximo período"
+      size="sm"
+      (click)="store.goNext()"
+    ></button>
+  </div>
+
+  <p class="min-w-[220px] text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+    {{ periodLabel() }}
+  </p>
+
+  <div
+    class="flex overflow-hidden rounded-xl border border-neutral-300 dark:border-neutral-600"
+  >
+    @for (option of views; track option.value) {
+      @let isActive = store.view() === option.value;
+      <button
+        type="button"
+        class="px-3 py-1.5 text-sm transition-colors"
+        [class.bg-primary-500]="isActive"
+        [class.text-white]="isActive"
+        [class.text-neutral-600]="!isActive"
+        [class.dark:text-neutral-300]="!isActive"
+        [class.hover:bg-neutral-100]="!isActive"
+        [class.dark:hover:bg-neutral-700]="!isActive"
+        (click)="setView(option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <form [formRoot]="filtersForm" class="ml-auto min-w-[200px]">
+    <app-form-field>
+      <label appLabel for="calendar-employee-filter">Profissional</label>
+      <select appSelect [formField]="filtersForm.employeeId" id="calendar-employee-filter">
+        <option value="">Todos os profissionais</option>
+        @for (employee of employees(); track employee.id) {
+          <option [value]="employee.id">{{ employee.name }}</option>
+        }
+      </select>
+    </app-form-field>
+  </form>
+</div>
+
+<div class="flex flex-wrap gap-4 text-xs text-neutral-500 dark:text-neutral-400">
+  <span class="flex items-center gap-1.5">
+    <span class="bg-primary-500 h-2.5 w-2.5 rounded-full"></span>
+    {{ AppointmentStatus.Scheduled }}
+  </span>
+  <span class="flex items-center gap-1.5">
+    <span class="bg-primary-200 h-2.5 w-2.5 rounded-full"></span>
+    {{ AppointmentStatus.Completed }}
+  </span>
+  <span class="flex items-center gap-1.5">
+    <span class="h-2.5 w-2.5 rounded-full bg-neutral-300 dark:bg-neutral-600"></span>
+    {{ AppointmentStatus.Cancelled }} / {{ AppointmentStatus.NoShow }}
+  </span>
+</div>
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<div [loadingOverlay]="store.loading()" class="overflow-x-auto rounded-xl">
+  @switch (store.view()) {
+    @case ('month') {
+      <app-calendar-month-grid [days]="monthDays()" />
+    }
+    @default {
+      <app-calendar-time-grid [days]="gridDays()" />
+    }
+  }
+</div>

@@ -25,3 +25,13 @@ export interface DayScheduleAppointment {
   customerName: string;
   catalogItemName: string;
 }
+
+export interface CalendarAppointment {
+  id: string;
+  status: AppointmentStatus;
+  startTime: string;
+  endTime: string;
+  customerName: string;
+  employeeName: string;
+  catalogItemName: string;
+}
