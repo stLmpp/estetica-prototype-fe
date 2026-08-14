@@ -147,6 +147,7 @@ This app is server-rendered (`provideClientHydration()` in `app.config.ts`). Eve
 - Use the async pipe to handle observables
 - Do not assume globals like (`new Date()`) are available.
 - Use `@let` to name a signal read or a repeated condition once per template/block instead of calling the same signal or re-evaluating the same expression multiple times (e.g. `@let isSelected = value() === option.id;`, then reuse `isSelected` in every binding that needs it).
+- Never use `$any(...)` in a template — it's an escape hatch that silences the type checker instead of fixing the underlying type gap, and there's always a better way: `[formField]` for form inputs (see State Management/Signal Forms above; it wires value/events without a cast), a typed handler method for other DOM events, or fixing the type at its source.
 
 ### Deferred Loading (`@defer`)
 

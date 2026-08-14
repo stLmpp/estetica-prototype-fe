@@ -13,16 +13,10 @@
   }
 </div>
 
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-  <!--  TODO instead of using $any here, use a signal form for the filters -->
+<form [formRoot]="filtersForm" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
   <app-form-field>
     <label appLabel for="appointment-status-filter">Status</label>
-    <select
-      appSelect
-      id="appointment-status-filter"
-      [value]="store.status()"
-      (change)="onStatusChange($any($event.target).value)"
-    >
+    <select appSelect [formField]="filtersForm.status" id="appointment-status-filter">
       <option value="">Todos</option>
       @for (status of statusOptions; track status) {
         <option [value]="status">{{ status }}</option>
@@ -32,12 +26,7 @@
 
   <app-form-field>
     <label appLabel for="appointment-service-filter">Serviço</label>
-    <select
-      appSelect
-      id="appointment-service-filter"
-      [value]="store.catalogItemId()"
-      (change)="onServiceChange($any($event.target).value)"
-    >
+    <select appSelect [formField]="filtersForm.catalogItemId" id="appointment-service-filter">
       <option value="">Todos</option>
       @for (service of services(); track service.id) {
         <option [value]="service.id">{{ service.name }}</option>
@@ -47,12 +36,7 @@
 
   <app-form-field>
     <label appLabel for="appointment-employee-filter">Profissional</label>
-    <select
-      appSelect
-      id="appointment-employee-filter"
-      [value]="store.employeeId()"
-      (change)="onEmployeeChange($any($event.target).value)"
-    >
+    <select appSelect [formField]="filtersForm.employeeId" id="appointment-employee-filter">
       <option value="">Todos</option>
       @for (employee of employees(); track employee.id) {
         <option [value]="employee.id">{{ employee.name }}</option>
@@ -62,34 +46,22 @@
 
   <app-form-field>
     <label appLabel for="appointment-from-date">A partir de</label>
-    <input
-      appInput
-      id="appointment-from-date"
-      type="date"
-      [value]="fromDate()"
-      (change)="onFromDateChange($any($event.target).value)"
-    />
+    <input appInput [formField]="filtersForm.fromDate" id="appointment-from-date" type="date" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="appointment-to-date">Até</label>
-    <input
-      appInput
-      id="appointment-to-date"
-      type="date"
-      [value]="toDate()"
-      (change)="onToDateChange($any($event.target).value)"
-    />
+    <input appInput [formField]="filtersForm.toDate" id="appointment-to-date" type="date" />
   </app-form-field>
 
   <app-typeahead
+    [formField]="filtersForm.customerId"
     [searchFn]="customerSearchFn"
-    (itemSelected)="onCustomerSelected($event)"
     label="Cliente"
     placeholder="Buscar cliente por nome"
     emptyMessage="Nenhum cliente encontrado."
   />
-</div>
+</form>
 
 @if (store.errorMessage(); as message) {
   <app-alert error>{{ message }}</app-alert>

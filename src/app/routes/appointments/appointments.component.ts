@@ -1,6 +1,17 @@
-import { Component, computed, inject, input, numberAttribute, signal, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  numberAttribute,
+  signal,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import { form, FormField, FormRoot } from '@angular/forms/signals';
+import { map, skip } from 'rxjs';
 import { LucideCalendarPlus, LucideX } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { ButtonComponent } from '../../components/button/button.component';
@@ -21,7 +32,7 @@ import { SelectDirective } from '../../components/select/select.directive';
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
 import { TableComponent } from '../../components/table/table.component';
-import { TypeaheadComponent, TypeaheadItem } from '../../components/typeahead/typeahead.component';
+import { TypeaheadComponent } from '../../components/typeahead/typeahead.component';
 import { AuthStore } from '../../core/auth/auth.store';
 import { DialogService } from '../../core/dialog/dialog.service';
 import { CatalogItemType } from '../catalog-items/catalog-item-type.enum';
@@ -35,6 +46,15 @@ import { Appointment } from './appointment.model';
 import { AppointmentsStore, PAGE_SIZE } from './appointments.store';
 
 const STATUS_OPTIONS = Object.values(AppointmentStatus);
+
+interface AppointmentsFiltersFormModel {
+  status: AppointmentStatus | '';
+  catalogItemId: string;
+  employeeId: string;
+  customerId: string | null;
+  fromDate: string;
+  toDate: string;
+}
 
 function toRangeStartIso(date: string): string | undefined {
   return date ? new Date(`${date}T00:00:00`).toISOString() : undefined;
@@ -50,7 +70,9 @@ function toRangeEndIso(date: string): string | undefined {
     AlertComponent,
     BadgeComponent,
     ButtonComponent,
+    FormField,
     FormFieldComponent,
+    FormRoot,
     IconButtonComponent,
     IconComponent,
     InputDirective,
@@ -112,8 +134,15 @@ export class AppointmentsComponent {
     { key: 'id', title: 'Ações', type: 'template', template: this.actionsTemplate },
   ]);
 
-  protected readonly fromDate = signal('');
-  protected readonly toDate = signal('');
+  protected readonly filtersModel = signal<AppointmentsFiltersFormModel>({
+    status: '',
+    catalogItemId: '',
+    employeeId: '',
+    customerId: null,
+    fromDate: '',
+    toDate: '',
+  });
+  protected readonly filtersForm = form(this.filtersModel);
 
   protected readonly services = signal<CatalogItem[]>([]);
   protected readonly employees = signal<Employee[]>([]);
@@ -135,36 +164,23 @@ export class AppointmentsComponent {
     this.employeeService.list({ limit: 100 }).subscribe({
       next: (result) => this.employees.set(result.items),
     });
-  }
 
-  protected onCustomerSelected(item: TypeaheadItem | null) {
-    this.store.setFilters({ customerId: item?.id ?? '' });
+    toObservable(this.filtersForm().value)
+      .pipe(skip(1), takeUntilDestroyed())
+      .subscribe((value) => {
+        this.store.setFilters({
+          status: value.status,
+          catalogItemId: value.catalogItemId,
+          employeeId: value.employeeId,
+          customerId: value.customerId ?? '',
+          from: toRangeStartIso(value.fromDate) ?? '',
+          to: toRangeEndIso(value.toDate) ?? '',
+        });
+      });
   }
 
   protected goToPage(page: number) {
     this.store.setPage(page);
-  }
-
-  protected onStatusChange(status: string) {
-    this.store.setFilters({ status: status as AppointmentStatus | '' });
-  }
-
-  protected onServiceChange(catalogItemId: string) {
-    this.store.setFilters({ catalogItemId });
-  }
-
-  protected onEmployeeChange(employeeId: string) {
-    this.store.setFilters({ employeeId });
-  }
-
-  protected onFromDateChange(value: string) {
-    this.fromDate.set(value);
-    this.store.setFilters({ from: toRangeStartIso(value) ?? '' });
-  }
-
-  protected onToDateChange(value: string) {
-    this.toDate.set(value);
-    this.store.setFilters({ to: toRangeEndIso(value) ?? '' });
   }
 
   protected openCancelDialog(appointment: Appointment) {
