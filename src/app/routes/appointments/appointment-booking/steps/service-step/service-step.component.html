@@ -7,8 +7,23 @@
       [cdkListboxValue]="selectedServiceIds()"
       (cdkListboxValueChange)="onServiceChange($event)"
     >
-      @for (service of store.services(); track service.id) {
-        <app-listbox-option [cdkOption]="service.id">{{ service.name }}</app-listbox-option>
+      @for (service of serviceOptions(); track service.id) {
+        <app-listbox-option [cdkOption]="service.id">
+          <div class="flex items-center justify-between gap-4">
+            <span>{{ service.name }}</span>
+            <span class="text-xs text-neutral-500 dark:text-neutral-400">
+              @if (service.price) {
+                {{ service.price | currency: 'BRL' }}
+              }
+              @if (service.price && service.durationMinutes) {
+                ·
+              }
+              @if (service.durationMinutes) {
+                {{ service.durationMinutes }} min
+              }
+            </span>
+          </div>
+        </app-listbox-option>
       } @empty {
         <p class="px-3 py-2 text-sm text-neutral-500 dark:text-neutral-400">
           Nenhum serviço com profissional disponível.
