@@ -16,7 +16,7 @@
       @for (column of columns(); track column.day.date) {
         <div class="min-w-[90px] flex-1 border-l border-neutral-200 dark:border-neutral-700">
           <div
-            class="h-6 text-center text-xs font-medium text-neutral-500 dark:text-neutral-400"
+            class="flex h-6 items-center justify-center text-xs font-medium text-neutral-500 dark:text-neutral-400"
             [class.text-primary-600]="column.day.isToday"
             [class.dark:text-primary-400]="column.day.isToday"
           >
