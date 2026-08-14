@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 import { AlertComponent } from '../../../components/alert/alert.component';
 import { ButtonComponent } from '../../../components/button/button.component';
 import { LoadingOverlayDirective } from '../../../components/loading-overlay/loading-overlay.directive';
+import { ToastService } from '../../../components/toast/toast.service';
 import {
   TransferListComponent,
   TransferListItem,
@@ -44,6 +45,7 @@ export class EmployeeDetailsComponent {
   private readonly catalogItemService = inject(CatalogItemService);
   private readonly employeeServiceService = inject(EmployeeServiceService);
   private readonly authStore = inject(AuthStore);
+  private readonly toastService = inject(ToastService);
 
   private readonly employeeResource = rxResource({
     params: this.employeeId,
@@ -94,7 +96,6 @@ export class EmployeeDetailsComponent {
 
   protected readonly saving = signal(false);
   protected readonly saveErrorMessage = signal<string | null>(null);
-  protected readonly saveSuccessMessage = signal<string | null>(null);
 
   protected save() {
     const employeeId = this.employeeId();
@@ -102,12 +103,11 @@ export class EmployeeDetailsComponent {
 
     this.saving.set(true);
     this.saveErrorMessage.set(null);
-    this.saveSuccessMessage.set(null);
 
     this.employeeServiceService.sync(employeeId, catalogItemIds).subscribe({
       next: () => {
         this.saving.set(false);
-        this.saveSuccessMessage.set('Serviços atualizados com sucesso.');
+        this.toastService.success('Serviços atualizados com sucesso.');
         this.employeeResource.reload();
       },
       error: (error: unknown) => {

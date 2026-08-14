@@ -83,7 +83,11 @@
       <app-calendar-month-grid [days]="monthDays()" />
     }
     @default {
-      <app-calendar-time-grid [days]="gridDays()" />
+      <app-calendar-time-grid
+        [days]="gridDays()"
+        [startHour]="hourBounds().startHour"
+        [endHour]="hourBounds().endHour"
+      />
     }
   }
 </div>

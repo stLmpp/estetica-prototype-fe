@@ -1,0 +1,32 @@
+@for (row of rows(); track row.weekday) {
+  <div class="flex items-center gap-3">
+    <label class="flex w-40 items-center gap-2 text-sm text-neutral-700 dark:text-neutral-200">
+      <input
+        #openCheckbox
+        type="checkbox"
+        [checked]="row.isOpen"
+        (change)="toggleOpen(row.weekday, openCheckbox.checked)"
+      />
+      {{ row.label }}
+    </label>
+    <input
+      #startInput
+      appInput
+      type="time"
+      class="w-32"
+      [value]="row.start"
+      [disabled]="!row.isOpen"
+      (change)="setStart(row.weekday, startInput.value)"
+    />
+    <span class="text-sm text-neutral-500 dark:text-neutral-400">até</span>
+    <input
+      #endInput
+      appInput
+      type="time"
+      class="w-32"
+      [value]="row.end"
+      [disabled]="!row.isOpen"
+      (change)="setEnd(row.weekday, endInput.value)"
+    />
+  </div>
+}

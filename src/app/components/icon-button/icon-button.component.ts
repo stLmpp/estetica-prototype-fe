@@ -1,12 +1,15 @@
-import { booleanAttribute, Component, computed, input } from '@angular/core';
+import { booleanAttribute, Component, computed, input, numberAttribute } from '@angular/core';
 import { LucideIcon } from '@lucide/angular';
+import { debouncedShow } from '../../shared/debounced-show';
 import { IconComponent, IconSize } from '../icon/icon.component';
+
+const DEFAULT_SHOW_DELAY_MS = 200;
 
 @Component({
   selector: 'button[iconBtn],a[iconBtn]',
   imports: [IconComponent],
   template: `
-    @if (btnLoading()) {
+    @if (showSpinner()) {
       <svg
         class="animate-spin"
         [class]="spinnerSize()"
@@ -77,6 +80,12 @@ export class IconButtonComponent {
   readonly btnLoading = input(false, {
     transform: booleanAttribute,
   });
+  readonly btnLoadingShowDelay = input(DEFAULT_SHOW_DELAY_MS, {
+    transform: (value: unknown) => {
+      const newValue = numberAttribute(value, DEFAULT_SHOW_DELAY_MS);
+      return newValue < 0 ? DEFAULT_SHOW_DELAY_MS : newValue;
+    },
+  });
   readonly disabled = input(false, {
     transform: booleanAttribute,
   });
@@ -88,6 +97,12 @@ export class IconButtonComponent {
   protected readonly isDefault = computed(
     () => !this.btnPrimary() && !this.btnSecondary() && !this.btnOutline(),
   );
+
+  private readonly debouncedBtnLoading = debouncedShow(this.btnLoading, () =>
+    this.btnLoadingShowDelay(),
+  );
+
+  protected readonly showSpinner = computed(() => this.debouncedBtnLoading.value());
 
   protected readonly spinnerSize = computed(
     () => IconButtonComponent.spinnerSizeMap[this.size()] ?? IconButtonComponent.spinnerSizeMap.md,

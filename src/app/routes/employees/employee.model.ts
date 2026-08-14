@@ -1,10 +1,12 @@
 import { MaritalStatus } from '../../model/marital-status.enum';
 import { PhoneType } from '../../model/phone-type.enum';
+import { WeeklyWorkingHours } from '../../model/working-hours.model';
 
 export interface Employee {
   id: string;
   name: string;
   role: string;
+  workingHours?: WeeklyWorkingHours | null;
 }
 
 export interface EmployeePhone {
@@ -26,4 +28,5 @@ export interface EmployeeDetail {
   maritalStatus?: MaritalStatus;
   email?: string;
   phones?: EmployeePhone[];
+  workingHours?: WeeklyWorkingHours | null;
 }

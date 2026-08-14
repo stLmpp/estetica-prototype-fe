@@ -34,9 +34,6 @@
             @if (saveErrorMessage(); as message) {
               <app-alert error class="mt-4">{{ message }}</app-alert>
             }
-            @if (saveSuccessMessage(); as message) {
-              <app-alert success class="mt-4">{{ message }}</app-alert>
-            }
 
             @if (canManageServices()) {
               <div class="mt-4 flex justify-end">

@@ -1,4 +1,7 @@
-import { booleanAttribute, Component, computed, input } from '@angular/core';
+import { booleanAttribute, Component, computed, input, numberAttribute } from '@angular/core';
+import { debouncedShow } from '../../shared/debounced-show';
+
+const DEFAULT_SHOW_DELAY_MS = 200;
 
 @Component({
   selector: 'button[btn],a[btn]',
@@ -52,6 +55,12 @@ export class ButtonComponent {
   readonly btnLoading = input(false, {
     transform: booleanAttribute,
   });
+  readonly btnLoadingShowDelay = input(DEFAULT_SHOW_DELAY_MS, {
+    transform: (value: unknown) => {
+      const newValue = numberAttribute(value, DEFAULT_SHOW_DELAY_MS);
+      return newValue < 0 ? DEFAULT_SHOW_DELAY_MS : newValue;
+    },
+  });
   readonly disabled = input(false, {
     transform: booleanAttribute,
   });
@@ -70,6 +79,12 @@ export class ButtonComponent {
   protected readonly isDisabled = computed(() => this.btnLoading() || this.disabled());
 
   protected readonly disabledAttr = computed(() => (this.isDisabled() ? 'disabled' : null));
+
+  private readonly debouncedBtnLoading = debouncedShow(this.btnLoading, () =>
+    this.btnLoadingShowDelay(),
+  );
+
+  protected readonly showSpinner = computed(() => this.debouncedBtnLoading.value());
 
   protected readonly isDefault = computed(
     () => !this.btnPrimary() && !this.btnSecondary() && !this.btnOutline(),

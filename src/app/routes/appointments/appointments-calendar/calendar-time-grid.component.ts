@@ -24,14 +24,13 @@ interface HourRow {
   label: string;
 }
 
-const START_HOUR = 8;
-const END_HOUR = 20;
-const TOTAL_MINUTES = (END_HOUR - START_HOUR) * 60;
+const DEFAULT_START_HOUR = 8;
+const DEFAULT_END_HOUR = 20;
 const HOUR_HEIGHT_PX = 48;
 
-function buildHourRows(): HourRow[] {
-  return Array.from({ length: END_HOUR - START_HOUR }, (_, i) => {
-    const hour = START_HOUR + i;
+function buildHourRows(startHour: number, endHour: number): HourRow[] {
+  return Array.from({ length: endHour - startHour }, (_, i) => {
+    const hour = startHour + i;
     return { hour, label: `${String(hour).padStart(2, '0')}:00` };
   });
 }
@@ -46,22 +45,26 @@ function statusColorClass(status: AppointmentStatus): string {
   return 'bg-neutral-200 text-neutral-700 dark:bg-neutral-700 dark:text-neutral-200';
 }
 
-function minutesFromDayStart(iso: string): number {
+function minutesFromDayStart(iso: string, startHour: number): number {
   const date = new Date(iso);
-  return date.getHours() * 60 + date.getMinutes() - START_HOUR * 60;
+  return date.getHours() * 60 + date.getMinutes() - startHour * 60;
 }
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-function layoutDay(appointments: CalendarAppointment[]): AppointmentBlock[] {
+function layoutDay(
+  appointments: CalendarAppointment[],
+  startHour: number,
+  totalMinutes: number,
+): AppointmentBlock[] {
   const sorted = [...appointments].sort(
     (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
   );
   const raw = sorted.map((appointment) => {
-    const start = clamp(minutesFromDayStart(appointment.startTime), 0, TOTAL_MINUTES);
-    const end = clamp(minutesFromDayStart(appointment.endTime), 0, TOTAL_MINUTES);
+    const start = clamp(minutesFromDayStart(appointment.startTime, startHour), 0, totalMinutes);
+    const end = clamp(minutesFromDayStart(appointment.endTime, startHour), 0, totalMinutes);
     return { appointment, startMinutes: start, endMinutes: Math.max(end, start + 1), column: 0 };
   });
 
@@ -88,8 +91,8 @@ function layoutDay(appointments: CalendarAppointment[]): AppointmentBlock[] {
     for (const block of cluster) {
       blocks.push({
         appointment: block.appointment,
-        topPercent: (block.startMinutes / TOTAL_MINUTES) * 100,
-        heightPercent: ((block.endMinutes - block.startMinutes) / TOTAL_MINUTES) * 100,
+        topPercent: (block.startMinutes / totalMinutes) * 100,
+        heightPercent: ((block.endMinutes - block.startMinutes) / totalMinutes) * 100,
         column: block.column,
         columnCount,
         colorClass: statusColorClass(block.appointment.status),
@@ -121,13 +124,22 @@ function layoutDay(appointments: CalendarAppointment[]): AppointmentBlock[] {
 })
 export class CalendarTimeGridComponent {
   readonly days = input.required<CalendarGridDay[]>();
+  readonly startHour = input(DEFAULT_START_HOUR);
+  readonly endHour = input(DEFAULT_END_HOUR);
 
   protected readonly AppointmentStatus = AppointmentStatus;
-  protected readonly hours = buildHourRows();
   protected readonly hourHeightPx = HOUR_HEIGHT_PX;
-  protected readonly gridHeightPx = (END_HOUR - START_HOUR) * HOUR_HEIGHT_PX;
+
+  protected readonly hours = computed(() => buildHourRows(this.startHour(), this.endHour()));
+  protected readonly gridHeightPx = computed(
+    () => (this.endHour() - this.startHour()) * HOUR_HEIGHT_PX,
+  );
+  private readonly totalMinutes = computed(() => (this.endHour() - this.startHour()) * 60);
 
   protected readonly columns = computed(() =>
-    this.days().map((day) => ({ day, blocks: layoutDay(day.appointments) })),
+    this.days().map((day) => ({
+      day,
+      blocks: layoutDay(day.appointments, this.startHour(), this.totalMinutes()),
+    })),
   );
 }

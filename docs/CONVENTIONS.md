@@ -34,6 +34,7 @@ coding conventions it points to.
   }
   ```
   Omit the annotation when the return type is already obvious/inferable (e.g. the function just delegates to another already-typed call) — don't add a redundant explicit type.
+- Avoid `try`/`catch`. Use the Go-style `safe`/`safeAsync` helpers (`src/app/shared/safe.ts`) instead — they wrap a callback and return a `[error, data]` tuple, so the error is a normal value you check inline instead of a control-flow jump: `const [error, data] = await safeAsync(() => thing())` (see `better-auth.provider.ts` for existing usage). Reach for `try`/`catch` only when `safe`/`safeAsync` genuinely doesn't fit (e.g. a lifecycle callback where you can't return a tuple).
 
 ## Code Comments
 
@@ -101,8 +102,8 @@ This app is server-rendered (`provideClientHydration()` in `app.config.ts`). Eve
 - Must NOT set `changeDetection: ChangeDetectionStrategy.OnPush`, it's ON by default
 - Prefer inline templates for small components
 - Use Angular Signal Forms (`@angular/forms/signals`) for every form. Do NOT use `ReactiveFormsModule`/`FormGroup`/`FormControl` or template-driven forms (`ngModel`).
-- Do NOT use `ngClass`, use `class` bindings instead
-- Do NOT use `ngStyle`, use `style` bindings instead
+- Disable a form's save/submit button when the form is unchanged — `[disabled]="!f().dirty()"`, using Signal Forms' built-in `dirty` state (true once the user has changed a value; see `organization-settings.component.ts` for the reference implementation). There's nothing to save if nothing changed. If `dirty()` alone ever proves too coarse for a specific form (e.g. it doesn't reset after the user edits a value back to its original), switch that form to a real deep equality check against the initial model instead — don't add one everywhere preemptively.
+- Do NOT use the `NgClass`/`NgStyle` directives — use Angular's native `class`/`style` bindings instead. This still means object/array forms are fine: `[class]="{ 'foo': condition, 'bar': otherCondition }"` and `[style]="{ color: value }"` are native binding syntax, not `NgClass`/`NgStyle`, and are the right call when the set of classes/styles is genuinely dynamic or shared as one expression. Prefer the single-property form (`[class.foo]="condition"`, `[style.color]="value"`) for one-off/targeted cases — it's what host bindings and most template usage in this codebase already look like — but don't force every multi-class case into a chain of `[class.x]`/`[class.y]` bindings when an object literal says the same thing more clearly.
 - When using external templates/styles, use paths relative to the component TS file.
 - Favor declarative code: derive values with `computed()` and react to state changes with `effect()`, instead of imperative methods that recompute something on demand (e.g. a `getX()` called from another field's initializer). A declarative derivation re-runs automatically whenever its signal dependencies change and isn't sensitive to class field/method declaration order; an imperative method only reflects the latest state when something remembers to call it again.
 
@@ -173,6 +174,7 @@ Use `@defer` to split a template's heavy or non-critical dependencies (their com
 - Design services around a single responsibility
 - Use the `@Service()` decorator for singleton services
 - Use the `inject()` function instead of constructor injection
+- Data/API services (`CustomerService`, `EmployeeService`, etc.) only fetch and mutate data — they never trigger UI feedback themselves. Toasts (`ToastService`, `components/toast/`) are triggered from the component orchestrating the save (a dialog's submission action, a page's save handler), which knows whether the call succeeded and what user-facing message fits — not from inside the data service, which has no notion of "this is a save the user is waiting on" vs. a background/internal call.
 
 ### Dialogs
 

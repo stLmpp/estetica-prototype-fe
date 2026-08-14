@@ -92,6 +92,15 @@ export function createAuthConfig(httpClient: HttpClient) {
           admin: organizationAccessControl.admin,
           member: organizationAccessControl.member,
         },
+        schema: {
+          organization: {
+            additionalFields: {
+              membershipLimit: { type: 'number', required: true },
+              customerLimit: { type: 'number', required: true },
+              workingHours: { type: 'string', required: false },
+            },
+          },
+        },
       }),
     ],
     fetchOptions: {

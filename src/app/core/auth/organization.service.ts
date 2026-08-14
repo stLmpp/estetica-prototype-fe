@@ -2,6 +2,7 @@ import { inject, Service } from '@angular/core';
 import { AuthClient, BetterAuthOrganization } from './better-auth.provider';
 import { from, map, tap } from 'rxjs';
 import { AuthStore } from './auth.store';
+import { stringifyWorkingHours, WeeklyWorkingHours } from '../../model/working-hours.model';
 
 @Service()
 export class OrganizationService {
@@ -35,6 +36,21 @@ export class OrganizationService {
     ).pipe(
       tap(() => {
         this.authStore.setActiveOrganization(organization);
+      }),
+    );
+  }
+
+  updateWorkingHours(workingHours: WeeklyWorkingHours) {
+    return from(
+      this.client.organization.update({
+        data: { workingHours: stringifyWorkingHours(workingHours) },
+      }),
+    ).pipe(
+      map((response) => response.data),
+      tap((organization) => {
+        if (organization) {
+          this.authStore.setActiveOrganization(organization);
+        }
       }),
     );
   }

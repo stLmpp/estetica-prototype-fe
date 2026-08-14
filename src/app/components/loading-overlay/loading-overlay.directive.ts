@@ -1,7 +1,6 @@
 import {
   booleanAttribute,
   ComponentRef,
-  debounced,
   Directive,
   effect,
   ElementRef,
@@ -12,6 +11,7 @@ import {
   Renderer2,
   ViewContainerRef,
 } from '@angular/core';
+import { debouncedShow } from '../../shared/debounced-show';
 import { LoadingOverlayContentComponent } from './loading-overlay-content.component';
 
 const DEFAULT_SHOW_DELAY_MS = 200;
@@ -39,10 +39,8 @@ export class LoadingOverlayDirective implements OnDestroy {
   private readonly renderer = inject(Renderer2);
   private readonly viewContainerRef = inject(ViewContainerRef);
 
-  private readonly debouncedLoadingOverlay = debounced(this.loadingOverlay, (show) =>
-    show
-      ? new Promise<void>((resolve) => setTimeout(resolve, this.loadingOverlayShowDelay()))
-      : undefined,
+  private readonly debouncedLoadingOverlay = debouncedShow(this.loadingOverlay, () =>
+    this.loadingOverlayShowDelay(),
   );
 
   private overlayRef: ComponentRef<LoadingOverlayContentComponent> | null = null;

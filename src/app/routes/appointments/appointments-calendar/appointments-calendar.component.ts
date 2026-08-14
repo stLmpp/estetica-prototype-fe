@@ -16,6 +16,8 @@ import {
   MultiSelectBadgesComponent,
 } from '../../../components/multi-select-badges/multi-select-badges.component';
 import { SelectDirective } from '../../../components/select/select.directive';
+import { AuthStore } from '../../../core/auth/auth.store';
+import { parseWorkingHours, WEEKDAYS, WeeklyWorkingHours } from '../../../model/working-hours.model';
 import { AppointmentStatus } from '../appointment-status.enum';
 import { CalendarAppointment } from '../appointment.model';
 import { Employee } from '../../employees/employee.model';
@@ -39,6 +41,33 @@ const MONTH_LABELS = [
   'Dezembro',
 ];
 const MONTH_GRID_CELLS = 42;
+const DEFAULT_START_HOUR = 8;
+const DEFAULT_END_HOUR = 20;
+
+function parseHourFloor(time: string): number {
+  return Number(time.split(':')[0]);
+}
+
+function parseHourCeil(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return minutes ? hours! + 1 : hours!;
+}
+
+function computeHourBounds(workingHours: WeeklyWorkingHours | null): {
+  startHour: number;
+  endHour: number;
+} {
+  const configuredDays = workingHours
+    ? WEEKDAYS.map((weekday) => workingHours[weekday]).filter((day) => day !== null)
+    : [];
+  if (!configuredDays.length) {
+    return { startHour: DEFAULT_START_HOUR, endHour: DEFAULT_END_HOUR };
+  }
+  return {
+    startHour: Math.min(...configuredDays.map((day) => parseHourFloor(day.start))),
+    endHour: Math.max(...configuredDays.map((day) => parseHourCeil(day.end))),
+  };
+}
 
 function groupByDate(appointments: CalendarAppointment[]): Map<string, CalendarAppointment[]> {
   const map = new Map<string, CalendarAppointment[]>();
@@ -165,6 +194,7 @@ export class AppointmentsCalendarComponent {
   readonly employees = input.required<Employee[]>();
 
   protected readonly store = inject(AppointmentsCalendarStore);
+  private readonly authStore = inject(AuthStore);
 
   protected readonly LucideChevronLeft = LucideChevronLeft;
   protected readonly LucideChevronRight = LucideChevronRight;
@@ -197,6 +227,12 @@ export class AppointmentsCalendarComponent {
 
   protected readonly monthDays = computed(() =>
     buildMonthDays(this.store.anchorDate(), this.filteredAppointments()),
+  );
+
+  protected readonly hourBounds = computed(() =>
+    computeHourBounds(
+      parseWorkingHours(this.authStore.session()?.activeOrganization?.workingHours),
+    ),
   );
 
   constructor() {

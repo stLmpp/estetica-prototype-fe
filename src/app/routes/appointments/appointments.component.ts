@@ -32,6 +32,7 @@ import { SelectDirective } from '../../components/select/select.directive';
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
 import { TableComponent } from '../../components/table/table.component';
+import { ToastService } from '../../components/toast/toast.service';
 import { TypeaheadComponent } from '../../components/typeahead/typeahead.component';
 import { AuthStore } from '../../core/auth/auth.store';
 import { DialogService } from '../../core/dialog/dialog.service';
@@ -97,6 +98,7 @@ export class AppointmentsComponent {
   private readonly authStore = inject(AuthStore);
   private readonly dialogService = inject(DialogService);
   private readonly customerService = inject(CustomerService);
+  private readonly toastService = inject(ToastService);
 
   protected readonly LucideCalendarPlus = LucideCalendarPlus;
   protected readonly LucideX = LucideX;
@@ -186,7 +188,11 @@ export class AppointmentsComponent {
 
     dialogRef.closed.subscribe((confirmed) => {
       if (confirmed) {
-        this.store.cancelAppointment(appointment).subscribe();
+        this.store.cancelAppointment(appointment).subscribe(() => {
+          if (!this.store.errorMessage()) {
+            this.toastService.success('Agendamento cancelado com sucesso.');
+          }
+        });
       }
     });
   }

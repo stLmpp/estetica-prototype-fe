@@ -8,6 +8,7 @@ import { InputDirective } from '../../../components/input/input.directive';
 import { LabelComponent } from '../../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../../components/loading-overlay/loading-overlay.directive';
 import { SelectDirective } from '../../../components/select/select.directive';
+import { ToastService } from '../../../components/toast/toast.service';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { CustomerPayload, UpdateCustomerPayload } from '../customer.dto';
 import { Customer, CustomerDetail, CustomerPhone } from '../customer.model';
@@ -100,6 +101,7 @@ export class CustomerFormDialogComponent {
   private readonly dialogRef = inject(DialogRef<Customer | undefined>);
   private readonly store = inject(CustomersStore);
   private readonly customerService = inject(CustomerService);
+  private readonly toastService = inject(ToastService);
 
   protected readonly isEditing = !!this.data.customerId;
   protected readonly MaritalStatus = MaritalStatus;
@@ -136,6 +138,9 @@ export class CustomerFormDialogComponent {
             return;
           }
 
+          this.toastService.success(
+            this.isEditing ? 'Cliente atualizado com sucesso.' : 'Cliente criado com sucesso.',
+          );
           this.dialogRef.close(result.customer);
         },
       },

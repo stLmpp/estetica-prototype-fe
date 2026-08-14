@@ -1,6 +1,7 @@
 import { PaginationMetadata } from '../../shared/pagination.model';
 import { MaritalStatus } from '../../model/marital-status.enum';
 import { PhoneType } from '../../model/phone-type.enum';
+import { WeeklyWorkingHours } from '../../model/working-hours.model';
 import { Employee } from './employee.model';
 
 export interface EmployeePhonePayload {
@@ -20,6 +21,7 @@ export interface EmployeePayload {
   maritalStatus?: MaritalStatus;
   email?: string;
   phones?: EmployeePhonePayload[];
+  workingHours?: WeeklyWorkingHours | null;
 }
 
 export type UpdateEmployeePayload = Partial<Omit<EmployeePayload, 'phones'>>;

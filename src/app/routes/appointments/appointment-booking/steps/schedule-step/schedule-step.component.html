@@ -5,6 +5,10 @@
     <div [loadingOverlay]="store.dayScheduleLoading()">
       @if (store.dayScheduleErrorMessage(); as message) {
         <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
+      } @else if (!dayHours()) {
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">
+          Profissional não atende neste dia.
+        </p>
       } @else {
         <p class="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
           Horário de início

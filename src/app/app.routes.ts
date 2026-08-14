@@ -57,6 +57,20 @@ export const routes: Routes = [
       import('./routes/appointments/appointment.routes').then((m) => m.APPOINTMENT_ROUTES),
   },
   {
+    path: 'settings',
+    canActivate: [requireAuthenticatedWithOrganizationGuard()],
+    children: [
+      { path: '', redirectTo: 'organization', pathMatch: 'full' },
+      {
+        path: 'organization',
+        loadComponent: () =>
+          import('./routes/settings/organization-settings.component').then(
+            (m) => m.OrganizationSettingsComponent,
+          ),
+      },
+    ],
+  },
+  {
     path: 'raw-ds',
     loadComponent: () => import('./temp.component').then((m) => m.TempComponent),
   },

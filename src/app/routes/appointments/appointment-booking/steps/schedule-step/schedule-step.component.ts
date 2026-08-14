@@ -13,10 +13,16 @@ import { AppointmentBookingStore } from '../../appointment-booking.store';
 import { NgxMaskDirective } from 'ngx-mask';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { skip } from 'rxjs';
+import { AuthStore } from '../../../../../core/auth/auth.store';
+import {
+  DayWorkingHours,
+  parseWorkingHours,
+  weekdayFromDate,
+  WeeklyWorkingHours,
+} from '../../../../../model/working-hours.model';
 
 const PRICE_REGEXP = /^\d{1,8}(\.\d{1,2})?$/;
-const DAY_START_HOUR = 8;
-const DAY_END_HOUR = 20;
+const DEFAULT_DAY_HOURS: DayWorkingHours = { start: '08:00', end: '20:00' };
 const SLOT_MINUTES = 30;
 
 interface TimeSlot {
@@ -29,10 +35,36 @@ function pad(value: number): string {
   return String(value).padStart(2, '0');
 }
 
-function buildTimeSlots(date: string, appointments: DayScheduleAppointment[]): TimeSlot[] {
+function resolveDayHours(
+  date: string,
+  employeeWorkingHours: WeeklyWorkingHours | null | undefined,
+  orgWorkingHours: WeeklyWorkingHours | null,
+): DayWorkingHours | null {
+  const weekday = weekdayFromDate(date);
+  if (employeeWorkingHours) {
+    return employeeWorkingHours[weekday];
+  }
+  if (orgWorkingHours) {
+    return orgWorkingHours[weekday];
+  }
+  return DEFAULT_DAY_HOURS;
+}
+
+function buildTimeSlots(
+  date: string,
+  appointments: DayScheduleAppointment[],
+  dayHours: DayWorkingHours | null,
+): TimeSlot[] {
+  if (!dayHours) {
+    return [];
+  }
   const slots: TimeSlot[] = [];
   const now = dayjs();
-  for (let minutes = DAY_START_HOUR * 60; minutes < DAY_END_HOUR * 60; minutes += SLOT_MINUTES) {
+  const [startHour, startMinute] = dayHours.start.split(':').map(Number);
+  const [endHour, endMinute] = dayHours.end.split(':').map(Number);
+  const startTotalMinutes = startHour! * 60 + startMinute!;
+  const endTotalMinutes = endHour! * 60 + endMinute!;
+  for (let minutes = startTotalMinutes; minutes < endTotalMinutes; minutes += SLOT_MINUTES) {
     const time = `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
     const slotStart = dayjs(`${date}T${time}`);
     const slotEnd = slotStart.add(SLOT_MINUTES, 'minute');
@@ -81,13 +113,22 @@ export class ScheduleStepComponent {
   }
 
   protected readonly store = inject(AppointmentBookingStore);
+  private readonly authStore = inject(AuthStore);
 
   protected readonly minDate = dayjs().format('YYYY-MM-DD');
+
+  private readonly orgWorkingHours = computed(() =>
+    parseWorkingHours(this.authStore.session()?.activeOrganization?.workingHours),
+  );
 
   protected readonly model = signal({
     date: this.store.date(),
     startTime: firstAvailableSlotTime(
-      buildTimeSlots(this.store.date(), this.store.daySchedule()),
+      buildTimeSlots(
+        this.store.date(),
+        this.store.daySchedule(),
+        resolveDayHours(this.store.date(), this.store.employee()?.workingHours, this.orgWorkingHours()),
+      ),
       this.store.startTime(),
     ),
     durationMinutes: this.store.durationMinutes(),
@@ -115,8 +156,12 @@ export class ScheduleStepComponent {
     });
   });
 
+  protected readonly dayHours = computed<DayWorkingHours | null>(() =>
+    resolveDayHours(this.f.date().value(), this.store.employee()?.workingHours, this.orgWorkingHours()),
+  );
+
   protected readonly timeSlots = computed<TimeSlot[]>(() =>
-    buildTimeSlots(this.f.date().value(), this.store.daySchedule()),
+    buildTimeSlots(this.f.date().value(), this.store.daySchedule(), this.dayHours()),
   );
 
   protected selectStartTime(slot: TimeSlot) {

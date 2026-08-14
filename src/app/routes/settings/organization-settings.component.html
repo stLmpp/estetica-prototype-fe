@@ -1,0 +1,28 @@
+<div>
+  <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Configurações da organização</h1>
+  <p class="text-sm text-neutral-500 dark:text-neutral-400">
+    Horário de funcionamento usado nos calendários e limite de clientes.
+  </p>
+</div>
+
+<div class="flex flex-col gap-2">
+  <p class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Limite de clientes</p>
+  <p class="text-sm text-neutral-700 dark:text-neutral-200">{{ customerLimit() }}</p>
+</div>
+
+<form [formRoot]="f" class="flex flex-col gap-4">
+  <div class="flex flex-col gap-2">
+    <p class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Horário de funcionamento</p>
+    <app-working-hours-editor [formField]="f.workingHours" />
+  </div>
+
+  @if (submitErrorMessage(); as message) {
+    <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
+  }
+
+  <div class="flex justify-end">
+    <button btn btnPrimary type="submit" [disabled]="!f().dirty()" [btnLoading]="f().submitting()">
+      Salvar
+    </button>
+  </div>
+</form>

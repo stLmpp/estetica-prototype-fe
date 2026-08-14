@@ -9,6 +9,7 @@ import { InputDirective } from '../../../components/input/input.directive';
 import { LabelComponent } from '../../../components/label/label.component';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { SwitchComponent } from '../../../components/switch/switch.component';
+import { ToastService } from '../../../components/toast/toast.service';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { isoDurationToMinutes, minutesToIsoDuration } from '../../../shared/duration.util';
 import { CatalogItemType } from '../catalog-item-type.enum';
@@ -48,6 +49,7 @@ export class CatalogItemFormDialogComponent {
   protected readonly data = inject<CatalogItemFormDialogData>(DIALOG_DATA);
   private readonly dialogRef = inject(DialogRef<CatalogItem | undefined>);
   private readonly store = inject(CatalogItemsStore);
+  private readonly toastService = inject(ToastService);
 
   protected readonly isEditing = !!this.data.catalogItem;
   protected readonly CatalogItemType = CatalogItemType;
@@ -107,6 +109,9 @@ export class CatalogItemFormDialogComponent {
             return;
           }
 
+          this.toastService.success(
+            this.isEditing ? 'Item atualizado com sucesso.' : 'Item criado com sucesso.',
+          );
           this.dialogRef.close(result.catalogItem);
         },
       },
