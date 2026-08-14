@@ -4,7 +4,7 @@ import { booleanAttribute, Component, computed, input } from '@angular/core';
   selector: 'button[btn],a[btn]',
   host: {
     class:
-      'cursor-pointer rounded-full px-6 py-2.5 font-semibold transition-colors focus:ring-2 disabled:cursor-not-allowed focus:outline-none inline-flex items-center gap-2',
+      'cursor-pointer rounded-full px-6 py-2.5 font-semibold transition-colors focus:ring-2 focus:outline-none inline-flex items-center gap-2',
     '[class.bg-primary-500]': 'btnPrimary()',
     '[class.not-disabled:hover:bg-primary-600]': 'btnPrimary()',
     '[class.not-disabled:active:bg-primary-700]': 'btnPrimary()',
@@ -26,9 +26,16 @@ import { booleanAttribute, Component, computed, input } from '@angular/core';
     '[class.dark:text-primary-300]': 'btnOutline() || isDefault()',
     '[class.not-disabled:dark:hover:bg-primary-900]': 'btnOutline() || isDefault()',
     '[class.focus:ring-offset-2]': '!isDefault()',
-    '[class.disabled:opacity-50]': '!btnLoading()',
+    '[class.opacity-50]': 'isDisabled() && !btnLoading()',
     '[class.opacity-75]': 'btnLoading()',
+    '[class.cursor-not-allowed]': 'isDisabled()',
+    '[class.pointer-events-none]': 'isDisabled()',
     '[attr.disabled]': 'disabledAttr()',
+    '[attr.aria-disabled]': 'isDisabled() ? "true" : null',
+    '[attr.tabindex]': 'isDisabled() ? -1 : null',
+    '(click)': 'onClick($event)',
+    '(keydown.enter)': 'onDisabledKeydown($event)',
+    '(keydown.space)': 'onDisabledKeydown($event)',
   },
   templateUrl: './button.component.html',
 })
@@ -49,11 +56,35 @@ export class ButtonComponent {
     transform: booleanAttribute,
   });
 
-  protected readonly disabledAttr = computed(() =>
-    this.btnLoading() || this.disabled() ? 'disabled' : null,
-  );
+  // `disabled` on a native `<button>` is enough on its own: the browser blocks
+  // clicks/keyboard activation and matches `:disabled` for the Tailwind
+  // `disabled:` variants above. None of that applies to `<a>` — anchors have
+  // no disabled state, and RouterLink's own click handler doesn't check
+  // `event.defaultPrevented`, so it navigates regardless of what this
+  // component's own click handler does. `pointer-events-none` (blocks mouse
+  // interaction before any click event is even dispatched, sidestepping
+  // listener-order entirely), a keydown guard (blocks Enter/Space — the
+  // browser synthesizes a click from these unless the keydown itself is
+  // prevented), and dropping the element from the tab order together are
+  // what make `disabled` actually block an `a[btn]`, not just look disabled.
+  protected readonly isDisabled = computed(() => this.btnLoading() || this.disabled());
+
+  protected readonly disabledAttr = computed(() => (this.isDisabled() ? 'disabled' : null));
 
   protected readonly isDefault = computed(
     () => !this.btnPrimary() && !this.btnSecondary() && !this.btnOutline(),
   );
+
+  protected onClick(event: Event) {
+    if (this.isDisabled()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }
+
+  protected onDisabledKeydown(event: Event) {
+    if (this.isDisabled()) {
+      event.preventDefault();
+    }
+  }
 }
