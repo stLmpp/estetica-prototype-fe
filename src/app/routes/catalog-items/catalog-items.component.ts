@@ -178,6 +178,7 @@ export class CatalogItemsComponent {
         cancelLabel: 'Cancelar',
         danger: true,
       },
+      size: 'md',
       role: 'alertdialog',
       ariaModal: true,
       ariaLabelledBy: 'confirm-dialog-title',

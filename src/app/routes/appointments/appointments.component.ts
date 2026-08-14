@@ -181,6 +181,7 @@ export class AppointmentsComponent {
         cancelLabel: 'Voltar',
         danger: true,
       },
+      size: 'md',
       role: 'alertdialog',
       ariaModal: true,
       ariaLabelledBy: 'confirm-dialog-title',

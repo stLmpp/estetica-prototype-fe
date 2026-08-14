@@ -151,6 +151,7 @@ export class CustomersComponent {
       this.customerFormDialogLoader,
       {
         data,
+        size: 'lg',
         injector: this.injector,
         ariaModal: true,
         ariaLabelledBy: 'customer-form-dialog-title',
@@ -167,6 +168,7 @@ export class CustomersComponent {
         cancelLabel: 'Cancelar',
         danger: true,
       },
+      size: 'md',
       role: 'alertdialog',
       ariaModal: true,
       ariaLabelledBy: 'confirm-dialog-title',

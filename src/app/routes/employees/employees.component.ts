@@ -154,6 +154,7 @@ export class EmployeesComponent {
       this.employeeFormDialogLoader,
       {
         data,
+        size: 'xl',
         injector: this.injector,
         ariaModal: true,
         ariaLabelledBy: 'employee-form-dialog-title',
@@ -170,6 +171,7 @@ export class EmployeesComponent {
         cancelLabel: 'Cancelar',
         danger: true,
       },
+      size: 'md',
       role: 'alertdialog',
       ariaModal: true,
       ariaLabelledBy: 'confirm-dialog-title',

@@ -15,7 +15,7 @@ export interface ConfirmDialogData {
   imports: [ButtonComponent],
   templateUrl: './confirm-dialog.component.html',
   host: {
-    class: 'block w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
+    class: 'block rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
   },
 })
 export class ConfirmDialogComponent {

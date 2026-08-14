@@ -42,7 +42,7 @@ const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar o item. Tente novamente
   ],
   templateUrl: './catalog-item-form-dialog.component.html',
   host: {
-    class: 'block w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
+    class: 'block rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
   },
 })
 export class CatalogItemFormDialogComponent {

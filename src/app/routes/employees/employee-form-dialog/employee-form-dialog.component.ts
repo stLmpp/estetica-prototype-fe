@@ -93,7 +93,7 @@ function toFormModel(employee: EmployeeDetail): EmployeeFormModel {
   ],
   templateUrl: './employee-form-dialog.component.html',
   host: {
-    class: 'block w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
+    class: 'block rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
   },
 })
 export class EmployeeFormDialogComponent {

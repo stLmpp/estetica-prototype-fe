@@ -4,7 +4,7 @@
 <p id="confirm-dialog-message" class="mb-6 text-sm text-neutral-600 dark:text-neutral-300">
   {{ data.message }}
 </p>
-<div class="flex justify-end gap-3">
+<div class="flex flex-wrap justify-end gap-3">
   <button btn btnOutline type="button" (click)="cancel()">{{ data.cancelLabel ?? 'Cancelar' }}</button>
   <button
     btn
