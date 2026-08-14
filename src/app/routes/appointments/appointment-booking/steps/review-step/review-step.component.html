@@ -11,7 +11,7 @@
 
     <span class="font-medium text-neutral-500 dark:text-neutral-400">Data</span>
     <span class="text-neutral-800 dark:text-neutral-100">
-      {{ store.date() }} · {{ store.startTime() }} – {{ computeEndTimeLabel() }}
+      {{ store.date() }} · {{ store.startTime() }} – {{ endTimeLabel() }}
     </span>
 
     @if (store.priceApplied().trim()) {

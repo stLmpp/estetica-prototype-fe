@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs/esm';
 import { ButtonComponent } from '../../../../../components/button/button.component';
 import { CalendarComponent } from '../../../../../components/calendar/calendar.component';
 import { FormFieldComponent } from '../../../../../components/form-field/form-field.component';
@@ -126,7 +126,7 @@ export class ScheduleStepComponent {
     this.f.startTime().value.set(slot.time);
   }
 
-  protected computeEndTimeLabel(): string {
+  protected readonly endTimeLabel = computed(() => {
     const { startTime, durationMinutes } = this.f().value();
     const [hours, minutes] = startTime.split(':').map(Number);
     if (hours === undefined || minutes === undefined) {
@@ -136,7 +136,7 @@ export class ScheduleStepComponent {
     const endHours = Math.floor(totalMinutes / 60) % 24;
     const endMinutes = totalMinutes % 60;
     return `${pad(endHours)}:${pad(endMinutes)}`;
-  }
+  });
 
   protected back() {
     this.store.setSchedule(this.model());

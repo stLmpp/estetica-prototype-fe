@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { skip } from 'rxjs';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs/esm';
 import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
 import { AlertComponent } from '../../../components/alert/alert.component';
 import { ButtonComponent } from '../../../components/button/button.component';

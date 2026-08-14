@@ -1,19 +1,18 @@
-@for (option of options(); track option.value; let i = $index) {
-  @let checked = isChecked(option);
+@for (item of items(); track item.option.value) {
   <label
-    [for]="idPrefix + '-' + i"
+    [for]="item.id"
     class="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs font-bold transition-colors select-none"
-    [class]="variantClasses(option.variant ?? 'default', checked)"
+    [class]="item.colorClass"
   >
     <input
       #checkbox
       type="checkbox"
       class="sr-only"
-      [id]="idPrefix + '-' + i"
-      [checked]="checked"
+      [id]="item.id"
+      [checked]="item.checked"
       [disabled]="disabled()"
-      (change)="toggle(option, checkbox.checked)"
+      (change)="toggle(item.option, checkbox.checked)"
     />
-    {{ option.label }}
+    {{ item.option.label }}
   </label>
 }

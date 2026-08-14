@@ -1,9 +1,16 @@
 import { computed, inject } from '@angular/core';
-import { patchState, signalStore, withComputed, withHooks, withMethods, withState } from '@ngrx/signals';
+import {
+  patchState,
+  signalStore,
+  withComputed,
+  withHooks,
+  withMethods,
+  withState,
+} from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap } from 'rxjs';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs/esm';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { AppointmentService } from '../appointment.service';
 import { CalendarAppointment } from '../appointment.model';
@@ -61,17 +68,19 @@ export const AppointmentsCalendarStore = signalStore(
   withMethods((store, appointmentService = inject(AppointmentService)) => {
     function fetchAppointments(params: { from: string; to: string; employeeId: string }) {
       patchState(store, { loading: true, errorMessage: null });
-      return appointmentService.getCalendarRange(params.from, params.to, params.employeeId || null).pipe(
-        tapResponse({
-          next: (appointments) => patchState(store, { appointments, loading: false }),
-          error: (error: unknown) =>
-            patchState(store, {
-              appointments: [],
-              loading: false,
-              errorMessage: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
-            }),
-        }),
-      );
+      return appointmentService
+        .getCalendarRange(params.from, params.to, params.employeeId || null)
+        .pipe(
+          tapResponse({
+            next: (appointments) => patchState(store, { appointments, loading: false }),
+            error: (error: unknown) =>
+              patchState(store, {
+                appointments: [],
+                loading: false,
+                errorMessage: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
+              }),
+          }),
+        );
     }
 
     return {

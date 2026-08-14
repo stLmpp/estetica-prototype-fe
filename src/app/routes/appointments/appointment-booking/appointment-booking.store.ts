@@ -10,7 +10,7 @@ import {
   type WritableStateSource,
 } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs/esm';
 import { catchError, distinctUntilChanged, of, pipe, switchMap, tap } from 'rxjs';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { CatalogItemType } from '../../catalog-items/catalog-item-type.enum';

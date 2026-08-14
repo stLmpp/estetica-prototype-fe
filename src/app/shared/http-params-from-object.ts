@@ -1,5 +1,5 @@
-import { HttpParams, HttpUrlEncodingCodec } from '@angular/common/http';
-import dayjs from 'dayjs';
+import { HttpParams } from '@angular/common/http';
+import dayjs from 'dayjs/esm';
 
 export function httpParamsFromObject(object: Record<string, unknown>): HttpParams {
   const entries = Object.entries(object);

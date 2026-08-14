@@ -19,10 +19,22 @@ interface AppointmentBlock {
   colorClass: string;
 }
 
+interface HourRow {
+  hour: number;
+  label: string;
+}
+
 const START_HOUR = 8;
 const END_HOUR = 20;
 const TOTAL_MINUTES = (END_HOUR - START_HOUR) * 60;
 const HOUR_HEIGHT_PX = 48;
+
+function buildHourRows(): HourRow[] {
+  return Array.from({ length: END_HOUR - START_HOUR }, (_, i) => {
+    const hour = START_HOUR + i;
+    return { hour, label: `${String(hour).padStart(2, '0')}:00` };
+  });
+}
 
 function statusColorClass(status: AppointmentStatus): string {
   if (status === AppointmentStatus.Scheduled) {
@@ -111,15 +123,11 @@ export class CalendarTimeGridComponent {
   readonly days = input.required<CalendarGridDay[]>();
 
   protected readonly AppointmentStatus = AppointmentStatus;
-  protected readonly hours = Array.from({ length: END_HOUR - START_HOUR }, (_, i) => START_HOUR + i);
+  protected readonly hours = buildHourRows();
   protected readonly hourHeightPx = HOUR_HEIGHT_PX;
   protected readonly gridHeightPx = (END_HOUR - START_HOUR) * HOUR_HEIGHT_PX;
 
   protected readonly columns = computed(() =>
     this.days().map((day) => ({ day, blocks: layoutDay(day.appointments) })),
   );
-
-  protected hourLabel(hour: number): string {
-    return `${String(hour).padStart(2, '0')}:00`;
-  }
 }

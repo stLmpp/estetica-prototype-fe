@@ -1,6 +1,6 @@
 import { Component, computed, input, linkedSignal, model } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs/esm';
 import { LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
 import { IconButtonComponent } from '../icon-button/icon-button.component';
 

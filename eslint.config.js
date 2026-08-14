@@ -58,6 +58,7 @@ module.exports = defineConfig([
           ignoreWithDirectives: ['backdrop'],
         },
       ],
+      '@angular-eslint/template/no-call-expression': ['off'],
     },
   },
 ]);
