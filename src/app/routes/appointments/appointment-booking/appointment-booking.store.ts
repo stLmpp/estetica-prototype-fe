@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { type SyncConfig, withStorageSync } from '@angular-architects/ngrx-toolkit';
+import { type SyncConfig, withReset, withStorageSync } from '@angular-architects/ngrx-toolkit';
 import {
   getState,
   patchState,
@@ -115,7 +115,7 @@ const initialState: AppointmentBookingState = {
   dayScheduleLoading: false,
   dayScheduleErrorMessage: null,
   date: todayDateInputValue(),
-  startTime: '09:00',
+  startTime: '08:00',
   durationMinutes: DEFAULT_DURATION_MINUTES,
   notes: '',
   priceApplied: '',
@@ -124,6 +124,8 @@ const initialState: AppointmentBookingState = {
 };
 
 export const AppointmentBookingStore = signalStore(
+  { providedIn: 'root' },
+  withReset(),
   withState(initialState),
   withStorageSync(
     {
@@ -302,8 +304,7 @@ export const AppointmentBookingStore = signalStore(
         },
 
         reset() {
-          patchState(store, initialState);
-          store.clearStorage();
+          store.resetState();
         },
       };
     },
