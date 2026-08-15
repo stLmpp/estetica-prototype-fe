@@ -33,7 +33,6 @@ export class FormFieldComponent implements AfterContentInit {
 
   ngAfterContentInit() {
     if (!this.input()) {
-      // TODO improve error
       throw new Error('InputDirective is required');
     }
   }

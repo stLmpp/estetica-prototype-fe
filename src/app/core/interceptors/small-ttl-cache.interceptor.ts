@@ -58,7 +58,6 @@ const symbolMap: Record<Flag, string> = {
   transferState: '📦',
 };
 
-// TODO logger
 console.log(
   Object.entries(symbolMap)
     .map(([flag, symbol]) => `${symbol} -> ${flag}`)
@@ -66,7 +65,6 @@ console.log(
 );
 
 function logRequest(req: HttpRequest<unknown>, flag: Flag) {
-  // TODO add logger
   const url = new URL(req.urlWithParams);
   const args: unknown[] = [`${symbolMap[flag]} [HTTP] ${req.method} ${url.pathname}`];
   if (url.searchParams.size) {

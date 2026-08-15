@@ -1,4 +1,4 @@
 export const environment = {
-  api: 'http://localhost:3000', // TODO
+  api: 'http://localhost:3000',
   debug: false,
 };
