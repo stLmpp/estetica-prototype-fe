@@ -1,9 +1,7 @@
 <div class="flex flex-wrap items-center justify-between gap-4">
   <div>
     <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Clientes</h1>
-    <p class="text-sm text-neutral-500 dark:text-neutral-400">
-      Gerencie os clientes cadastrados.
-    </p>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Gerencie os clientes cadastrados.</p>
   </div>
   @if (canCreateCustomer()) {
     <button
@@ -62,32 +60,28 @@
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
     @let canUpdate = canUpdateCustomer();
-    @defer (when canUpdate) {
-      @if (canUpdate) {
-        <button
-          iconBtn
-          type="button"
-          [icon]="LucidePencil"
-          ariaLabel="Editar cliente"
-          size="sm"
-          [appPreloadLoader]="customerFormDialogLoader"
-          (click)="openEditDialog(row)"
-        ></button>
-      }
+    @if (canUpdate) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucidePencil"
+        ariaLabel="Editar cliente"
+        size="sm"
+        [appPreloadLoader]="customerFormDialogLoader"
+        (click)="openEditDialog(row)"
+      ></button>
     }
 
     @let canDelete = canDeleteCustomer();
-    @defer (when canDelete) {
-      @if (canDelete) {
-        <button
-          iconBtn
-          type="button"
-          [icon]="LucideTrash2"
-          ariaLabel="Excluir cliente"
-          size="sm"
-          (click)="openDeleteDialog(row)"
-        ></button>
-      }
+    @if (canDelete) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucideTrash2"
+        ariaLabel="Excluir cliente"
+        size="sm"
+        (click)="openDeleteDialog(row)"
+      ></button>
     }
   </div>
 </ng-template>

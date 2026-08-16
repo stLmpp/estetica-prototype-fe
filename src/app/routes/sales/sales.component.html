@@ -104,17 +104,15 @@
     ></a>
 
     @let canDelete = canDeleteSale();
-    @defer (when canDelete) {
-      @if (canDelete) {
-        <button
-          iconBtn
-          type="button"
-          [icon]="LucideTrash2"
-          ariaLabel="Excluir venda"
-          size="sm"
-          (click)="openDeleteDialog(row)"
-        ></button>
-      }
+    @if (canDelete) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucideTrash2"
+        ariaLabel="Excluir venda"
+        size="sm"
+        (click)="openDeleteDialog(row)"
+      ></button>
     }
   </div>
 </ng-template>

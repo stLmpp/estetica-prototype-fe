@@ -154,8 +154,6 @@ Permission/role checks mirror the backend's `has-permission.decorator.ts` for fu
 - Express a permission requirement as a `HasPermissionOptions` object (`core/auth/has-permission.ts`) — `{ permissions }`, `{ orgPermissions }`, `{ roles }`, `{ orgRoles }`, or an `or`/`and` combination of those — the same shape as the backend's `@HasPermission` decorator (`HasPermissionOptionsV2`).
 - Route level: use the `hasPermissionGuard(options)` factory alongside the other auth guards (see the Angular functional constructs rule above).
 - Template level: expose a `computed()` signal on the component (e.g. `canCreateCatalogItem = computed(() => authStore.hasPermission({ ... }))`) and gate the element with `@if`. Don't call `authStore.hasPermission()` directly inline in a template expression — it re-evaluates every change-detection cycle and re-allocates the check object each time.
-- For content declared directly in a template, `@defer` can double as an authorization boundary: wrap it behind the same `computed()` signal (`@defer (when canCreateCatalogItem())`) so the chunk itself is never fetched for a user without access, not just hidden after loading. See the `@defer` section below.
-- This only applies to template-declared content — a component opened imperatively (e.g. via CDK `Dialog.open()`) has no template presence for `@defer` to attach to. Use `DialogService`'s lazy-component overload for those instead (see Services).
 - The frontend check is a UX convenience, never the security boundary — the backend's guard re-validates every request regardless of what the client decided. Don't skip or weaken a backend check because the frontend already gates it.
 
 ## Server-Side Rendering (SSR)
@@ -240,7 +238,6 @@ This app is server-rendered (`provideClientHydration()` in `app.config.ts`). Eve
 Use `@defer` to split a template's heavy or non-critical dependencies (their component classes, and everything those components import) into a separate JS chunk that's fetched later instead of in the initial bundle. It exists to shrink what has to be downloaded/parsed/executed before the page is usable — smaller initial bundle, faster first load, better Core Web Vitals (LCP/TBT).
 
 - Reach for it around content that isn't needed for the initial view: below-the-fold sections, secondary widgets, heavy components (charts, rich text editors, large third-party embeds), or anything gated behind user action.
-- Also reach for it around content gated behind a permission check — see the Authorization section above. `@defer (when canDoX())` keeps the chunk from ever being fetched for a user who can't see it, not just deferred-then-shown. This only works for content declared in the template; use `DialogService`'s lazy overload for permission-gated dialogs opened imperatively.
 - Pick the trigger to match why you're deferring:
   - `on viewport` — below-the-fold content that should load as the user scrolls to it.
   - `on interaction` / `on hover` — content tied to a specific element the user hasn't engaged with yet.
@@ -262,6 +259,6 @@ Use `@defer` to split a template's heavy or non-critical dependencies (their com
 
 ### Dialogs
 
-Use `DialogService` (`core/dialog/dialog.service.ts`) instead of injecting CDK's `Dialog` directly. It wraps `Dialog.open()` with the same API, plus an overload that accepts a lazy loader (`() => import('./x.component').then((m) => m.XComponent)`) instead of an eager component class — returning `Promise<DialogRef<...>>` in that case — so a dialog's code can be code-split without extra ceremony when it's worth it (see the Authorization and `@defer` sections for when that's the case).
+Use `DialogService` (`core/dialog/dialog.service.ts`) instead of injecting CDK's `Dialog` directly. It wraps `Dialog.open()` with the same API, plus an overload that accepts a lazy loader (`() => import('./x.component').then((m) => m.XComponent)`) instead of an eager component class — returning `Promise<DialogRef<...>>` in that case — so a dialog's code can be code-split without extra ceremony when it's worth it.
 
 Size dialogs via the `size` option on `open()` (`'sm' | 'md' | 'lg' | 'xl' | '2xl'`, matching Tailwind's `max-w-*` scale — defaults to `'md'`), not by hand-rolling `w-full max-w-*` on the dialog component's own host class. `DialogService` turns it into CDK's `width`/`maxWidth` config, so the component's host only needs `block rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800` (see `ConfirmDialogComponent`). This keeps sizing a decision the *caller* makes per `open()` call (a confirm dialog with a short static message and one with a long dynamic label may want different sizes) instead of baking one width into the dialog component regardless of who opens it.

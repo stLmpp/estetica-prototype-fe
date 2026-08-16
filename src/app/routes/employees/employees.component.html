@@ -70,32 +70,28 @@
     ></a>
 
     @let canUpdate = canUpdateEmployee();
-    @defer (when canUpdate) {
-      @if (canUpdate) {
-        <button
-          iconBtn
-          type="button"
-          [icon]="LucidePencil"
-          ariaLabel="Editar funcionário"
-          size="sm"
-          [appPreloadLoader]="employeeFormDialogLoader"
-          (click)="openEditDialog(row)"
-        ></button>
-      }
+    @if (canUpdate) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucidePencil"
+        ariaLabel="Editar funcionário"
+        size="sm"
+        [appPreloadLoader]="employeeFormDialogLoader"
+        (click)="openEditDialog(row)"
+      ></button>
     }
 
     @let canDelete = canDeleteEmployee();
-    @defer (when canDelete) {
-      @if (canDelete) {
-        <button
-          iconBtn
-          type="button"
-          [icon]="LucideTrash2"
-          ariaLabel="Excluir funcionário"
-          size="sm"
-          (click)="openDeleteDialog(row)"
-        ></button>
-      }
+    @if (canDelete) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucideTrash2"
+        ariaLabel="Excluir funcionário"
+        size="sm"
+        (click)="openDeleteDialog(row)"
+      ></button>
     }
   </div>
 </ng-template>

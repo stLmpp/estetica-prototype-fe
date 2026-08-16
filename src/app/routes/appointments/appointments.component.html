@@ -112,32 +112,28 @@
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
     @let canCheckout = canCreateSale() && row.status === AppointmentStatus.Completed;
-    @defer (when canCheckout) {
-      @if (canCheckout) {
-        <a
-          iconBtn
-          type="button"
-          [icon]="LucideReceiptText"
-          ariaLabel="Finalizar venda"
-          size="sm"
-          [routerLink]="['/sales/new']"
-          [queryParams]="{ appointmentId: row.id }"
-        ></a>
-      }
+    @if (canCheckout) {
+      <a
+        iconBtn
+        type="button"
+        [icon]="LucideReceiptText"
+        ariaLabel="Finalizar venda"
+        size="sm"
+        [routerLink]="['/sales/new']"
+        [queryParams]="{ appointmentId: row.id }"
+      ></a>
     }
 
     @let canCancel = canCancelAppointment() && row.status === AppointmentStatus.Scheduled;
-    @defer (when canCancel) {
-      @if (canCancel) {
-        <button
-          iconBtn
-          type="button"
-          [icon]="LucideX"
-          ariaLabel="Cancelar agendamento"
-          size="sm"
-          (click)="openCancelDialog(row)"
-        ></button>
-      }
+    @if (canCancel) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucideX"
+        ariaLabel="Cancelar agendamento"
+        size="sm"
+        (click)="openCancelDialog(row)"
+      ></button>
     }
   </div>
 </ng-template>
