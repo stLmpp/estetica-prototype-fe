@@ -1,0 +1,82 @@
+<h2
+  id="add-sale-transaction-dialog-title"
+  class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
+>
+  {{ title() }}
+</h2>
+
+<form [formRoot]="f" class="flex flex-col gap-4">
+  @if (!isRefund) {
+    <app-switch [formField]="f.installments">Parcelado (cartão de crédito)</app-switch>
+  }
+
+  @let isInstallments = !isRefund && f.installments().value();
+
+  @if (!isInstallments) {
+    <app-form-field>
+      <label appLabel for="transaction-payment-method">Forma de pagamento</label>
+      <select appSelect [formField]="f.paymentMethod" id="transaction-payment-method">
+        <option value="">Selecione</option>
+        @for (method of paymentMethodOptions; track method) {
+          <option [value]="method">{{ method }}</option>
+        }
+      </select>
+    </app-form-field>
+  } @else {
+    <div>
+      <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">Forma de pagamento</span>
+      <p class="py-2.5 text-sm text-neutral-700 dark:text-neutral-200">{{ PaymentMethod.CreditCard }}</p>
+    </div>
+  }
+
+  <app-form-field>
+    <label appLabel for="transaction-amount">
+      {{ isInstallments ? 'Valor total a parcelar' : 'Valor' }}
+    </label>
+    <input
+      appInput
+      [formField]="f.amount"
+      id="transaction-amount"
+      type="text"
+      inputmode="decimal"
+      mask="separator.2"
+      prefix="R$ "
+    />
+  </app-form-field>
+
+  @if (isInstallments) {
+    <app-form-field>
+      <label appLabel for="transaction-installment-count">Número de parcelas</label>
+      <input
+        appInput
+        [formField]="f.installmentCount"
+        id="transaction-installment-count"
+        type="number"
+        inputmode="numeric"
+      />
+    </app-form-field>
+
+    <app-form-field>
+      <label appLabel for="transaction-due-date">Data da 1ª parcela</label>
+      <input appInput [formField]="f.dueDate" id="transaction-due-date" type="date" />
+    </app-form-field>
+
+    <app-switch [formField]="f.markFirstInstallmentAsReceived">Primeira parcela já recebida</app-switch>
+  } @else {
+    <app-form-field>
+      <label appLabel for="transaction-due-date">Data de vencimento</label>
+      <input appInput [formField]="f.dueDate" id="transaction-due-date" type="date" />
+    </app-form-field>
+
+    <app-switch [formField]="f.receivedNow">Recebido agora</app-switch>
+  }
+
+  @if (submitErrorMessage(); as message) {
+    <app-alert error>{{ message }}</app-alert>
+  }
+
+  <div class="mt-2 flex justify-end gap-3">
+    <button btn btnOutline type="button" [disabled]="f().submitting()" (click)="cancel()">Cancelar</button>
+    <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">Salvar</button>
+  </div>
+</form>

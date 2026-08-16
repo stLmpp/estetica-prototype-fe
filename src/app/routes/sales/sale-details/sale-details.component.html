@@ -1,0 +1,143 @@
+<div>
+  <a routerLink="/sales" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+    ← Voltar para vendas
+  </a>
+</div>
+
+@if (loadErrorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+} @else {
+  <div [loadingOverlay]="loading()">
+    @if (!loading() && sale(); as sale) {
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3">
+              <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">
+                {{ sale.customerName }}
+              </h1>
+              @switch (sale.status) {
+                @case (SaleStatus.Paid) {
+                  <app-badge secondary>{{ sale.status }}</app-badge>
+                }
+                @case (SaleStatus.Pending) {
+                  <app-badge primary>{{ sale.status }}</app-badge>
+                }
+                @default {
+                  <app-badge>{{ sale.status }}</app-badge>
+                }
+              }
+            </div>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+              Atendido por {{ sale.employeeName }}
+              @if (sale.appointmentId) {
+                · <a [routerLink]="['/appointments']" class="hover:underline">a partir de um agendamento</a>
+              }
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            @if (canCancelSale()) {
+              <button btn btnOutline type="button" (click)="openCancelDialog()">Cancelar venda</button>
+            }
+            @if (canRegisterTransactions()) {
+              <button btn btnOutline type="button" (click)="openTransactionDialog(SaleTransactionType.Refund)">
+                Registrar estorno
+              </button>
+              <button btn btnPrimary type="button" (click)="openTransactionDialog(SaleTransactionType.Payment)">
+                Adicionar pagamento
+              </button>
+            }
+          </div>
+        </div>
+
+        <div>
+          <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Itens</h2>
+          <div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-700">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-neutral-50 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+                <tr>
+                  <th class="px-4 py-2 font-medium">Item</th>
+                  <th class="px-4 py-2 font-medium">Quantidade</th>
+                  <th class="px-4 py-2 font-medium">Preço aplicado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of sale.items; track item.id) {
+                  <tr class="border-t border-neutral-200 dark:border-neutral-700">
+                    <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">{{ item.catalogItemName }}</td>
+                    <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">{{ item.quantity }}</td>
+                    <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                      {{ item.priceApplied | currency: 'BRL' }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-3 text-right text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+            Total: {{ sale.totalAmount | currency: 'BRL' }}
+          </p>
+        </div>
+
+        <div>
+          <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Transações</h2>
+          @if (!sale.transactions.length) {
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma transação registrada.</p>
+          } @else {
+            <div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-700">
+              <table class="w-full text-left text-sm">
+                <thead class="bg-neutral-50 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+                  <tr>
+                    <th class="px-4 py-2 font-medium">Tipo</th>
+                    <th class="px-4 py-2 font-medium">Forma de pagamento</th>
+                    <th class="px-4 py-2 font-medium">Valor</th>
+                    <th class="px-4 py-2 font-medium">Parcela</th>
+                    <th class="px-4 py-2 font-medium">Vencimento</th>
+                    <th class="px-4 py-2 font-medium">Recebido em</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (transaction of sale.transactions; track transaction.id) {
+                    <tr class="border-t border-neutral-200 dark:border-neutral-700">
+                      <td class="px-4 py-2">
+                        @if (transaction.type === SaleTransactionType.Refund) {
+                          <app-badge>{{ transaction.type }}</app-badge>
+                        } @else {
+                          <app-badge secondary>{{ transaction.type }}</app-badge>
+                        }
+                      </td>
+                      <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                        {{ transaction.paymentMethod }}
+                      </td>
+                      <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                        {{ transaction.amount | currency: 'BRL' }}
+                      </td>
+                      <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                        @if (transaction.installmentNumber && transaction.installmentCount) {
+                          {{ transaction.installmentNumber }}/{{ transaction.installmentCount }}
+                        } @else {
+                          —
+                        }
+                      </td>
+                      <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                        {{ transaction.dueDate ? (transaction.dueDate | date: 'dd/MM/yyyy') : '—' }}
+                      </td>
+                      <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                        @if (transaction.receivedAt) {
+                          {{ transaction.receivedAt | date: 'dd/MM/yyyy HH:mm' }}
+                        } @else {
+                          <span class="text-neutral-400 dark:text-neutral-500">Pendente</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

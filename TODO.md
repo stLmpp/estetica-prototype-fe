@@ -31,3 +31,36 @@ move to `TODO_DONE.md` instead of being deleted outright.
       'http://localhost:3000'` with no per-environment override. Needs real
       `environment.*.ts` files (or however this project wants to handle it)
       once there's a staging/production API URL to point at.
+- [ ] `src/app/routes/appointments/appointments-calendar` has no actions on
+      calendar entries yet — add view, create, edit, and delete (and
+      whatever else makes sense, e.g. status updates) directly from the
+      calendar, instead of requiring a trip through the list/booking flow
+      for everything.
+- [ ] Every Signal Forms form with a `type="number"` input models that field
+      as `string` in its form model, converting with `Number(...)` only when
+      building the API payload — see `defaultDuration` in
+      `catalog-item-form-dialog.component.ts`, `durationMinutes` in
+      `appointment-booking.store.ts`, and `quantity`/`installmentCount` in
+      `sale-form.component.ts` (added copying that same pattern, since it
+      was the only precedent found at the time). That makes sense for
+      money/currency fields (`priceApplied`, `amount`, etc.) — the API
+      itself represents those as strings, since the backend's Postgres
+      `numeric` columns come back as strings from drizzle to avoid
+      floating-point precision loss — but plain integer fields (quantity,
+      duration in minutes, installment count) don't have that precision
+      concern; JS `number` represents them exactly, and the backend DTOs
+      already type them as `number` on the wire (see `sale.dto.ts`'s
+      `SaleItemPayload.quantity: number`). Figure out whether the
+      string-everywhere pattern was a deliberate choice (e.g. Angular
+      Signal Forms' native `<input>` support doesn't cleanly bind a
+      `number`-typed field to `type="number"` — unverified either way) or
+      just copied from the currency-field pattern out of habit. If
+      `number` binds fine, migrate every integer-typed form field to it and
+      reserve `string` model fields for genuinely string-shaped API values
+      (money, dates, ids) — across all the forms listed above, not just
+      new ones.
+- [ ] Split `docs/DS.md` into one `.md` per design-system component (e.g.
+      `docs/ds/button.md`, `docs/ds/typeahead.md`, ...) once it gets
+      unwieldy as a single file — noted inline in `docs/DS.md` itself too.
+      Keep each one scoped to that component's actual inputs/outputs/usage,
+      linked from an index in `docs/DS.md` rather than duplicating content.

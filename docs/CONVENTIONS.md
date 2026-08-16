@@ -18,6 +18,9 @@ coding conventions it points to.
   - Use `app-form-field`, `appLabel`, `appInput` for forms.
   - Use `app-alert` for notifications.
   - Check `src/app/components` for other available components (badge, checkbox, chip, switch, table, etc.).
+  - See [`docs/DS.md`](./DS.md) for a usage guide per component (key
+    inputs/outputs, a minimal snippet) — check it before hand-rolling
+    markup an existing component already covers.
 
 ## TypeScript Best Practices
 
@@ -35,6 +38,87 @@ coding conventions it points to.
   ```
   Omit the annotation when the return type is already obvious/inferable (e.g. the function just delegates to another already-typed call) — don't add a redundant explicit type.
 - Avoid `try`/`catch`. Use the Go-style `safe`/`safeAsync` helpers (`src/app/shared/safe.ts`) instead — they wrap a callback and return a `[error, data]` tuple, so the error is a normal value you check inline instead of a control-flow jump: `const [error, data] = await safeAsync(() => thing())` (see `better-auth.provider.ts` for existing usage). Reach for `try`/`catch` only when `safe`/`safeAsync` genuinely doesn't fit (e.g. a lifecycle callback where you can't return a tuple).
+- **Avoid nested conditionals — return early / fail fast instead.** When a
+  method has several preconditions to check before doing its real work,
+  check each one on its own line and `return` immediately rather than
+  wrapping the "happy path" in progressively deeper `if` blocks. Nesting
+  forces the reader to hold every enclosing condition in their head to know
+  what a given line actually depends on; a flat sequence of guard clauses
+  reads top-to-bottom and each one can be understood in isolation.
+
+  ```ts
+  // Avoid — the real save logic is buried three levels deep, and the two
+  // outcomes (success/error) are split across unrelated nesting depths.
+  async save() {
+    if (this.form().valid()) {
+      if (!this.saving()) {
+        this.saving.set(true);
+        const [error] = await safeAsync(() => this.service.update(this.id(), this.form().value()));
+        this.saving.set(false);
+        if (!error) {
+          this.toastService.success('Saved');
+          this.dialogRef.close();
+        } else {
+          this.toastService.error(extractApiErrorMessage(error));
+        }
+      }
+    }
+  }
+
+  // Prefer — every reason not to proceed exits immediately; what's left is
+  // a single straight-line save.
+  async save() {
+    if (!this.form().valid() || this.saving()) {
+      return;
+    }
+    this.saving.set(true);
+    const [error] = await safeAsync(() => this.service.update(this.id(), this.form().value()));
+    this.saving.set(false);
+    if (error) {
+      this.toastService.error(extractApiErrorMessage(error));
+      return;
+    }
+    this.toastService.success('Saved');
+    this.dialogRef.close();
+  }
+  ```
+
+  `appointment-booking-step.guard.ts`'s `appointmentBookingStepGuard` is a
+  real example of the same shape: one guard clause (`if (missing) { return
+  router.createUrlTree(...); }`) followed by the unconditional `return true`
+  — no `else` needed because the guard clause already handled the other case.
+- **Use `dayjs` (`import dayjs from 'dayjs/esm'`) for all date arithmetic,
+  formatting, and parsing — never the native `Date` object directly**
+  (`new Date(...)`, manual millisecond math, hand-built ISO strings via
+  template literals). `Date`'s API is mutable and easy to get subtly wrong
+  (month is 0-indexed, `setHours`/etc. mutate in place); `dayjs` is
+  immutable and reads the way the operation is actually described.
+
+  ```ts
+  // Avoid — reconstructs a start/end of day by hand-appending a time string,
+  // easy to get subtly wrong (e.g. the end-of-day literal has to be typed
+  // out to the millisecond) and says nothing about *why* those two literals.
+  function toRangeStartIso(date: string): string | undefined {
+    return date ? new Date(`${date}T00:00:00`).toISOString() : undefined;
+  }
+  function toRangeEndIso(date: string): string | undefined {
+    return date ? new Date(`${date}T23:59:59.999`).toISOString() : undefined;
+  }
+
+  // Prefer — says exactly what it does.
+  function toRangeStartIso(date: string): string | undefined {
+    return date ? dayjs(date).startOf('day').toISOString() : undefined;
+  }
+  function toRangeEndIso(date: string): string | undefined {
+    return date ? dayjs(date).endOf('day').toISOString() : undefined;
+  }
+  ```
+
+  `AppointmentBookingStore.fetchDaySchedule` (`dayjs(date).startOf('day')`/
+  `.endOf('day')`) already does this correctly — `appointments.component.ts`
+  and `sales.component.ts`'s `toRangeStartIso`/`toRangeEndIso` didn't, and
+  were fixed to match. Import from `dayjs/esm`, not plain `dayjs`, matching
+  existing usage across the codebase.
 
 ## Code Comments
 

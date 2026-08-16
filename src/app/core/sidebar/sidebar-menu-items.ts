@@ -6,6 +6,7 @@ import {
   LucideLayoutDashboard,
   LucidePackage,
   LucideSettings,
+  LucideShoppingCart,
   LucideUser,
   LucideUsers,
 } from '@lucide/angular';
@@ -46,6 +47,12 @@ export const SIDEBAR_MAIN_MENU_ITEMS: MenuItem[] = [
     link: '/appointments',
     icon: LucideCalendarDays,
     permission: { orgPermissions: { appointment: ['get'] } },
+  },
+  {
+    title: 'Vendas',
+    link: '/sales',
+    icon: LucideShoppingCart,
+    permission: { orgPermissions: { sale: ['get'] } },
   },
 ];
 

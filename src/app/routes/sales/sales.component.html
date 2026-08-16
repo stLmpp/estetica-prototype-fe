@@ -1,0 +1,120 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Vendas</h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Gerencie as vendas realizadas.</p>
+  </div>
+  @if (canCreateSale()) {
+    <a btn btnPrimary routerLink="/sales/new">
+      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      Nova venda
+    </a>
+  }
+</div>
+
+<form [formRoot]="filtersForm" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <app-form-field>
+    <label appLabel for="sale-status-filter">Status</label>
+    <select appSelect [formField]="filtersForm.status" id="sale-status-filter">
+      <option value="">Todos</option>
+      @for (status of statusOptions; track status) {
+        <option [value]="status">{{ status }}</option>
+      }
+    </select>
+  </app-form-field>
+
+  <app-typeahead
+    [formField]="filtersForm.customerId"
+    [searchFn]="customerSearchFn"
+    label="Cliente"
+    placeholder="Buscar cliente por nome"
+    emptyMessage="Nenhum cliente encontrado."
+  />
+
+  <app-typeahead
+    [formField]="filtersForm.employeeId"
+    [searchFn]="employeeSearchFn"
+    label="Funcionário"
+    placeholder="Buscar funcionário por nome"
+    emptyMessage="Nenhum funcionário encontrado."
+  />
+
+  <app-form-field>
+    <label appLabel for="sale-from-date">A partir de</label>
+    <input appInput [formField]="filtersForm.fromDate" id="sale-from-date" type="date" />
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="sale-to-date">Até</label>
+    <input appInput [formField]="filtersForm.toDate" id="sale-to-date" type="date" />
+  </app-form-field>
+</form>
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
+
+@if (!store.loading() && store.entities().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhuma venda encontrada.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+/>
+
+<ng-template #statusTemplate let-row="row">
+  @switch (row.status) {
+    @case (SaleStatus.Paid) {
+      <app-badge secondary>{{ row.status }}</app-badge>
+    }
+    @case (SaleStatus.Pending) {
+      <app-badge primary>{{ row.status }}</app-badge>
+    }
+    @default {
+      <app-badge>{{ row.status }}</app-badge>
+    }
+  }
+</ng-template>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    <a
+      iconBtn
+      type="button"
+      [icon]="LucideEye"
+      ariaLabel="Ver venda"
+      size="sm"
+      [routerLink]="['/sales', row.id]"
+    ></a>
+
+    @let canDelete = canDeleteSale();
+    @defer (when canDelete) {
+      @if (canDelete) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucideTrash2"
+          ariaLabel="Excluir venda"
+          size="sm"
+          (click)="openDeleteDialog(row)"
+        ></button>
+      }
+    }
+  </div>
+</ng-template>

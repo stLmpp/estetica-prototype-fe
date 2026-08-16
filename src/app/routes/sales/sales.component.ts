@@ -13,10 +13,10 @@ import { RouterLink } from '@angular/router';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { map, skip } from 'rxjs';
 import dayjs from 'dayjs/esm';
-import { LucideCalendarPlus, LucideReceiptText, LucideX } from '@lucide/angular';
+import { LucideEye, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
-import { ButtonComponent } from '../../components/button/button.component';
 import { BadgeComponent } from '../../components/badge/badge.component';
+import { ButtonComponent } from '../../components/button/button.component';
 import {
   ConfirmDialogComponent,
   ConfirmDialogData,
@@ -24,11 +24,9 @@ import {
 import { FormFieldComponent } from '../../components/form-field/form-field.component';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
 import { IconComponent } from '../../components/icon/icon.component';
-import { InputDirective } from '../../components/input/input.directive';
 import { LabelComponent } from '../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../components/loading-overlay/loading-overlay.directive';
 import { PaginatorComponent } from '../../components/paginator/paginator.component';
-import { PreloadDirective } from '../../components/preload/preload.directive';
 import { SelectDirective } from '../../components/select/select.directive';
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
@@ -37,20 +35,19 @@ import { ToastService } from '../../components/toast/toast.service';
 import { TypeaheadComponent } from '../../components/typeahead/typeahead.component';
 import { AuthStore } from '../../core/auth/auth.store';
 import { DialogService } from '../../core/dialog/dialog.service';
-import { CatalogItem } from '../catalog-items/catalog-item.model';
 import { CustomerService } from '../customers/customer.service';
-import { Employee } from '../employees/employee.model';
-import { AppointmentStatus } from './appointment-status.enum';
-import { Appointment } from './appointment.model';
-import { AppointmentsStore, PAGE_SIZE } from './appointments.store';
+import { EmployeeService } from '../employees/employee.service';
+import { Sale } from './sale.model';
+import { SaleStatus } from './sale-status.enum';
+import { PAGE_SIZE, SalesStore } from './sales.store';
+import { InputDirective } from '../../components/input/input.directive';
 
-const STATUS_OPTIONS = Object.values(AppointmentStatus);
+const STATUS_OPTIONS = Object.values(SaleStatus);
 
-interface AppointmentsFiltersFormModel {
-  status: AppointmentStatus | '';
-  catalogItemId: string;
-  employeeId: string;
+interface SalesFiltersFormModel {
+  status: SaleStatus | '';
   customerId: string | null;
+  employeeId: string | null;
   fromDate: string;
   toDate: string;
 }
@@ -64,7 +61,7 @@ function toRangeEndIso(date: string): string | undefined {
 }
 
 @Component({
-  selector: 'app-appointments',
+  selector: 'app-sales',
   imports: [
     AlertComponent,
     BadgeComponent,
@@ -74,75 +71,66 @@ function toRangeEndIso(date: string): string | undefined {
     FormRoot,
     IconButtonComponent,
     IconComponent,
-    InputDirective,
     LabelComponent,
     LoadingOverlayDirective,
     PaginatorComponent,
-    PreloadDirective,
     RouterLink,
     SelectDirective,
     TableComponent,
     TypeaheadComponent,
+    InputDirective,
   ],
-  templateUrl: './appointments.component.html',
+  templateUrl: './sales.component.html',
   host: {
     class: 'page-container',
   },
-  providers: [AppointmentsStore],
+  providers: [SalesStore],
 })
-export class AppointmentsComponent {
-  readonly pageParam = input(1, { alias: 'page', transform: (value: string) => numberAttribute(value, 1) });
-  readonly services = input.required<CatalogItem[]>();
-  readonly employees = input.required<Employee[]>();
+export class SalesComponent {
+  readonly pageParam = input(1, {
+    alias: 'page',
+    transform: (value: string) => numberAttribute(value, 1),
+  });
 
-  protected readonly store = inject(AppointmentsStore);
+  protected readonly store = inject(SalesStore);
   private readonly authStore = inject(AuthStore);
   private readonly dialogService = inject(DialogService);
   private readonly customerService = inject(CustomerService);
+  private readonly employeeService = inject(EmployeeService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly LucideCalendarPlus = LucideCalendarPlus;
-  protected readonly LucideReceiptText = LucideReceiptText;
-  protected readonly LucideX = LucideX;
+  protected readonly LucidePlus = LucidePlus;
+  protected readonly LucideEye = LucideEye;
+  protected readonly LucideTrash2 = LucideTrash2;
   protected readonly pageSize = PAGE_SIZE;
   protected readonly statusOptions = STATUS_OPTIONS;
-  protected readonly AppointmentStatus = AppointmentStatus;
+  protected readonly SaleStatus = SaleStatus;
 
-  protected readonly trackBy = (appointment: Appointment) => appointment.id;
+  protected readonly trackBy = (sale: Sale) => sale.id;
 
-  protected readonly bookingRouteLoader = () =>
-    import('./appointment-booking/appointment-booking.component').then(
-      (m) => m.AppointmentBookingComponent,
-    );
-
-  protected readonly canCreateAppointment = computed(() =>
-    this.authStore.hasPermission({ orgPermissions: { appointment: ['create'] } }),
-  );
-  protected readonly canCancelAppointment = computed(() =>
-    this.authStore.hasPermission({ orgPermissions: { appointment: ['updateStatus'] } }),
-  );
   protected readonly canCreateSale = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { sale: ['create'] } }),
+  );
+  protected readonly canDeleteSale = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { sale: ['delete'] } }),
   );
 
   private readonly statusTemplate = viewChild.required<TemplateRef<TableEvent>>('statusTemplate');
   private readonly actionsTemplate = viewChild.required<TemplateRef<TableEvent>>('actionsTemplate');
 
-  protected readonly columns = computed<ColDef<Appointment>[]>(() => [
+  protected readonly columns = computed<ColDef<Sale>[]>(() => [
     { key: 'customerName', title: 'Cliente' },
-    { key: 'catalogItemName', title: 'Serviço' },
-    { key: 'employeeName', title: 'Profissional' },
-    { key: 'startTime', title: 'Início', type: 'date', format: 'dd/MM/yyyy HH:mm' },
-    { key: 'endTime', title: 'Término', type: 'date', format: 'HH:mm' },
+    { key: 'employeeName', title: 'Funcionário' },
+    { key: 'totalAmount', title: 'Total', type: 'currency' },
     { key: 'status', title: 'Status', type: 'template', template: this.statusTemplate },
+    { key: 'createdAt', title: 'Data', type: 'date', format: 'dd/MM/yyyy HH:mm' },
     { key: 'id', title: 'Ações', type: 'template', template: this.actionsTemplate },
   ]);
 
-  protected readonly filtersModel = signal<AppointmentsFiltersFormModel>({
+  protected readonly filtersModel = signal<SalesFiltersFormModel>({
     status: '',
-    catalogItemId: '',
-    employeeId: '',
     customerId: null,
+    employeeId: null,
     fromDate: '',
     toDate: '',
   });
@@ -151,7 +139,20 @@ export class AppointmentsComponent {
   protected readonly customerSearchFn = (query: string) =>
     this.customerService
       .list({ name: query, limit: 10 })
-      .pipe(map((result) => result.items.map((customer) => ({ id: customer.id, label: customer.name }))));
+      .pipe(
+        map((result) =>
+          result.items.map((customer) => ({ id: customer.id, label: customer.name })),
+        ),
+      );
+
+  protected readonly employeeSearchFn = (query: string) =>
+    this.employeeService
+      .list({ name: query, limit: 10 })
+      .pipe(
+        map((result) =>
+          result.items.map((employee) => ({ id: employee.id, label: employee.name })),
+        ),
+      );
 
   constructor() {
     const initialPage = this.pageParam();
@@ -164,9 +165,8 @@ export class AppointmentsComponent {
       .subscribe((value) => {
         this.store.setFilters({
           status: value.status,
-          catalogItemId: value.catalogItemId,
-          employeeId: value.employeeId,
           customerId: value.customerId ?? '',
+          employeeId: value.employeeId ?? '',
           from: toRangeStartIso(value.fromDate) ?? '',
           to: toRangeEndIso(value.toDate) ?? '',
         });
@@ -177,13 +177,13 @@ export class AppointmentsComponent {
     this.store.setPage(page);
   }
 
-  protected openCancelDialog(appointment: Appointment) {
+  protected openDeleteDialog(sale: Sale) {
     const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
       data: {
-        title: 'Cancelar agendamento',
-        message: `Tem certeza que deseja cancelar o agendamento de "${appointment.customerName}"?`,
-        confirmLabel: 'Cancelar agendamento',
-        cancelLabel: 'Voltar',
+        title: 'Excluir venda',
+        message: `Tem certeza que deseja excluir a venda de "${sale.customerName}"? Essa ação não pode ser desfeita.`,
+        confirmLabel: 'Excluir',
+        cancelLabel: 'Cancelar',
         danger: true,
       },
       size: 'md',
@@ -194,9 +194,9 @@ export class AppointmentsComponent {
 
     dialogRef.closed.subscribe((confirmed) => {
       if (confirmed) {
-        this.store.cancelAppointment(appointment).subscribe(() => {
+        this.store.deleteSale(sale).subscribe(() => {
           if (!this.store.errorMessage()) {
-            this.toastService.success('Agendamento cancelado com sucesso.');
+            this.toastService.success('Venda excluída com sucesso.');
           }
         });
       }
