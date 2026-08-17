@@ -7,18 +7,12 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
-import {
-  prependEntity,
-  removeEntity,
-  setAllEntities,
-  updateEntity,
-  withEntities,
-} from '@ngrx/signals/entities';
+import { prependEntity, removeEntity, setAllEntities, withEntities } from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
 import { extractApiErrorMessage } from '../../model/api-error';
-import { CustomerPayload, UpdateCustomerPayload } from './customer.dto';
+import { CustomerPayload } from './customer.dto';
 import { Customer } from './customer.model';
 import { CustomerService } from './customer.service';
 
@@ -100,16 +94,6 @@ export const CustomersStore = signalStore(
           const lastEntity = entities.at(-1);
           if (entities.length > PAGE_SIZE && lastEntity) {
             patchState(store, removeEntity(lastEntity.id));
-          }
-        }),
-      );
-    },
-
-    updateCustomer(customerId: string, payload: UpdateCustomerPayload) {
-      return customerService.update(customerId, payload).pipe(
-        tap(() => {
-          if (payload.name !== undefined) {
-            patchState(store, updateEntity({ id: customerId, changes: { name: payload.name } }));
           }
         }),
       );

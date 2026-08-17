@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounce, form, FormField } from '@angular/forms/signals';
-import { LucideEye, LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
+import { LucideEye, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { ButtonComponent } from '../../components/button/button.component';
 import { FormFieldComponent } from '../../components/form-field/form-field.component';
@@ -28,7 +28,6 @@ import { TableEvent } from '../../components/table/model/table-event';
 import { TableComponent } from '../../components/table/table.component';
 import { AuthStore } from '../../core/auth/auth.store';
 import { DialogService } from '../../core/dialog/dialog.service';
-import { type CustomerFormDialogData } from './customer-form-dialog/customer-form-dialog.component';
 import { Customer } from './customer.model';
 import { CustomersStore, PAGE_SIZE } from './customers.store';
 
@@ -69,7 +68,6 @@ export class CustomersComponent {
   private readonly injector = inject(Injector);
 
   protected readonly LucidePlus = LucidePlus;
-  protected readonly LucidePencil = LucidePencil;
   protected readonly LucideTrash2 = LucideTrash2;
   protected readonly LucideEye = LucideEye;
   protected readonly pageSize = PAGE_SIZE;
@@ -90,9 +88,6 @@ export class CustomersComponent {
     this.authStore.hasPermission({
       orgPermissions: { customer: ['create'], person: ['create'] },
     }),
-  );
-  protected readonly canUpdateCustomer = computed(() =>
-    this.authStore.hasPermission({ orgPermissions: { customer: ['update'] } }),
   );
   protected readonly canDeleteCustomer = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { customer: ['delete'] } }),
@@ -133,28 +128,16 @@ export class CustomersComponent {
   }
 
   protected openCreateDialog() {
-    this.openFormDialog({});
-  }
-
-  protected openEditDialog(customer: Customer) {
-    this.openFormDialog({ customerId: customer.id });
-  }
-
-  private openFormDialog(data: CustomerFormDialogData) {
-    // The dialog itself updates the store on save (see CustomersStore
-    // createCustomer/updateCustomer), so there's nothing to do here on close.
-    // `injector` is required so the dialog's child injector can resolve the
-    // component-scoped CustomersStore (CDK Dialog otherwise uses the root injector).
-    this.dialogService.open<Customer | undefined, CustomerFormDialogData>(
-      this.customerFormDialogLoader,
-      {
-        data,
-        size: 'lg',
-        injector: this.injector,
-        ariaModal: true,
-        ariaLabelledBy: 'customer-form-dialog-title',
-      },
-    );
+    // The dialog itself updates the store on save (see CustomersStore.createCustomer),
+    // so there's nothing to do here on close. `injector` is required so the dialog's
+    // child injector can resolve the component-scoped CustomersStore (CDK Dialog
+    // otherwise uses the root injector).
+    this.dialogService.open<Customer | undefined>(this.customerFormDialogLoader, {
+      size: 'lg',
+      injector: this.injector,
+      ariaModal: true,
+      ariaLabelledBy: 'customer-form-dialog-title',
+    });
   }
 
   protected openDeleteDialog(customer: Customer) {

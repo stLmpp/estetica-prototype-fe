@@ -68,19 +68,6 @@
       [routerLink]="['/customers', row.id]"
     ></a>
 
-    @let canUpdate = canUpdateCustomer();
-    @if (canUpdate) {
-      <button
-        iconBtn
-        type="button"
-        [icon]="LucidePencil"
-        ariaLabel="Editar cliente"
-        size="sm"
-        [appPreloadLoader]="customerFormDialogLoader"
-        (click)="openEditDialog(row)"
-      ></button>
-    }
-
     @let canDelete = canDeleteCustomer();
     @if (canDelete) {
       <button
