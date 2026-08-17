@@ -1,6 +1,10 @@
 import { Dialog, DialogConfig, DialogRef } from '@angular/cdk/dialog';
 import { ComponentType } from '@angular/cdk/portal';
 import { inject, Service } from '@angular/core';
+import type {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../components/confirm-dialog/confirm-dialog.component';
 
 export type LazyDialogComponent<C> = () => Promise<ComponentType<C>>;
 
@@ -61,5 +65,21 @@ export class DialogService {
     return component().then((resolvedComponent) =>
       this.dialog.open<R, D, C>(resolvedComponent, resolvedConfig),
     );
+  }
+
+  async openConfirm<R = unknown>(
+    data: ConfirmDialogData<R>,
+    config?: Omit<DialogOpenConfig<ConfirmDialogData<R>, R, ConfirmDialogComponent<R>>, 'data'>,
+  ): Promise<DialogRef<R, ConfirmDialogComponent<R>>> {
+    const { ConfirmDialogComponent } =
+      await import('../../components/confirm-dialog/confirm-dialog.component');
+    return this.open<R, ConfirmDialogData<R>, ConfirmDialogComponent<R>>(ConfirmDialogComponent, {
+      size: 'md',
+      role: 'alertdialog',
+      ariaModal: true,
+      ariaLabelledBy: 'confirm-dialog-title',
+      ...config,
+      data,
+    });
   }
 }

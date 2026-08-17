@@ -15,10 +15,6 @@ import { debounce, form, FormField } from '@angular/forms/signals';
 import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { ButtonComponent } from '../../components/button/button.component';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../components/confirm-dialog/confirm-dialog.component';
 import { FormFieldComponent } from '../../components/form-field/form-field.component';
 import { IconComponent } from '../../components/icon/icon.component';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
@@ -160,24 +156,17 @@ export class CustomersComponent {
   }
 
   protected openDeleteDialog(customer: Customer) {
-    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-      data: {
-        title: 'Excluir cliente',
-        message: `Tem certeza que deseja excluir "${customer.name}"? Essa ação não pode ser desfeita.`,
-        confirmLabel: 'Excluir',
-        cancelLabel: 'Cancelar',
-        danger: true,
-      },
-      size: 'md',
-      role: 'alertdialog',
-      ariaModal: true,
-      ariaLabelledBy: 'confirm-dialog-title',
-    });
-
-    dialogRef.closed.subscribe((confirmed) => {
-      if (confirmed) {
-        this.store.deleteCustomer(customer).subscribe();
-      }
+    this.dialogService.openConfirm({
+      title: 'Excluir cliente',
+      message: `Tem certeza que deseja excluir "${customer.name}"? Essa ação não pode ser desfeita.`,
+      actions: [
+        { label: 'Cancelar', btnOutline: true },
+        {
+          label: 'Excluir',
+          danger: true,
+          onClick: () => this.store.deleteCustomer(customer),
+        },
+      ],
     });
   }
 }

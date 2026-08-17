@@ -16,6 +16,7 @@ operate here (tooling); that one covers how the code itself is written.
     ```
     `minDate` typed as `string | null` next to a `days` array already says everything that comment says.
   - Only comment when it explains a genuinely non-obvious **why** (a workaround, a constraint, a trade-off) that the reader can't get from the code itself — see the Code Comments section in `docs/CONVENTIONS.md` for the full rule.
+- **When a `TODO.md` item is done, move it to `TODO_DONE.md` — do not delete it outright.** Same rule on the backend's `TODO.md`/`TODO_DONE.md`.
 
 ## Tooling
 

@@ -2,14 +2,11 @@ import { Component, computed, inject, input, linkedSignal, signal } from '@angul
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { disabled, form, FormField, FormRoot } from '@angular/forms/signals';
+import { tap } from 'rxjs';
 import { LucideReceiptText } from '@lucide/angular';
 import { AlertComponent } from '../../../components/alert/alert.component';
 import { BadgeComponent } from '../../../components/badge/badge.component';
 import { ButtonComponent } from '../../../components/button/button.component';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../components/confirm-dialog/confirm-dialog.component';
 import { FormFieldComponent } from '../../../components/form-field/form-field.component';
 import { IconButtonComponent } from '../../../components/icon-button/icon-button.component';
 import { InputDirective } from '../../../components/input/input.directive';
@@ -124,35 +121,34 @@ export class AppointmentDetailsComponent {
     onSuccess?: () => void,
   ) {
     const appointmentId = this.appointmentId();
+    const danger = status === AppointmentStatus.Cancelled;
 
-    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-      data: {
-        title,
-        message,
-        confirmLabel,
-        cancelLabel: 'Voltar',
-        danger: status === AppointmentStatus.Cancelled,
-      },
-      size: 'md',
-      role: 'alertdialog',
-      ariaModal: true,
-      ariaLabelledBy: 'confirm-dialog-title',
-    });
-
-    dialogRef.closed.subscribe((confirmed) => {
-      if (!confirmed) {
-        return;
-      }
-      this.appointmentService.updateStatus(appointmentId, { status }).subscribe({
-        next: () => {
-          this.toastService.success('Status do agendamento atualizado com sucesso.');
-          this.appointment.update((appointment) => ({ ...appointment, status }));
-          onSuccess?.();
+    this.dialogService.openConfirm({
+      title,
+      message,
+      actions: [
+        { label: 'Voltar', btnOutline: true },
+        {
+          label: confirmLabel,
+          btnPrimary: !danger,
+          danger,
+          onClick: () =>
+            this.appointmentService.updateStatus(appointmentId, { status }).pipe(
+              tap({
+                next: () => {
+                  this.toastService.success('Status do agendamento atualizado com sucesso.');
+                  this.appointment.update((appointment) => ({ ...appointment, status }));
+                  onSuccess?.();
+                },
+                error: (error: unknown) => {
+                  this.toastService.error(
+                    extractApiErrorMessage(error, DEFAULT_STATUS_ERROR_MESSAGE),
+                  );
+                },
+              }),
+            ),
         },
-        error: (error: unknown) => {
-          this.toastService.error(extractApiErrorMessage(error, DEFAULT_STATUS_ERROR_MESSAGE));
-        },
-      });
+      ],
     });
   }
 
@@ -172,24 +168,17 @@ export class AppointmentDetailsComponent {
       return;
     }
 
-    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-      data: {
-        title: 'Criar venda',
-        message: 'Deseja criar a venda para este agendamento agora?',
-        confirmLabel: 'Criar venda',
-        cancelLabel: 'Agora não',
-      },
-      size: 'md',
-      role: 'alertdialog',
-      ariaModal: true,
-      ariaLabelledBy: 'confirm-dialog-title',
-    });
-
-    dialogRef.closed.subscribe((confirmed) => {
-      if (!confirmed) {
-        return;
-      }
-      this.router.navigate(['/sales/new'], { queryParams: { appointmentId } });
+    this.dialogService.openConfirm({
+      title: 'Criar venda',
+      message: 'Deseja criar a venda para este agendamento agora?',
+      actions: [
+        { label: 'Agora não', btnOutline: true },
+        {
+          label: 'Criar venda',
+          btnPrimary: true,
+          onClick: () => this.router.navigate(['/sales/new'], { queryParams: { appointmentId } }),
+        },
+      ],
     });
   }
 
@@ -216,33 +205,30 @@ export class AppointmentDetailsComponent {
   protected openDeleteDialog() {
     const appointment = this.appointment();
 
-    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-      data: {
-        title: 'Excluir agendamento',
-        message: `Tem certeza que deseja excluir o agendamento de "${appointment.customerName}"? Essa ação não pode ser desfeita.`,
-        confirmLabel: 'Excluir',
-        cancelLabel: 'Voltar',
-        danger: true,
-      },
-      size: 'md',
-      role: 'alertdialog',
-      ariaModal: true,
-      ariaLabelledBy: 'confirm-dialog-title',
-    });
-
-    dialogRef.closed.subscribe((confirmed) => {
-      if (!confirmed) {
-        return;
-      }
-      this.appointmentService.delete(this.appointmentId()).subscribe({
-        next: () => {
-          this.toastService.success('Agendamento excluído com sucesso.');
-          this.router.navigate(['/appointments']);
+    this.dialogService.openConfirm({
+      title: 'Excluir agendamento',
+      message: `Tem certeza que deseja excluir o agendamento de "${appointment.customerName}"? Essa ação não pode ser desfeita.`,
+      actions: [
+        { label: 'Voltar', btnOutline: true },
+        {
+          label: 'Excluir',
+          danger: true,
+          onClick: () =>
+            this.appointmentService.delete(this.appointmentId()).pipe(
+              tap({
+                next: () => {
+                  this.toastService.success('Agendamento excluído com sucesso.');
+                  this.router.navigate(['/appointments']);
+                },
+                error: (error: unknown) => {
+                  this.toastService.error(
+                    extractApiErrorMessage(error, DEFAULT_DELETE_ERROR_MESSAGE),
+                  );
+                },
+              }),
+            ),
         },
-        error: (error: unknown) => {
-          this.toastService.error(extractApiErrorMessage(error, DEFAULT_DELETE_ERROR_MESSAGE));
-        },
-      });
+      ],
     });
   }
 }

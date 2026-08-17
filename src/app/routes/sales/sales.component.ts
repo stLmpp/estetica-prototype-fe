@@ -11,16 +11,12 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
-import { map, skip } from 'rxjs';
+import { map, skip, tap } from 'rxjs';
 import dayjs from 'dayjs/esm';
 import { LucideEye, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { BadgeComponent } from '../../components/badge/badge.component';
 import { ButtonComponent } from '../../components/button/button.component';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../components/confirm-dialog/confirm-dialog.component';
 import { FormFieldComponent } from '../../components/form-field/form-field.component';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
 import { IconComponent } from '../../components/icon/icon.component';
@@ -178,28 +174,24 @@ export class SalesComponent {
   }
 
   protected openDeleteDialog(sale: Sale) {
-    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-      data: {
-        title: 'Excluir venda',
-        message: `Tem certeza que deseja excluir a venda de "${sale.customerName}"? Essa ação não pode ser desfeita.`,
-        confirmLabel: 'Excluir',
-        cancelLabel: 'Cancelar',
-        danger: true,
-      },
-      size: 'md',
-      role: 'alertdialog',
-      ariaModal: true,
-      ariaLabelledBy: 'confirm-dialog-title',
-    });
-
-    dialogRef.closed.subscribe((confirmed) => {
-      if (confirmed) {
-        this.store.deleteSale(sale).subscribe(() => {
-          if (!this.store.errorMessage()) {
-            this.toastService.success('Venda excluída com sucesso.');
-          }
-        });
-      }
+    this.dialogService.openConfirm({
+      title: 'Excluir venda',
+      message: `Tem certeza que deseja excluir a venda de "${sale.customerName}"? Essa ação não pode ser desfeita.`,
+      actions: [
+        { label: 'Cancelar', btnOutline: true },
+        {
+          label: 'Excluir',
+          danger: true,
+          onClick: () =>
+            this.store.deleteSale(sale).pipe(
+              tap(() => {
+                if (!this.store.errorMessage()) {
+                  this.toastService.success('Venda excluída com sucesso.');
+                }
+              }),
+            ),
+        },
+      ],
     });
   }
 }

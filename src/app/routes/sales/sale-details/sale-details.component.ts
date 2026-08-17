@@ -2,13 +2,10 @@ import { Component, computed, inject, input } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { tap } from 'rxjs';
 import { AlertComponent } from '../../../components/alert/alert.component';
 import { BadgeComponent } from '../../../components/badge/badge.component';
 import { ButtonComponent } from '../../../components/button/button.component';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingOverlayDirective } from '../../../components/loading-overlay/loading-overlay.directive';
 import { ToastService } from '../../../components/toast/toast.service';
 import { AuthStore } from '../../../core/auth/auth.store';
@@ -109,33 +106,30 @@ export class SaleDetailsComponent {
       return;
     }
 
-    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-      data: {
-        title: 'Cancelar venda',
-        message: `Tem certeza que deseja cancelar a venda de "${sale.customerName}"?`,
-        confirmLabel: 'Cancelar venda',
-        cancelLabel: 'Voltar',
-        danger: true,
-      },
-      size: 'md',
-      role: 'alertdialog',
-      ariaModal: true,
-      ariaLabelledBy: 'confirm-dialog-title',
-    });
-
-    dialogRef.closed.subscribe((confirmed) => {
-      if (!confirmed) {
-        return;
-      }
-      this.saleService.updateStatus(sale.id, { status: SaleStatus.Cancelled }).subscribe({
-        next: () => {
-          this.toastService.success('Venda cancelada com sucesso.');
-          this.saleResource.reload();
+    this.dialogService.openConfirm({
+      title: 'Cancelar venda',
+      message: `Tem certeza que deseja cancelar a venda de "${sale.customerName}"?`,
+      actions: [
+        { label: 'Voltar', btnOutline: true },
+        {
+          label: 'Cancelar venda',
+          danger: true,
+          onClick: () =>
+            this.saleService.updateStatus(sale.id, { status: SaleStatus.Cancelled }).pipe(
+              tap({
+                next: () => {
+                  this.toastService.success('Venda cancelada com sucesso.');
+                  this.saleResource.reload();
+                },
+                error: (error: unknown) => {
+                  this.toastService.error(
+                    extractApiErrorMessage(error, DEFAULT_CANCEL_ERROR_MESSAGE),
+                  );
+                },
+              }),
+            ),
         },
-        error: (error: unknown) => {
-          this.toastService.error(extractApiErrorMessage(error, DEFAULT_CANCEL_ERROR_MESSAGE));
-        },
-      });
+      ],
     });
   }
 }

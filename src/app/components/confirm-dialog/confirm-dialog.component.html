@@ -5,16 +5,21 @@
   {{ data.message }}
 </p>
 <div class="flex flex-wrap justify-end gap-3">
-  <button btn btnOutline type="button" (click)="cancel()">{{ data.cancelLabel ?? 'Cancelar' }}</button>
-  <button
-    btn
-    [btnPrimary]="!data.danger"
-    [class.bg-red-600]="data.danger"
-    [class.not-disabled:hover:bg-red-700]="data.danger"
-    [class.text-white]="data.danger"
-    type="button"
-    (click)="confirm()"
-  >
-    {{ data.confirmLabel ?? 'Confirmar' }}
-  </button>
+  @for (action of data.actions; track action) {
+    <button
+      btn
+      [btnPrimary]="action.btnPrimary"
+      [btnSecondary]="action.btnSecondary"
+      [btnOutline]="action.btnOutline"
+      [class.bg-red-600]="action.danger"
+      [class.not-disabled:hover:bg-red-700]="action.danger"
+      [class.text-white]="action.danger"
+      type="button"
+      [btnLoading]="loadingAction() === action"
+      [disabled]="isLoading() && loadingAction() !== action"
+      (click)="run(action)"
+    >
+      {{ action.label }}
+    </button>
+  }
 </div>

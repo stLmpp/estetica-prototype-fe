@@ -11,16 +11,12 @@ import {
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
-import { map, skip } from 'rxjs';
+import { map, skip, tap } from 'rxjs';
 import dayjs from 'dayjs/esm';
 import { LucideCalendarPlus, LucideEye, LucideReceiptText, LucideX } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { ButtonComponent } from '../../components/button/button.component';
 import { BadgeComponent } from '../../components/badge/badge.component';
-import {
-  ConfirmDialogComponent,
-  ConfirmDialogData,
-} from '../../components/confirm-dialog/confirm-dialog.component';
 import { FormFieldComponent } from '../../components/form-field/form-field.component';
 import { IconButtonComponent } from '../../components/icon-button/icon-button.component';
 import { IconComponent } from '../../components/icon/icon.component';
@@ -179,28 +175,24 @@ export class AppointmentsComponent {
   }
 
   protected openCancelDialog(appointment: Appointment) {
-    const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-      data: {
-        title: 'Cancelar agendamento',
-        message: `Tem certeza que deseja cancelar o agendamento de "${appointment.customerName}"?`,
-        confirmLabel: 'Cancelar agendamento',
-        cancelLabel: 'Voltar',
-        danger: true,
-      },
-      size: 'md',
-      role: 'alertdialog',
-      ariaModal: true,
-      ariaLabelledBy: 'confirm-dialog-title',
-    });
-
-    dialogRef.closed.subscribe((confirmed) => {
-      if (confirmed) {
-        this.store.cancelAppointment(appointment).subscribe(() => {
-          if (!this.store.errorMessage()) {
-            this.toastService.success('Agendamento cancelado com sucesso.');
-          }
-        });
-      }
+    this.dialogService.openConfirm({
+      title: 'Cancelar agendamento',
+      message: `Tem certeza que deseja cancelar o agendamento de "${appointment.customerName}"?`,
+      actions: [
+        { label: 'Voltar', btnOutline: true },
+        {
+          label: 'Cancelar agendamento',
+          danger: true,
+          onClick: () =>
+            this.store.cancelAppointment(appointment).pipe(
+              tap(() => {
+                if (!this.store.errorMessage()) {
+                  this.toastService.success('Agendamento cancelado com sucesso.');
+                }
+              }),
+            ),
+        },
+      ],
     });
   }
 }
