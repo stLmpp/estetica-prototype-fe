@@ -70,6 +70,21 @@ move to `TODO_DONE.md` instead of being deleted outright.
       reserve `string` model fields for genuinely string-shaped API values
       (money, dates, ids) — across all the forms listed above, not just
       new ones.
+- [ ] Custom colors per organization (branding). Blocked on the backend
+      TODO of the same name (`estetica-prototype-api`'s `TODO.md`) —
+      needs an org-level color field(s) exposed on `activeOrganization`
+      first. Once available, `organization-settings.component.ts` is the
+      natural place for the editing UI (same pattern as its existing
+      `workingHours` form). The bigger open question is how a saved
+      color actually reaches the UI at runtime: today `primary-*` is a
+      hardcoded Tailwind palette referenced directly throughout every
+      component's template (`text-primary-800`, `bg-primary-500`, etc.),
+      not sourced from a runtime-configurable value — switching that to
+      per-organization colors likely needs CSS custom properties
+      (`--color-primary-*`) set on load from `activeOrganization`, with
+      the Tailwind config/utility classes reading from those variables
+      instead of fixed hex values. Needs a design pass on how many
+      shades need to be derived from a single chosen color.
 - [ ] Split `docs/DS.md` into one `.md` per design-system component (e.g.
       `docs/ds/button.md`, `docs/ds/typeahead.md`, ...) once it gets
       unwieldy as a single file — noted inline in `docs/DS.md` itself too.
