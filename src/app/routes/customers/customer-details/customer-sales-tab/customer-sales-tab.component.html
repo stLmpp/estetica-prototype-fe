@@ -1,0 +1,32 @@
+<div [loadingOverlay]="salesLoading()">
+  @if (!salesLoading() && sales().length === 0) {
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma venda encontrada.</p>
+  } @else {
+    <ul class="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-700 dark:border-neutral-700">
+      @for (sale of sales(); track sale.id) {
+        <li>
+          <a
+            [routerLink]="['/sales', sale.id]"
+            class="flex items-center justify-between gap-4 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+          >
+            <span class="text-sm text-neutral-800 dark:text-neutral-100">
+              {{ sale.createdAt | date: 'dd/MM/yyyy HH:mm' }} ·
+              {{ sale.totalAmount | currency: 'BRL' }}
+            </span>
+            @switch (sale.status) {
+              @case (SaleStatus.Paid) {
+                <app-badge secondary>{{ sale.status }}</app-badge>
+              }
+              @case (SaleStatus.Pending) {
+                <app-badge primary>{{ sale.status }}</app-badge>
+              }
+              @default {
+                <app-badge>{{ sale.status }}</app-badge>
+              }
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>

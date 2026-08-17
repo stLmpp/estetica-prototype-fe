@@ -24,5 +24,38 @@ export const CUSTOMER_ROUTES: Routes = [
     resolve: {
       customer: customerDetailsResolver(),
     },
+    children: [
+      { path: '', redirectTo: 'info', pathMatch: 'full' },
+      {
+        path: 'info',
+        loadComponent: () =>
+          import('./customer-details/customer-info-tab/customer-info-tab.component').then(
+            (m) => m.CustomerInfoTabComponent,
+          ),
+      },
+      {
+        path: 'phones',
+        loadComponent: () =>
+          import('./customer-details/customer-phones-tab/customer-phones-tab.component').then(
+            (m) => m.CustomerPhonesTabComponent,
+          ),
+      },
+      {
+        path: 'appointments',
+        loadComponent: () =>
+          import(
+            './customer-details/customer-appointments-tab/customer-appointments-tab.component'
+          ).then((m) => m.CustomerAppointmentsTabComponent),
+        canActivate: [hasPermissionGuard({ orgPermissions: { appointment: ['get'] } })],
+      },
+      {
+        path: 'sales',
+        loadComponent: () =>
+          import('./customer-details/customer-sales-tab/customer-sales-tab.component').then(
+            (m) => m.CustomerSalesTabComponent,
+          ),
+        canActivate: [hasPermissionGuard({ orgPermissions: { sale: ['get'] } })],
+      },
+    ],
   },
 ];

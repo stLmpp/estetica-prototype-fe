@@ -355,6 +355,51 @@ multi-step flow — each step is its own route/page behind a
 `[selectedIndex]` from the active route, react to `(headerClick)` to
 navigate.
 
+### Tabs (`app-tabs`)
+
+Header-only nav bar for freely-selectable, **routed** tab content — each tab
+is its own child route, rendered through a `<router-outlet>` below the bar
+(as opposed to **Stepper** above, which is a sequential wizard header, or a
+content-projection panel switcher — this repo's tabs always map to routes,
+not client-side-only visibility toggling).
+
+```ts
+protected readonly tabs = computed<TabItem[]>(() => [
+  { label: 'Info', link: 'info' },
+  { label: 'Telefones', link: 'phones' },
+  ...(canViewSales() ? [{ label: 'Vendas recentes', link: 'sales' }] : []),
+]);
+```
+```html
+<app-tabs [tabs]="tabs()" label="Seções do cliente" />
+<router-outlet />
+```
+
+- `TabItem` (`components/tabs/tab-item.model.ts`): `label`, `link` (passed to
+  `[routerLink]`), `disabled?`.
+- `app-tabs`: `tabs` (required `TabItem[]`), `label` (aria-label for the
+  tablist). Active state comes from `routerLinkActive`/route matching, not
+  internal component state — see `customer-details.component.ts` +
+  `customer.routes.ts` (`children:` under the `:customerId` route) for the
+  reference usage, including a component-scoped store
+  (`CustomerDetailsStore`) shared between the shell and each routed tab so
+  they don't each refetch the parent entity.
+- Tabs list can be built conditionally (spread a permission-gated array
+  entry in, as above) — each tab's own route should carry the matching
+  `canActivate` guard too, since the tab bar hiding a link doesn't stop
+  direct navigation to its route.
+- The active-tab classes are set via `routerLinkActive="..."` (a plain
+  space-separated string), not a `[class]="{...}"` object bound to
+  `rla.isActive`. Native Angular `[class]` object bindings do **not** split
+  space-separated object keys into multiple classes the way `NgClass` does —
+  a key like `'border-primary-500 text-primary-700': someCondition` is
+  silently never applied (no error, the DOM just never gets those classes).
+  `routerLinkActive`'s own string input splits on spaces correctly and
+  applies classes imperatively via `Renderer2`, independent of the host
+  component's change-detection timing — keep using it for any route-active
+  styling rather than reintroducing a `[class]` object keyed off
+  `rla.isActive`.
+
 ### Confirm dialog (`ConfirmDialogComponent`)
 
 Not used directly in a template — open it via `DialogService`:

@@ -1,0 +1,32 @@
+<div [loadingOverlay]="appointmentsLoading()">
+  @if (!appointmentsLoading() && appointments().length === 0) {
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum agendamento encontrado.</p>
+  } @else {
+    <ul class="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-700 dark:border-neutral-700">
+      @for (appointment of appointments(); track appointment.id) {
+        <li>
+          <a
+            [routerLink]="['/appointments', appointment.id]"
+            class="flex items-center justify-between gap-4 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+          >
+            <span class="text-sm text-neutral-800 dark:text-neutral-100">
+              {{ appointment.startTime | date: 'dd/MM/yyyy HH:mm' }} ·
+              {{ appointment.catalogItemName }}
+            </span>
+            @switch (appointment.status) {
+              @case (AppointmentStatus.Scheduled) {
+                <app-badge primary>{{ appointment.status }}</app-badge>
+              }
+              @case (AppointmentStatus.Completed) {
+                <app-badge secondary>{{ appointment.status }}</app-badge>
+              }
+              @default {
+                <app-badge>{{ appointment.status }}</app-badge>
+              }
+            }
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</div>
