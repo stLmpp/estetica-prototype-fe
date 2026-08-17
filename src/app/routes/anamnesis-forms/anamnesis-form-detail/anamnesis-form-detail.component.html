@@ -1,0 +1,179 @@
+<div>
+  <a
+    routerLink="/anamnesis-forms"
+    class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+  >
+    ← Voltar para anamneses
+  </a>
+</div>
+
+@if (store.anamnesisForm(); as anamnesisForm) {
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">
+        {{ anamnesisForm.name }}
+      </h1>
+      @if (anamnesisForm.description) {
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">
+          {{ anamnesisForm.description }}
+        </p>
+      }
+    </div>
+
+    <div class="flex items-center gap-2">
+      @if (anamnesisForm.active) {
+        <app-badge primary>Ativo</app-badge>
+      } @else {
+        <app-badge>Inativo</app-badge>
+      }
+      @if (canUpdate()) {
+        <button
+          btn
+          btnOutline
+          type="button"
+          [appPreloadLoader]="anamnesisFormDialogLoader"
+          (click)="openEditFormDialog()"
+        >
+          Editar formulário
+        </button>
+      }
+    </div>
+  </div>
+}
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<div [loadingOverlay]="store.loading()" class="flex flex-col gap-8">
+  <section class="flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Seções</h2>
+      @if (canCreate()) {
+        <button
+          btn
+          btnOutline
+          type="button"
+          [appPreloadLoader]="anamnesisSectionDialogLoader"
+          (click)="openCreateSectionDialog()"
+        >
+          <app-icon [icon]="LucidePlus" size="sm" />
+          Nova seção
+        </button>
+      }
+    </div>
+
+    @if (!store.loading() && store.sections().length === 0) {
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma seção cadastrada.</p>
+    }
+
+    <ul
+      class="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-700 dark:border-neutral-700"
+    >
+      @for (section of store.sections(); track section.id) {
+        <li class="flex items-center justify-between gap-4 px-4 py-3">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-neutral-800 dark:text-neutral-100">{{ section.label }}</span>
+            @if (section.active) {
+              <app-badge primary>Ativa</app-badge>
+            } @else {
+              <app-badge>Inativa</app-badge>
+            }
+          </div>
+          <div class="flex items-center gap-1">
+            @if (canUpdate()) {
+              <button
+                iconBtn
+                type="button"
+                [icon]="LucidePencil"
+                ariaLabel="Editar seção"
+                size="sm"
+                [appPreloadLoader]="anamnesisSectionDialogLoader"
+                (click)="openEditSectionDialog(section)"
+              ></button>
+            }
+            @if (canDelete()) {
+              <button
+                iconBtn
+                type="button"
+                [icon]="LucideTrash2"
+                ariaLabel="Excluir seção"
+                size="sm"
+                (click)="openDeleteSectionDialog(section)"
+              ></button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="flex flex-col gap-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Campos</h2>
+      @if (canCreate()) {
+        <button
+          btn
+          btnOutline
+          type="button"
+          [appPreloadLoader]="anamnesisFieldDialogLoader"
+          (click)="openCreateFieldDialog()"
+        >
+          <app-icon [icon]="LucidePlus" size="sm" />
+          Novo campo
+        </button>
+      }
+    </div>
+
+    @if (!store.loading() && store.fields().length === 0) {
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum campo cadastrado.</p>
+    }
+
+    @for (group of groupedFields(); track group.section?.id ?? '__ungrouped__') {
+      <div class="flex flex-col gap-2">
+        <h3 class="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+          {{ group.section?.label ?? 'Sem seção' }}
+        </h3>
+        <app-table [columns]="fieldColumns()" [data]="group.fields" [trackBy]="trackByFieldId" />
+      </div>
+    }
+  </section>
+</div>
+
+<ng-template #fieldTypeTemplate let-row="row">
+  {{ fieldTypeLabel(row.fieldType) }}
+</ng-template>
+
+<ng-template #fieldStatusTemplate let-row="row">
+  @if (row.active) {
+    <app-badge primary>Ativo</app-badge>
+  } @else {
+    <app-badge>Inativo</app-badge>
+  }
+</ng-template>
+
+<ng-template #fieldActionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    @if (canUpdate()) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucidePencil"
+        ariaLabel="Editar campo"
+        size="sm"
+        [appPreloadLoader]="anamnesisFieldDialogLoader"
+        (click)="openEditFieldDialog(row)"
+      ></button>
+    }
+    @if (canDelete()) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucideTrash2"
+        ariaLabel="Excluir campo"
+        size="sm"
+        (click)="openDeleteFieldDialog(row)"
+      ></button>
+    }
+  </div>
+</ng-template>

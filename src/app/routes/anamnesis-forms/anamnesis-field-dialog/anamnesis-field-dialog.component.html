@@ -1,0 +1,209 @@
+<h2
+  id="anamnesis-field-dialog-title"
+  class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
+>
+  {{ isEditing ? 'Editar campo' : 'Novo campo' }}
+</h2>
+
+<form [formRoot]="f" class="flex flex-col gap-4">
+  <app-form-field>
+    <label appLabel for="anamnesis-field-label">Nome</label>
+    <input appInput [formField]="f.label" id="anamnesis-field-label" type="text" />
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="anamnesis-field-type">Tipo</label>
+    <select appSelect [formField]="f.fieldType" id="anamnesis-field-type">
+      @for (fieldType of fieldTypeOptions; track fieldType) {
+        <option [value]="fieldType">{{ ANAMNESIS_FIELD_TYPE_LABELS[fieldType] }}</option>
+      }
+    </select>
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="anamnesis-field-section">Seção</label>
+    <select appSelect [formField]="f.anamnesisSectionId" id="anamnesis-field-section">
+      <option value="">Nenhuma</option>
+      @for (section of data.sections; track section.id) {
+        <option [value]="section.id">{{ section.label }}</option>
+      }
+    </select>
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="anamnesis-field-description">Texto de ajuda (opcional)</label>
+    <input appInput [formField]="f.description" id="anamnesis-field-description" type="text" />
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="anamnesis-field-display-order">Ordem de exibição</label>
+    <input
+      appInput
+      [formField]="f.displayOrder"
+      id="anamnesis-field-display-order"
+      type="number"
+      inputmode="numeric"
+    />
+  </app-form-field>
+
+  <app-form-field>
+    <app-switch [formField]="f.active">Ativo</app-switch>
+  </app-form-field>
+
+  @if (CHOICE_FIELD_TYPES.has(f.fieldType().value())) {
+    <div
+      class="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 dark:border-neutral-700"
+    >
+      <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Opções</h3>
+
+      @if (!f.options().value().length) {
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma opção adicionada.</p>
+      }
+
+      @for (option of f.options; track $index; let i = $index) {
+        <div class="flex items-center gap-2">
+          <app-form-field class="flex-1">
+            <label appLabel [for]="'anamnesis-field-option-value-' + i">Valor</label>
+            <input
+              appInput
+              [formField]="option.value"
+              [id]="'anamnesis-field-option-value-' + i"
+              type="text"
+            />
+          </app-form-field>
+          <app-form-field class="flex-1">
+            <label appLabel [for]="'anamnesis-field-option-label-' + i">Rótulo</label>
+            <input
+              appInput
+              [formField]="option.label"
+              [id]="'anamnesis-field-option-label-' + i"
+              type="text"
+            />
+          </app-form-field>
+          <button
+            iconBtn
+            type="button"
+            [icon]="LucideTrash2"
+            ariaLabel="Remover opção"
+            size="sm"
+            (click)="removeOption(i)"
+          ></button>
+        </div>
+      }
+
+      @if (f.options().invalid() && f.options().touched()) {
+        <p class="text-sm text-red-600 dark:text-red-400" role="alert">
+          {{ f.options().errors()[0]?.message }}
+        </p>
+      }
+
+      <button btn btnOutline type="button" class="self-start" (click)="addOption()">
+        Adicionar opção
+      </button>
+    </div>
+  }
+
+  <div class="flex flex-col gap-2 rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
+    <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Validações</h3>
+
+    @if (!f.validations().value().length) {
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma validação adicionada.</p>
+    }
+
+    @for (validationRow of f.validations; track $index; let i = $index) {
+      @let argsKey = VALIDATION_ARGS_KEY[validationRow.validationType().value()];
+      <div
+        class="flex flex-col gap-2 border-b border-neutral-200 pb-3 last:border-0 last:pb-0 dark:border-neutral-700"
+      >
+        <div class="flex items-center gap-2">
+          <app-form-field class="flex-1">
+            <label appLabel [for]="'anamnesis-field-validation-type-' + i">Tipo</label>
+            <select
+              appSelect
+              [formField]="validationRow.validationType"
+              [id]="'anamnesis-field-validation-type-' + i"
+            >
+              @for (validationType of availableValidationTypes(); track validationType) {
+                <option [value]="validationType">
+                  {{ ANAMNESIS_FIELD_VALIDATION_TYPE_LABELS[validationType] }}
+                </option>
+              }
+            </select>
+          </app-form-field>
+
+          @if (argsKey === 'length') {
+            <app-form-field class="flex-1">
+              <label appLabel [for]="'anamnesis-field-validation-length-' + i">Tamanho</label>
+              <input
+                appInput
+                [formField]="validationRow.length"
+                [id]="'anamnesis-field-validation-length-' + i"
+                type="number"
+                inputmode="numeric"
+              />
+            </app-form-field>
+          }
+          @if (argsKey === 'value') {
+            <app-form-field class="flex-1">
+              <label appLabel [for]="'anamnesis-field-validation-value-' + i">Valor</label>
+              <input
+                appInput
+                [formField]="validationRow.value"
+                [id]="'anamnesis-field-validation-value-' + i"
+                type="number"
+                inputmode="decimal"
+              />
+            </app-form-field>
+          }
+          @if (argsKey === 'pattern') {
+            <app-form-field class="flex-1">
+              <label appLabel [for]="'anamnesis-field-validation-pattern-' + i"
+                >Padrão (regex)</label
+              >
+              <input
+                appInput
+                [formField]="validationRow.pattern"
+                [id]="'anamnesis-field-validation-pattern-' + i"
+                type="text"
+              />
+            </app-form-field>
+          }
+
+          <button
+            iconBtn
+            type="button"
+            [icon]="LucideTrash2"
+            ariaLabel="Remover validação"
+            size="sm"
+            (click)="removeValidation(i)"
+          ></button>
+        </div>
+
+        <app-switch [formField]="validationRow.active">Ativa</app-switch>
+      </div>
+    }
+
+    @if (f.validations().invalid() && f.validations().touched()) {
+      <p class="text-sm text-red-600 dark:text-red-400" role="alert">
+        {{ f.validations().errors()[0]?.message }}
+      </p>
+    }
+
+    <button btn btnOutline type="button" class="self-start" (click)="addValidation()">
+      Adicionar validação
+    </button>
+  </div>
+
+  @if (submitErrorMessage(); as message) {
+    <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
+  }
+
+  <div class="mt-2 flex justify-end gap-3">
+    <button btn btnOutline type="button" [disabled]="f().submitting()" (click)="cancel()">
+      Cancelar
+    </button>
+    <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">
+      {{ isEditing ? 'Salvar' : 'Criar' }}
+    </button>
+  </div>
+</form>

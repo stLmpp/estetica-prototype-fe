@@ -43,12 +43,18 @@ export class CustomerDetailsComponent {
   protected readonly canViewSales = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { sale: ['get'] } }),
   );
+  protected readonly canViewAnamnesis = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { customerAnamnesis: ['get'] } }),
+  );
 
   protected readonly tabs = computed<TabItem[]>(() => [
     { label: 'Info', link: 'info' },
     { label: 'Telefones', link: 'phones' },
-    ...(this.canViewAppointments() ? [{ label: 'Agendamentos recentes', link: 'appointments' }] : []),
+    ...(this.canViewAppointments()
+      ? [{ label: 'Agendamentos recentes', link: 'appointments' }]
+      : []),
     ...(this.canViewSales() ? [{ label: 'Vendas recentes', link: 'sales' }] : []),
+    ...(this.canViewAnamnesis() ? [{ label: 'Anamnese', link: 'anamnesis' }] : []),
   ]);
 
   constructor() {

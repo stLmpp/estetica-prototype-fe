@@ -1,0 +1,99 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Anamneses</h1>
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+      Gerencie os formulários de anamnese usados no atendimento.
+    </p>
+  </div>
+  @if (canCreate()) {
+    <button
+      btn
+      btnPrimary
+      type="button"
+      [appPreloadLoader]="anamnesisFormDialogLoader"
+      (click)="openCreateDialog()"
+    >
+      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      Novo formulário
+    </button>
+  }
+</div>
+
+<app-form-field>
+  <label appLabel for="anamnesis-form-search">Buscar por nome</label>
+  <input
+    appInput
+    [formField]="searchForm.name"
+    id="anamnesis-form-search"
+    type="search"
+    placeholder="Ex: Anamnese Facial"
+  />
+</app-form-field>
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
+
+@if (!store.loading() && store.entities().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhum formulário encontrado.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+/>
+
+<ng-template #statusTemplate let-row="row">
+  @if (row.active) {
+    <app-badge primary>Ativo</app-badge>
+  } @else {
+    <app-badge>Inativo</app-badge>
+  }
+</ng-template>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    <a [routerLink]="[row.id]" btn btnOutline class="!px-3 !py-1 text-xs">Seções e campos</a>
+
+    @let canUpdateForm = canUpdate();
+    @if (canUpdateForm) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucidePencil"
+        ariaLabel="Editar formulário"
+        size="sm"
+        [appPreloadLoader]="anamnesisFormDialogLoader"
+        (click)="openEditDialog(row)"
+      ></button>
+    }
+
+    @let canDeleteForm = canDelete();
+    @if (canDeleteForm) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucideTrash2"
+        ariaLabel="Excluir formulário"
+        size="sm"
+        (click)="openDeleteDialog(row)"
+      ></button>
+    }
+  </div>
+</ng-template>

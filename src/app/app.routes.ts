@@ -39,6 +39,13 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'anamnesis-forms',
+    loadChildren: () =>
+      import('./routes/anamnesis-forms/anamnesis-forms.routes').then(
+        (m) => m.ANAMNESIS_FORM_ROUTES,
+      ),
+  },
+  {
     path: 'customers',
     loadChildren: () => import('./routes/customers/customer.routes').then((m) => m.CUSTOMER_ROUTES),
   },

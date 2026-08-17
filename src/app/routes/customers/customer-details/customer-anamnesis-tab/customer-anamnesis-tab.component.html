@@ -1,0 +1,117 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Anamneses</h2>
+  @if (canCreate()) {
+    <button
+      btn
+      btnPrimary
+      type="button"
+      [disabled]="!activeForms().length"
+      [appPreloadLoader]="customerAnamnesisFormDialogLoader"
+      (click)="openCreateDialog()"
+    >
+      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      Nova anamnese
+    </button>
+  }
+</div>
+
+@if (!activeForms().length && !formsResource.isLoading()) {
+  <app-alert
+    >Nenhum formulário de anamnese ativo. Cadastre um em "Anamneses" no menu lateral.</app-alert
+  >
+}
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
+
+@if (!store.loading() && store.entities().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhuma anamnese registrada.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+/>
+
+<ng-template #formTemplate let-row="row">
+  {{ formName(row.anamnesisFormId) }}
+</ng-template>
+
+<ng-template #dateTemplate let-row="row">
+  {{ row.date | date: 'dd/MM/yyyy' }}
+</ng-template>
+
+<ng-template #statusTemplate let-row="row">
+  @if (row.status === CustomerAnamnesisStatus.FINALIZED) {
+    <app-badge primary>{{ row.status }}</app-badge>
+  } @else {
+    <app-badge>{{ row.status }}</app-badge>
+  }
+</ng-template>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    <button
+      iconBtn
+      type="button"
+      [icon]="LucideEye"
+      ariaLabel="Ver anamnese"
+      size="sm"
+      [appPreloadLoader]="customerAnamnesisDetailDialogLoader"
+      (click)="openDetailDialog(row)"
+    ></button>
+
+    @if (row.status === CustomerAnamnesisStatus.DRAFT) {
+      @if (canUpdate()) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucidePencil"
+          ariaLabel="Editar anamnese"
+          size="sm"
+          [appPreloadLoader]="customerAnamnesisFormDialogLoader"
+          (click)="openEditDialog(row)"
+        ></button>
+      }
+      @if (canFinalize()) {
+        <button
+          iconBtn
+          type="button"
+          [icon]="LucideCheck"
+          ariaLabel="Finalizar anamnese"
+          size="sm"
+          [appPreloadLoader]="customerAnamnesisFinalizeDialogLoader"
+          (click)="openFinalizeDialog(row)"
+        ></button>
+      }
+    }
+
+    @if (canDelete()) {
+      <button
+        iconBtn
+        type="button"
+        [icon]="LucideTrash2"
+        ariaLabel="Excluir anamnese"
+        size="sm"
+        (click)="openDeleteDialog(row)"
+      ></button>
+    }
+  </div>
+</ng-template>

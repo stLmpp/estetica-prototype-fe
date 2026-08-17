@@ -2,6 +2,7 @@ import {
   LucideBriefcase,
   LucideBuilding,
   LucideCalendarDays,
+  LucideClipboardList,
   LucideHouse,
   LucideLayoutDashboard,
   LucidePackage,
@@ -35,6 +36,12 @@ export const SIDEBAR_MAIN_MENU_ITEMS: MenuItem[] = [
     link: '/customers',
     icon: LucideUsers,
     permission: { orgPermissions: { customer: ['get'] } },
+  },
+  {
+    title: 'Anamneses',
+    link: '/anamnesis-forms',
+    icon: LucideClipboardList,
+    permission: { orgPermissions: { anamnesisField: ['get'] } },
   },
   {
     title: 'Funcionários',

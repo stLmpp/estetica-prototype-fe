@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
-import { hasPermissionGuard, requireAuthenticatedWithOrganizationGuard } from '../../core/auth/auth.guards';
+import {
+  hasPermissionGuard,
+  requireAuthenticatedWithOrganizationGuard,
+} from '../../core/auth/auth.guards';
 import { customerDetailsResolver } from './customer-details/customer-details.resolver';
 
 export const CUSTOMER_ROUTES: Routes = [
@@ -43,9 +46,9 @@ export const CUSTOMER_ROUTES: Routes = [
       {
         path: 'appointments',
         loadComponent: () =>
-          import(
-            './customer-details/customer-appointments-tab/customer-appointments-tab.component'
-          ).then((m) => m.CustomerAppointmentsTabComponent),
+          import('./customer-details/customer-appointments-tab/customer-appointments-tab.component').then(
+            (m) => m.CustomerAppointmentsTabComponent,
+          ),
         canActivate: [hasPermissionGuard({ orgPermissions: { appointment: ['get'] } })],
       },
       {
@@ -55,6 +58,14 @@ export const CUSTOMER_ROUTES: Routes = [
             (m) => m.CustomerSalesTabComponent,
           ),
         canActivate: [hasPermissionGuard({ orgPermissions: { sale: ['get'] } })],
+      },
+      {
+        path: 'anamnesis',
+        loadComponent: () =>
+          import('./customer-details/customer-anamnesis-tab/customer-anamnesis-tab.component').then(
+            (m) => m.CustomerAnamnesisTabComponent,
+          ),
+        canActivate: [hasPermissionGuard({ orgPermissions: { customerAnamnesis: ['get'] } })],
       },
     ],
   },

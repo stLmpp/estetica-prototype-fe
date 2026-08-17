@@ -22,6 +22,7 @@ import { ButtonToggleGroupComponent } from './button-toggle-group.component';
     '[class.cursor-pointer]': '!isDisabled()',
     '[class.focus:ring-2]': '!isDisabled()',
     role: 'radio',
+    type: 'button',
     '[attr.aria-checked]': 'isSelected()',
     '[attr.tabindex]': 'isDisabled() ? -1 : 0',
     '(click)': 'onClick()',
