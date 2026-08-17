@@ -33,7 +33,12 @@ export class AppointmentBookingComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly store = inject(AppointmentBookingStore);
 
-  protected readonly steps = STEPS;
+  protected readonly steps = computed(() =>
+    STEPS.map((step) => ({
+      ...step,
+      isStepReachable: isBookingStepReachable(index, this.store),
+    })),
+  );
 
   protected readonly currentStepIndex = toSignal(
     this.router.events.pipe(
@@ -44,17 +49,13 @@ export class AppointmentBookingComponent {
     { initialValue: 0 },
   );
 
-  protected readonly stepReachable = computed(() =>
-    this.steps.map((_, index) => isBookingStepReachable(index, this.store)),
-  );
-
   private computeIndexFromRouteData(): number {
     const index = this.route.snapshot.firstChild?.data['index'];
     return typeof index === 'number' ? index : 0;
   }
 
   protected onHeaderClick(index: number) {
-    const step = this.steps[index];
+    const step = this.steps()[index];
     if (step) {
       this.router.navigate([step.path], { relativeTo: this.route });
     }

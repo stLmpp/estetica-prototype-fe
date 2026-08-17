@@ -62,10 +62,16 @@ export class TransferListComponent implements FormValueControl<string[]> {
   });
 
   protected readonly filteredLeftItems = computed(() =>
-    filterItems(this.leftItems(), this.leftFilter()),
+    filterItems(this.leftItems(), this.leftFilter()).map((item) => ({
+      ...item,
+      isSelected: this.selectedLeftIds().has(item.id),
+    })),
   );
   protected readonly filteredRightItems = computed(() =>
-    filterItems(this.rightItems(), this.rightFilter()),
+    filterItems(this.rightItems(), this.rightFilter()).map((item) => ({
+      ...item,
+      isSelected: this.selectedRightIds().has(item.id),
+    })),
   );
 
   protected readonly allLeftSelected = computed(() => {
@@ -109,7 +115,9 @@ export class TransferListComponent implements FormValueControl<string[]> {
   }
 
   protected toggleSelectAllLeft(selected: boolean) {
-    this.selectedLeftIds.set(selected ? new Set(this.filteredLeftItems().map((item) => item.id)) : new Set());
+    this.selectedLeftIds.set(
+      selected ? new Set(this.filteredLeftItems().map((item) => item.id)) : new Set(),
+    );
   }
 
   protected toggleSelectAllRight(selected: boolean) {

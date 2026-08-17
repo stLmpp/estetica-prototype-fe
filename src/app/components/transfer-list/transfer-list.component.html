@@ -1,4 +1,6 @@
-<div class="flex min-h-0 flex-col gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600">
+<div
+  class="flex min-h-0 flex-col gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600"
+>
   <div
     class="flex items-center justify-between border-b border-neutral-200 px-3 py-2 dark:border-neutral-700"
   >
@@ -37,10 +39,12 @@
         tabindex="0"
         [attr.aria-selected]="selectedLeftIds().has(item.id)"
         class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
-        [class.bg-primary-100]="selectedLeftIds().has(item.id)"
-        [class.dark:bg-primary-900]="selectedLeftIds().has(item.id)"
-        [class.hover:bg-neutral-100]="!selectedLeftIds().has(item.id)"
-        [class.dark:hover:bg-neutral-700]="!selectedLeftIds().has(item.id)"
+        [class]="{
+          'bg-primary-100': item.isSelected,
+          'dark:bg-primary-900': item.isSelected,
+          'hover:bg-neutral-100': !item.isSelected,
+          'dark:hover:bg-neutral-700': !item.isSelected,
+        }"
         (click)="toggleLeftSelection(item.id)"
         (keydown.enter)="toggleLeftSelection(item.id)"
         (keydown.space)="toggleLeftSelection(item.id); $event.preventDefault()"
@@ -94,7 +98,9 @@
   ></button>
 </div>
 
-<div class="flex min-h-0 flex-col gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600">
+<div
+  class="flex min-h-0 flex-col gap-2 rounded-xl border border-neutral-300 dark:border-neutral-600"
+>
   <div
     class="flex items-center justify-between border-b border-neutral-200 px-3 py-2 dark:border-neutral-700"
   >
@@ -131,12 +137,14 @@
       <li
         role="option"
         tabindex="0"
-        [attr.aria-selected]="selectedRightIds().has(item.id)"
+        [attr.aria-selected]="item.isSelected"
         class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
-        [class.bg-primary-100]="selectedRightIds().has(item.id)"
-        [class.dark:bg-primary-900]="selectedRightIds().has(item.id)"
-        [class.hover:bg-neutral-100]="!selectedRightIds().has(item.id)"
-        [class.dark:hover:bg-neutral-700]="!selectedRightIds().has(item.id)"
+        [class]="{
+          'bg-primary-100': item.isSelected,
+          'dark:bg-primary-900': item.isSelected,
+          'hover:bg-neutral-100': !item.isSelected,
+          'dark:hover:bg-neutral-700': !item.isSelected,
+        }"
         (click)="toggleRightSelection(item.id)"
         (keydown.enter)="toggleRightSelection(item.id)"
         (keydown.space)="toggleRightSelection(item.id); $event.preventDefault()"

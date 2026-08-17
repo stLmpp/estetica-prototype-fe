@@ -1,4 +1,4 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, computed, output, signal } from '@angular/core';
 import { CdkStep, CdkStepHeader, CdkStepper } from '@angular/cdk/stepper';
 import { takeUntil } from 'rxjs';
 
@@ -28,13 +28,22 @@ export class StepperComponent extends CdkStepper {
    */
   readonly headerClick = output<number>();
 
-  protected readonly stepsSignal = signal<CdkStep[]>([]);
+  protected readonly stepsInternal = signal<ReturnType<typeof this.mapSteps>>([]);
+
+  private mapSteps(steps: CdkStep[]) {
+    return steps.map((step, index) =>
+      Object.assign(step, {
+        stepLabelId: this._getStepLabelId(index),
+        stepContentId: this._getStepContentId(index),
+      }),
+    );
+  }
 
   override ngAfterContentInit() {
     super.ngAfterContentInit();
-    this.stepsSignal.set(this.steps.toArray());
+    this.stepsInternal.set(this.mapSteps(this.steps.toArray()));
     this.steps.changes.pipe(takeUntil(this._destroyed)).subscribe(() => {
-      this.stepsSignal.set(this.steps.toArray());
+      this.stepsInternal.set(this.mapSteps(this.steps.toArray()));
     });
   }
 

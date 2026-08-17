@@ -4,8 +4,10 @@
   (click)="onLabelClick()"
   (keydown.enter)="onLabelKeydown()"
   (keydown.space)="onLabelKeydown()"
-  [class.text-red-400]="isInvalid()"
-  [class.dark:text-red-500]="isInvalid()"
+  [class]="{
+    'text-red-400': isInvalid(),
+    'dark:text-red-500': isInvalid(),
+  }"
   #label
 >
   <input

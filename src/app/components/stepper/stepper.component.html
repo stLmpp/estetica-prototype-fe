@@ -1,32 +1,36 @@
 <ol role="tablist" [attr.aria-orientation]="orientation" class="flex items-center">
-  @for (step of stepsSignal(); track step; let i = $index; let last = $last) {
+  @for (step of stepsInternal(); track step; let index = $index; let last = $last) {
     <li class="flex flex-1 items-center gap-2">
       <button
         type="button"
         cdkStepHeader
-        [id]="_getStepLabelId(i)"
+        [id]="step.stepLabelId"
         [attr.aria-selected]="step.isSelected()"
-        [attr.aria-controls]="_getStepContentId(i)"
+        [attr.aria-controls]="step.stepContentId"
         [disabled]="!step.isNavigable()"
         class="flex cursor-pointer items-center gap-2 focus:outline-none disabled:cursor-not-allowed"
-        (click)="onHeaderClick(i)"
+        (click)="onHeaderClick(index)"
         (keydown)="_onKeydown($event)"
       >
         <span
           class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-          [class.bg-primary-500]="i <= selectedIndex"
-          [class.text-white]="i <= selectedIndex"
-          [class.bg-neutral-200]="i > selectedIndex"
-          [class.text-neutral-500]="i > selectedIndex"
-          [class.dark:bg-neutral-700]="i > selectedIndex"
+          [class]="{
+            'bg-primary-500': index <= selectedIndex,
+            'text-white': index <= selectedIndex,
+            'bg-neutral-200': index > selectedIndex,
+            'text-neutral-500': index > selectedIndex,
+            'dark:bg-neutral-700': index > selectedIndex,
+          }"
         >
-          {{ i + 1 }}
+          {{ index + 1 }}
         </span>
         <span
           class="hidden text-xs font-medium sm:inline"
-          [class.text-primary-700]="i <= selectedIndex"
-          [class.dark:text-primary-300]="i <= selectedIndex"
-          [class.text-neutral-400]="i > selectedIndex"
+          [class]="{
+            'text-primary-700': index <= selectedIndex,
+            'dark:text-primary-300': index <= selectedIndex,
+            'text-neutral-400': index > selectedIndex,
+          }"
         >
           {{ step.label }}
         </span>
