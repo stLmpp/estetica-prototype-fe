@@ -120,8 +120,18 @@
       [routerLink]="['/appointments', row.id]"
     ></a>
 
-    @let canCheckout = canCreateSale() && row.status === AppointmentStatus.Completed;
-    @if (canCheckout) {
+    @if (row.saleId) {
+      @if (canViewSale()) {
+        <a
+          iconBtn
+          type="button"
+          [icon]="LucideReceiptText"
+          ariaLabel="Ver venda"
+          size="sm"
+          [routerLink]="['/sales', row.saleId]"
+        ></a>
+      }
+    } @else if (canCreateSale() && row.status === AppointmentStatus.Completed) {
       <a
         iconBtn
         type="button"

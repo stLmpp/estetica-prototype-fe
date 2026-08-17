@@ -11,6 +11,7 @@ export interface Appointment {
   employeeName: string;
   catalogItemId: string;
   catalogItemName: string;
+  saleId?: string;
 }
 
 export interface AppointmentDetail extends Appointment {

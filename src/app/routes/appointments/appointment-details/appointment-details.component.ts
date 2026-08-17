@@ -71,12 +71,21 @@ export class AppointmentDetailsComponent {
   protected readonly canCreateSale = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { sale: ['create'] } }),
   );
+  protected readonly canViewSale = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { sale: ['get'] } }),
+  );
 
   protected readonly showStatusActions = computed(
     () => this.canUpdateStatus() && this.appointment().status === AppointmentStatus.Scheduled,
   );
-  protected readonly showSaleLink = computed(
-    () => this.canCreateSale() && this.appointment().status === AppointmentStatus.Completed,
+  protected readonly showCreateSaleLink = computed(
+    () =>
+      this.canCreateSale() &&
+      !this.appointment().saleId &&
+      this.appointment().status === AppointmentStatus.Completed,
+  );
+  protected readonly showViewSaleLink = computed(
+    () => this.canViewSale() && !!this.appointment().saleId,
   );
 
   private readonly notesModel = linkedSignal(() => ({ notes: this.appointment().notes ?? '' }));

@@ -121,6 +121,9 @@ export class AppointmentsComponent {
   protected readonly canCreateSale = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { sale: ['create'] } }),
   );
+  protected readonly canViewSale = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { sale: ['get'] } }),
+  );
 
   private readonly statusTemplate = viewChild.required<TemplateRef<TableEvent>>('statusTemplate');
   private readonly actionsTemplate = viewChild.required<TemplateRef<TableEvent>>('actionsTemplate');

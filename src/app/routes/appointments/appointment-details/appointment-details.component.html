@@ -31,7 +31,15 @@
     </div>
 
     <div class="flex items-center gap-3">
-      @if (showSaleLink()) {
+      @if (showViewSaleLink()) {
+        <a
+          iconBtn
+          type="button"
+          [icon]="LucideReceiptText"
+          ariaLabel="Ver venda"
+          [routerLink]="['/sales', apt.saleId]"
+        ></a>
+      } @else if (showCreateSaleLink()) {
         <a
           iconBtn
           type="button"
