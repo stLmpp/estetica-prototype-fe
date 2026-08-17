@@ -1,6 +1,5 @@
 import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { rxResource } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { applyEach, form, FormField, FormRoot, hidden, required, validate } from '@angular/forms/signals';
 import { catchError, firstValueFrom, map, Observable, of } from 'rxjs';
@@ -13,13 +12,12 @@ import { FormFieldComponent } from '../../../components/form-field/form-field.co
 import { IconButtonComponent } from '../../../components/icon-button/icon-button.component';
 import { InputDirective } from '../../../components/input/input.directive';
 import { LabelComponent } from '../../../components/label/label.component';
-import { LoadingOverlayDirective } from '../../../components/loading-overlay/loading-overlay.directive';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { SwitchComponent } from '../../../components/switch/switch.component';
 import { TypeaheadComponent, TypeaheadItem } from '../../../components/typeahead/typeahead.component';
 import { ToastService } from '../../../components/toast/toast.service';
 import { extractApiErrorMessage } from '../../../model/api-error';
-import { AppointmentService } from '../../appointments/appointment.service';
+import { AppointmentDetail } from '../../appointments/appointment.model';
 import { CatalogItem } from '../../catalog-items/catalog-item.model';
 import { CatalogItemService } from '../../catalog-items/catalog-item.service';
 import { CustomerService } from '../../customers/customer.service';
@@ -98,7 +96,6 @@ function toBig(value: string): Big | null {
     IconButtonComponent,
     InputDirective,
     LabelComponent,
-    LoadingOverlayDirective,
     NgxMaskDirective,
     RouterLink,
     SelectDirective,
@@ -112,11 +109,11 @@ function toBig(value: string): Big | null {
 })
 export class SaleFormComponent {
   readonly appointmentIdParam = input('', { alias: 'appointmentId' });
+  readonly appointment = input.required<AppointmentDetail | null>();
 
   private readonly customerService = inject(CustomerService);
   private readonly employeeService = inject(EmployeeService);
   private readonly catalogItemService = inject(CatalogItemService);
-  private readonly appointmentService = inject(AppointmentService);
   private readonly saleService = inject(SaleService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
@@ -127,31 +124,23 @@ export class SaleFormComponent {
 
   private readonly catalogItemCache = new Map<string, CatalogItem>();
 
-  protected readonly appointmentResource = rxResource({
-    params: this.appointmentIdParam,
-    stream: ({ params: appointmentId }) =>
-      appointmentId ? this.appointmentService.getById(appointmentId) : of(null),
-  });
-
-  protected readonly formReady = computed(() => !this.appointmentResource.isLoading());
-
   protected readonly customerInitialItem = computed<TypeaheadItem | null>(() => {
-    const appointment = this.appointmentResource.value();
+    const appointment = this.appointment();
     return appointment ? { id: appointment.customerId, label: appointment.customerName } : null;
   });
 
   protected readonly employeeInitialItem = computed<TypeaheadItem | null>(() => {
-    const appointment = this.appointmentResource.value();
+    const appointment = this.appointment();
     return appointment ? { id: appointment.employeeId, label: appointment.employeeName } : null;
   });
 
   protected readonly itemInitialItems = computed<(TypeaheadItem | null)[]>(() => {
-    const appointment = this.appointmentResource.value();
+    const appointment = this.appointment();
     return appointment ? [{ id: appointment.catalogItemId, label: appointment.catalogItemName }] : [];
   });
 
   protected readonly model = linkedSignal<SaleFormModel>(() => {
-    const appointment = this.appointmentResource.value();
+    const appointment = this.appointment();
     if (!appointment) {
       return emptyModel();
     }

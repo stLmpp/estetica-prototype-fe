@@ -17,6 +17,7 @@ import {
   appointmentsEmployeesResolver,
   appointmentsServicesResolver,
 } from './appointments.resolvers';
+import { appointmentDetailsResolver } from './appointment-details/appointment-details.resolver';
 
 export const APPOINTMENT_ROUTES: Routes = [
   {
@@ -106,5 +107,19 @@ export const APPOINTMENT_ROUTES: Routes = [
           ),
       },
     ],
+  },
+  {
+    path: ':appointmentId',
+    loadComponent: () =>
+      import('./appointment-details/appointment-details.component').then(
+        (m) => m.AppointmentDetailsComponent,
+      ),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { appointment: ['get'] } }),
+    ],
+    resolve: {
+      appointment: appointmentDetailsResolver(),
+    },
   },
 ];

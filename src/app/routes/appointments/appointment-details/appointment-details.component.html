@@ -1,0 +1,108 @@
+<div>
+  <a routerLink="/appointments" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+    ← Voltar para agendamentos
+  </a>
+</div>
+
+@let apt = appointment();
+
+<div class="flex flex-col gap-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-3">
+        <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">
+          {{ apt.customerName }}
+        </h1>
+        @switch (apt.status) {
+          @case (AppointmentStatus.Scheduled) {
+            <app-badge primary>{{ apt.status }}</app-badge>
+          }
+          @case (AppointmentStatus.Completed) {
+            <app-badge secondary>{{ apt.status }}</app-badge>
+          }
+          @default {
+            <app-badge>{{ apt.status }}</app-badge>
+          }
+        }
+      </div>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">
+        {{ apt.catalogItemName }} · {{ apt.employeeName }}
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      @if (showSaleLink()) {
+        <a
+          iconBtn
+          type="button"
+          [icon]="LucideReceiptText"
+          ariaLabel="Finalizar venda"
+          [routerLink]="['/sales/new']"
+          [queryParams]="{ appointmentId: apt.id }"
+        ></a>
+      }
+      @if (showStatusActions()) {
+        <button btn btnOutline type="button" (click)="markNoShow()">Não compareceu</button>
+        <button btn btnOutline type="button" (click)="cancel()">Cancelar</button>
+        <button btn btnPrimary type="button" (click)="complete()">Concluir</button>
+      }
+      @if (canDelete()) {
+        <button btn btnOutline type="button" (click)="openDeleteDialog()">Excluir</button>
+      }
+    </div>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Detalhes</h2>
+    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm text-neutral-500 dark:text-neutral-400">Início</dt>
+        <dd class="text-neutral-800 dark:text-neutral-100">
+          {{ apt.startTime | date: 'dd/MM/yyyy HH:mm' }}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm text-neutral-500 dark:text-neutral-400">Término</dt>
+        <dd class="text-neutral-800 dark:text-neutral-100">
+          {{ apt.endTime | date: 'dd/MM/yyyy HH:mm' }}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm text-neutral-500 dark:text-neutral-400">Preço aplicado</dt>
+        <dd class="text-neutral-800 dark:text-neutral-100">
+          {{ apt.priceApplied | currency: 'BRL' }}
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Observações</h2>
+
+    <form [formRoot]="notesForm">
+      <app-form-field>
+        <label appLabel for="appointment-notes">Observações</label>
+        <input appInput [formField]="notesForm.notes" id="appointment-notes" type="text" />
+      </app-form-field>
+
+      @if (notesSaveErrorMessage(); as message) {
+        <app-alert error class="mt-4">{{ message }}</app-alert>
+      }
+
+      @if (canUpdate()) {
+        <div class="mt-4 flex justify-end">
+          <button
+            btn
+            btnPrimary
+            type="button"
+            [disabled]="!notesIsDirty() || notesSaving()"
+            [btnLoading]="notesSaving()"
+            (click)="saveNotes()"
+          >
+            Salvar
+          </button>
+        </div>
+      }
+    </form>
+  </div>
+</div>

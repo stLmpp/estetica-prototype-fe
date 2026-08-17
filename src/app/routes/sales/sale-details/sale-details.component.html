@@ -31,7 +31,10 @@
             <p class="text-sm text-neutral-500 dark:text-neutral-400">
               Atendido por {{ sale.employeeName }}
               @if (sale.appointmentId) {
-                · <a [routerLink]="['/appointments']" class="hover:underline">a partir de um agendamento</a>
+                ·
+                <a [routerLink]="['/appointments', sale.appointmentId]" class="hover:underline"
+                  >a partir de um agendamento</a
+                >
               }
             </p>
           </div>

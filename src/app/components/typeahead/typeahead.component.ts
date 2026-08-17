@@ -30,11 +30,6 @@ export type { TypeaheadItem };
 const SEARCH_DEBOUNCE_MS = 300;
 const OVERLAY_OFFSET_PX = 4;
 
-/** Single-select async search field, built on CDK Overlay + `ActiveDescendantKeyManager` —
- * the same primitives `MatAutocomplete`/`MatAutocompleteTrigger` are built on — instead of a
- * hand-rolled absolutely-positioned `<div>`. The floating panel is a `TemplatePortal` attached
- * to a `flexibleConnectedTo` overlay anchored to the input, so it's never clipped by an
- * ancestor's `overflow: hidden`/`z-index` stacking context. */
 @Component({
   selector: 'app-typeahead',
   imports: [FormField, IconButtonComponent, InputDirective, TypeaheadPanelComponent],
@@ -50,9 +45,10 @@ export class TypeaheadComponent implements FormValueControl<string | null> {
   readonly emptyMessage = input('Nenhum resultado encontrado.');
   readonly minQueryLength = input(1);
   readonly disabled = input(false);
-  /** Seeds the selected chip once at construction — e.g. when a routed wizard
-   * step is re-entered and the store already holds a previous selection. Not
-   * reactive after that: this component owns selection state from then on. */
+  /** Seeds the selected chip, reactively — needed because a routed parent's
+   * own inputs (e.g. from a resolver) are set via `setInput()` *after* that
+   * parent's first render, so this can construct before `initialItem` holds
+   * its real value. Stops syncing once the user selects/clears manually. */
   readonly initialItem = input<TypeaheadItem | null>(null);
 
   readonly value = model<string | null>(null);
@@ -84,12 +80,18 @@ export class TypeaheadComponent implements FormValueControl<string | null> {
     disabledFn(schema.query, { when: () => this.disabled() });
   });
 
+  private userInteracted = false;
+
   constructor() {
-    const initial = this.initialItem();
-    if (initial) {
-      this.selectedItem.set(initial);
-      this.value.set(initial.id);
-    }
+    effect(() => {
+      const initial = this.initialItem();
+      if (initial && !this.userInteracted) {
+        untracked(() => {
+          this.selectedItem.set(initial);
+          this.value.set(initial.id);
+        });
+      }
+    });
 
     effect(() => {
       const query = this.searchForm.query().value();
@@ -139,6 +141,7 @@ export class TypeaheadComponent implements FormValueControl<string | null> {
   }
 
   protected select(item: TypeaheadItem) {
+    this.userInteracted = true;
     this.selectedItem.set(item);
     this.searchModel.set({ query: '' });
     this.value.set(item.id);
@@ -147,6 +150,7 @@ export class TypeaheadComponent implements FormValueControl<string | null> {
   }
 
   protected clear() {
+    this.userInteracted = true;
     this.selectedItem.set(null);
     this.value.set(null);
     this.itemSelected.emit(null);

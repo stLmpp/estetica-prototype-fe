@@ -32,10 +32,21 @@ move to `TODO_DONE.md` instead of being deleted outright.
       `environment.*.ts` files (or however this project wants to handle it)
       once there's a staging/production API URL to point at.
 - [ ] `src/app/routes/appointments/appointments-calendar` has no actions on
-      calendar entries yet — add view, create, edit, and delete (and
-      whatever else makes sense, e.g. status updates) directly from the
-      calendar, instead of requiring a trip through the list/booking flow
-      for everything.
+      calendar entries yet — clicking an entry should at minimum link to
+      `/appointments/:appointmentId` (`appointment-details/`, added
+      alongside the list's row-level view action), which now covers
+      view/edit-notes/status-update/delete/sale-link in one place. Whether
+      the calendar also wants inline quick-actions (without leaving the
+      calendar view) is still open.
+- [ ] `appointment-details.component.ts`'s notes-editing form only lets
+      `notes` be changed via `PATCH /v1/appointment/:id`, even though the
+      backend also accepts `startTime`/`endTime` there (with
+      conflict/working-hours validation server-side). Editing time was left
+      out of the detail page deliberately — rescheduling needs the booking
+      wizard's conflict/availability-aware slot picker
+      (`appointment-booking/steps/schedule-step/`), which doesn't have an
+      equivalent standalone widget yet. Add reschedule support once that
+      exists, or extract a reusable version of the schedule-step picker.
 - [ ] Every Signal Forms form with a `type="number"` input models that field
       as `string` in its form model, converting with `Number(...)` only when
       building the API payload — see `defaultDuration` in

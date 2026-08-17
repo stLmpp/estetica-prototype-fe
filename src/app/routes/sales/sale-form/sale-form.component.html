@@ -4,233 +4,229 @@
   </a>
 </div>
 
-<div [loadingOverlay]="!formReady()">
-  @if (formReady()) {
-    <div class="flex flex-col gap-6">
-      <div>
-        <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Nova venda</h1>
-        @if (appointmentResource.value(); as appointment) {
-          <p class="text-sm text-neutral-500 dark:text-neutral-400">
-            A partir do agendamento de {{ appointment.customerName }} — {{ appointment.catalogItemName }}
-          </p>
+<div class="flex flex-col gap-6">
+  <div>
+    <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Nova venda</h1>
+    @if (appointment(); as appointment) {
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">
+        A partir do agendamento de {{ appointment.customerName }} — {{ appointment.catalogItemName }}
+      </p>
+    }
+  </div>
+
+  <form [formRoot]="f" class="flex flex-col gap-8">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-typeahead
+        [formField]="f.customerId"
+        [searchFn]="customerSearchFn"
+        [initialItem]="customerInitialItem()"
+        label="Cliente"
+        placeholder="Buscar cliente por nome"
+        emptyMessage="Nenhum cliente encontrado."
+      />
+      <app-typeahead
+        [formField]="f.employeeId"
+        [searchFn]="employeeSearchFn"
+        [initialItem]="employeeInitialItem()"
+        label="Funcionário"
+        placeholder="Buscar funcionário por nome"
+        emptyMessage="Nenhum funcionário encontrado."
+      />
+    </div>
+
+    <div>
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Itens</h2>
+        <button btn btnOutline type="button" (click)="addItem()">Adicionar item</button>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        @for (item of f.items; track $index; let i = $index) {
+          <div class="grid grid-cols-1 items-start gap-2 sm:grid-cols-[2fr_1fr_1fr_auto]">
+            <app-typeahead
+              [formField]="item.catalogItemId"
+              [searchFn]="catalogItemSearchFn"
+              [initialItem]="itemInitialItems()[i] ?? null"
+              (itemSelected)="onCatalogItemSelected(i, $event)"
+              label="Item"
+              placeholder="Buscar produto ou serviço"
+              emptyMessage="Nenhum item encontrado."
+            />
+
+            <app-form-field>
+              <label appLabel [for]="'sale-item-quantity-' + i">Quantidade</label>
+              <input
+                appInput
+                [formField]="item.quantity"
+                [id]="'sale-item-quantity-' + i"
+                type="number"
+                inputmode="numeric"
+              />
+            </app-form-field>
+
+            <app-form-field>
+              <label appLabel [for]="'sale-item-price-' + i">Preço aplicado</label>
+              <input
+                appInput
+                [formField]="item.priceApplied"
+                [id]="'sale-item-price-' + i"
+                type="text"
+                inputmode="decimal"
+                mask="separator.2"
+                prefix="R$ "
+                placeholder="Preço padrão do item"
+              />
+            </app-form-field>
+
+            <button
+              iconBtn
+              type="button"
+              class="self-center"
+              [icon]="LucideTrash2"
+              ariaLabel="Remover item"
+              size="sm"
+              (click)="removeItem(i)"
+            ></button>
+          </div>
+        }
+
+        @if (!f.items().value().length) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum item adicionado.</p>
         }
       </div>
 
-      <form [formRoot]="f" class="flex flex-col gap-8">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <app-typeahead
-            [formField]="f.customerId"
-            [searchFn]="customerSearchFn"
-            [initialItem]="customerInitialItem()"
-            label="Cliente"
-            placeholder="Buscar cliente por nome"
-            emptyMessage="Nenhum cliente encontrado."
-          />
-          <app-typeahead
-            [formField]="f.employeeId"
-            [searchFn]="employeeSearchFn"
-            [initialItem]="employeeInitialItem()"
-            label="Funcionário"
-            placeholder="Buscar funcionário por nome"
-            emptyMessage="Nenhum funcionário encontrado."
-          />
-        </div>
+      <p class="mt-3 text-right text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+        Total: {{ totalAmount() | currency: 'BRL' }}
+      </p>
+    </div>
 
-        <div>
-          <div class="mb-3 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Itens</h2>
-            <button btn btnOutline type="button" (click)="addItem()">Adicionar item</button>
-          </div>
+    <div>
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Pagamento</h2>
+        <button btn btnOutline type="button" (click)="addTransaction()">Adicionar pagamento</button>
+      </div>
 
-          <div class="flex flex-col gap-3">
-            @for (item of f.items; track $index; let i = $index) {
-              <div class="grid grid-cols-1 items-start gap-2 sm:grid-cols-[2fr_1fr_1fr_auto]">
-                <app-typeahead
-                  [formField]="item.catalogItemId"
-                  [searchFn]="catalogItemSearchFn"
-                  [initialItem]="itemInitialItems()[i] ?? null"
-                  (itemSelected)="onCatalogItemSelected(i, $event)"
-                  label="Item"
-                  placeholder="Buscar produto ou serviço"
-                  emptyMessage="Nenhum item encontrado."
-                />
+      <div class="flex flex-col gap-4">
+        @for (transaction of f.transactions; track $index; let i = $index) {
+          <div class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
+            <div class="mb-3 flex items-center justify-between">
+              <app-switch [formField]="transaction.installments">Parcelado (cartão de crédito)</app-switch>
+              <button
+                iconBtn
+                type="button"
+                [icon]="LucideTrash2"
+                ariaLabel="Remover pagamento"
+                size="sm"
+                (click)="removeTransaction(i)"
+              ></button>
+            </div>
 
+            @let isInstallments = transaction.installments().value();
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              @if (!isInstallments) {
                 <app-form-field>
-                  <label appLabel [for]="'sale-item-quantity-' + i">Quantidade</label>
+                  <label appLabel [for]="'sale-transaction-method-' + i">Forma de pagamento</label>
+                  <select appSelect [formField]="transaction.paymentMethod" [id]="'sale-transaction-method-' + i">
+                    <option value="">Selecione</option>
+                    @for (method of paymentMethodOptions; track method) {
+                      <option [value]="method">{{ method }}</option>
+                    }
+                  </select>
+                </app-form-field>
+              } @else {
+                <div>
+                  <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+                    Forma de pagamento
+                  </span>
+                  <p class="py-2.5 text-sm text-neutral-700 dark:text-neutral-200">
+                    {{ PaymentMethod.CreditCard }}
+                  </p>
+                </div>
+              }
+
+              <app-form-field>
+                <label appLabel [for]="'sale-transaction-amount-' + i">
+                  {{ isInstallments ? 'Valor total a parcelar' : 'Valor' }}
+                </label>
+                <input
+                  appInput
+                  [formField]="transaction.amount"
+                  [id]="'sale-transaction-amount-' + i"
+                  type="text"
+                  inputmode="decimal"
+                  mask="separator.2"
+                  prefix="R$ "
+                />
+              </app-form-field>
+
+              @if (isInstallments) {
+                <app-form-field>
+                  <label appLabel [for]="'sale-transaction-count-' + i">Número de parcelas</label>
                   <input
                     appInput
-                    [formField]="item.quantity"
-                    [id]="'sale-item-quantity-' + i"
+                    [formField]="transaction.installmentCount"
+                    [id]="'sale-transaction-count-' + i"
                     type="number"
                     inputmode="numeric"
                   />
                 </app-form-field>
 
                 <app-form-field>
-                  <label appLabel [for]="'sale-item-price-' + i">Preço aplicado</label>
+                  <label appLabel [for]="'sale-transaction-due-date-' + i">Data da 1ª parcela</label>
                   <input
                     appInput
-                    [formField]="item.priceApplied"
-                    [id]="'sale-item-price-' + i"
-                    type="text"
-                    inputmode="decimal"
-                    mask="separator.2"
-                    prefix="R$ "
-                    placeholder="Preço padrão do item"
+                    [formField]="transaction.dueDate"
+                    [id]="'sale-transaction-due-date-' + i"
+                    type="date"
                   />
                 </app-form-field>
 
-                <button
-                  iconBtn
-                  type="button"
-                  class="self-center"
-                  [icon]="LucideTrash2"
-                  ariaLabel="Remover item"
-                  size="sm"
-                  (click)="removeItem(i)"
-                ></button>
-              </div>
-            }
-
-            @if (!f.items().value().length) {
-              <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum item adicionado.</p>
-            }
-          </div>
-
-          <p class="mt-3 text-right text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-            Total: {{ totalAmount() | currency: 'BRL' }}
-          </p>
-        </div>
-
-        <div>
-          <div class="mb-3 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Pagamento</h2>
-            <button btn btnOutline type="button" (click)="addTransaction()">Adicionar pagamento</button>
-          </div>
-
-          <div class="flex flex-col gap-4">
-            @for (transaction of f.transactions; track $index; let i = $index) {
-              <div class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
-                <div class="mb-3 flex items-center justify-between">
-                  <app-switch [formField]="transaction.installments">Parcelado (cartão de crédito)</app-switch>
-                  <button
-                    iconBtn
-                    type="button"
-                    [icon]="LucideTrash2"
-                    ariaLabel="Remover pagamento"
-                    size="sm"
-                    (click)="removeTransaction(i)"
-                  ></button>
+                <div class="flex flex-col gap-2">
+                  <span class="text-sm font-semibold text-transparent select-none" aria-hidden="true">&nbsp;</span>
+                  <app-switch [formField]="transaction.markFirstInstallmentAsReceived">
+                    Primeira parcela já recebida
+                  </app-switch>
                 </div>
+              } @else {
+                <app-form-field>
+                  <label appLabel [for]="'sale-transaction-due-date-' + i">Data de vencimento</label>
+                  <input
+                    appInput
+                    [formField]="transaction.dueDate"
+                    [id]="'sale-transaction-due-date-' + i"
+                    type="date"
+                  />
+                </app-form-field>
 
-                @let isInstallments = transaction.installments().value();
-
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  @if (!isInstallments) {
-                    <app-form-field>
-                      <label appLabel [for]="'sale-transaction-method-' + i">Forma de pagamento</label>
-                      <select appSelect [formField]="transaction.paymentMethod" [id]="'sale-transaction-method-' + i">
-                        <option value="">Selecione</option>
-                        @for (method of paymentMethodOptions; track method) {
-                          <option [value]="method">{{ method }}</option>
-                        }
-                      </select>
-                    </app-form-field>
-                  } @else {
-                    <div>
-                      <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                        Forma de pagamento
-                      </span>
-                      <p class="py-2.5 text-sm text-neutral-700 dark:text-neutral-200">
-                        {{ PaymentMethod.CreditCard }}
-                      </p>
-                    </div>
-                  }
-
-                  <app-form-field>
-                    <label appLabel [for]="'sale-transaction-amount-' + i">
-                      {{ isInstallments ? 'Valor total a parcelar' : 'Valor' }}
-                    </label>
-                    <input
-                      appInput
-                      [formField]="transaction.amount"
-                      [id]="'sale-transaction-amount-' + i"
-                      type="text"
-                      inputmode="decimal"
-                      mask="separator.2"
-                      prefix="R$ "
-                    />
-                  </app-form-field>
-
-                  @if (isInstallments) {
-                    <app-form-field>
-                      <label appLabel [for]="'sale-transaction-count-' + i">Número de parcelas</label>
-                      <input
-                        appInput
-                        [formField]="transaction.installmentCount"
-                        [id]="'sale-transaction-count-' + i"
-                        type="number"
-                        inputmode="numeric"
-                      />
-                    </app-form-field>
-
-                    <app-form-field>
-                      <label appLabel [for]="'sale-transaction-due-date-' + i">Data da 1ª parcela</label>
-                      <input
-                        appInput
-                        [formField]="transaction.dueDate"
-                        [id]="'sale-transaction-due-date-' + i"
-                        type="date"
-                      />
-                    </app-form-field>
-
-                    <div class="flex flex-col gap-2">
-                      <span class="text-sm font-semibold text-transparent select-none" aria-hidden="true">&nbsp;</span>
-                      <app-switch [formField]="transaction.markFirstInstallmentAsReceived">
-                        Primeira parcela já recebida
-                      </app-switch>
-                    </div>
-                  } @else {
-                    <app-form-field>
-                      <label appLabel [for]="'sale-transaction-due-date-' + i">Data de vencimento</label>
-                      <input
-                        appInput
-                        [formField]="transaction.dueDate"
-                        [id]="'sale-transaction-due-date-' + i"
-                        type="date"
-                      />
-                    </app-form-field>
-
-                    <div class="flex flex-col gap-2">
-                      <span class="text-sm font-semibold text-transparent select-none" aria-hidden="true">&nbsp;</span>
-                      <app-switch [formField]="transaction.receivedNow">Recebido agora</app-switch>
-                    </div>
-                  }
+                <div class="flex flex-col gap-2">
+                  <span class="text-sm font-semibold text-transparent select-none" aria-hidden="true">&nbsp;</span>
+                  <app-switch [formField]="transaction.receivedNow">Recebido agora</app-switch>
                 </div>
-              </div>
-            }
-
-            @if (!f.transactions().value().length) {
-              <p class="text-sm text-neutral-500 dark:text-neutral-400">
-                Nenhum pagamento adicionado — a venda ficará pendente.
-              </p>
-            }
+              }
+            </div>
           </div>
-
-          <p class="mt-3 text-right text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-            Restante a pagar: {{ remainingAmount() | currency: 'BRL' }}
-          </p>
-        </div>
-
-        @if (submitErrorMessage(); as message) {
-          <app-alert error>{{ message }}</app-alert>
         }
 
-        <div class="flex justify-end gap-3">
-          <a btn btnOutline routerLink="/sales">Cancelar</a>
-          <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">Criar venda</button>
-        </div>
-      </form>
+        @if (!f.transactions().value().length) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            Nenhum pagamento adicionado — a venda ficará pendente.
+          </p>
+        }
+      </div>
+
+      <p class="mt-3 text-right text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+        Restante a pagar: {{ remainingAmount() | currency: 'BRL' }}
+      </p>
     </div>
-  }
+
+    @if (submitErrorMessage(); as message) {
+      <app-alert error>{{ message }}</app-alert>
+    }
+
+    <div class="flex justify-end gap-3">
+      <a btn btnOutline routerLink="/sales">Cancelar</a>
+      <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">Criar venda</button>
+    </div>
+  </form>
 </div>

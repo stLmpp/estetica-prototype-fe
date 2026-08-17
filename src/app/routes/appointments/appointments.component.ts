@@ -13,7 +13,7 @@ import { RouterLink } from '@angular/router';
 import { form, FormField, FormRoot } from '@angular/forms/signals';
 import { map, skip } from 'rxjs';
 import dayjs from 'dayjs/esm';
-import { LucideCalendarPlus, LucideReceiptText, LucideX } from '@lucide/angular';
+import { LucideCalendarPlus, LucideEye, LucideReceiptText, LucideX } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { ButtonComponent } from '../../components/button/button.component';
 import { BadgeComponent } from '../../components/badge/badge.component';
@@ -102,6 +102,7 @@ export class AppointmentsComponent {
   private readonly toastService = inject(ToastService);
 
   protected readonly LucideCalendarPlus = LucideCalendarPlus;
+  protected readonly LucideEye = LucideEye;
   protected readonly LucideReceiptText = LucideReceiptText;
   protected readonly LucideX = LucideX;
   protected readonly pageSize = PAGE_SIZE;
