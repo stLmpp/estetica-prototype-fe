@@ -40,12 +40,7 @@ export const routes: Routes = [
   },
   {
     path: 'customers',
-    loadComponent: () =>
-      import('./routes/customers/customers.component').then((m) => m.CustomersComponent),
-    canActivate: [
-      requireAuthenticatedWithOrganizationGuard(),
-      hasPermissionGuard({ orgPermissions: { customer: ['get'] } }),
-    ],
+    loadChildren: () => import('./routes/customers/customer.routes').then((m) => m.CUSTOMER_ROUTES),
   },
   {
     path: 'employees',

@@ -1,0 +1,208 @@
+<div>
+  <a routerLink="/customers" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+    ← Voltar para clientes
+  </a>
+</div>
+
+@let cust = customer();
+
+<div class="flex flex-col gap-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">{{ cust.name }}</h1>
+      @if (cust.jobName) {
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ cust.jobName }}</p>
+      }
+    </div>
+
+    @if (canDelete()) {
+      <button btn btnOutline type="button" (click)="openDeleteDialog()">Excluir</button>
+    }
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Dados do cliente</h2>
+
+    <form [formRoot]="infoForm" class="flex flex-col gap-4">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <app-form-field>
+          <label appLabel for="customer-birth-date">Data de nascimento</label>
+          <input appInput [formField]="infoForm.birthDate" id="customer-birth-date" type="date" />
+        </app-form-field>
+
+        <app-form-field>
+          <label appLabel for="customer-marital-status">Estado civil</label>
+          <select appSelect [formField]="infoForm.maritalStatus" id="customer-marital-status">
+            <option value="">Selecione</option>
+            <option [value]="MaritalStatus.Single">{{ MaritalStatus.Single }}</option>
+            <option [value]="MaritalStatus.Married">{{ MaritalStatus.Married }}</option>
+            <option [value]="MaritalStatus.Divorced">{{ MaritalStatus.Divorced }}</option>
+            <option [value]="MaritalStatus.Widowed">{{ MaritalStatus.Widowed }}</option>
+          </select>
+        </app-form-field>
+      </div>
+
+      <app-form-field>
+        <label appLabel for="customer-email">E-mail</label>
+        <input appInput [formField]="infoForm.email" id="customer-email" type="email" />
+      </app-form-field>
+
+      <app-form-field>
+        <label appLabel for="customer-job-name">Profissão</label>
+        <input appInput [formField]="infoForm.jobName" id="customer-job-name" type="text" />
+      </app-form-field>
+
+      <app-form-field>
+        <label appLabel for="customer-address">Endereço</label>
+        <input appInput [formField]="infoForm.address" id="customer-address" type="text" />
+      </app-form-field>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <app-form-field>
+          <label appLabel for="customer-zip-code">CEP</label>
+          <input
+            appInput
+            [formField]="infoForm.zipCode"
+            id="customer-zip-code"
+            type="text"
+            inputmode="numeric"
+            mask="00000-000"
+            placeholder="00000-000"
+          />
+        </app-form-field>
+
+        <app-form-field>
+          <label appLabel for="customer-neighborhood">Bairro</label>
+          <input appInput [formField]="infoForm.neighborhood" id="customer-neighborhood" type="text" />
+        </app-form-field>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <app-form-field>
+          <label appLabel for="customer-city">Cidade</label>
+          <input appInput [formField]="infoForm.city" id="customer-city" type="text" />
+        </app-form-field>
+
+        <app-form-field>
+          <label appLabel for="customer-state">Estado</label>
+          <input appInput [formField]="infoForm.state" id="customer-state" type="text" />
+        </app-form-field>
+      </div>
+
+      @if (infoSaveErrorMessage(); as message) {
+        <app-alert error>{{ message }}</app-alert>
+      }
+
+      @if (canUpdate()) {
+        <div class="flex justify-end">
+          <button
+            btn
+            btnPrimary
+            type="button"
+            [disabled]="!infoForm().dirty() || infoSaving()"
+            [btnLoading]="infoSaving()"
+            (click)="saveInfo()"
+          >
+            Salvar
+          </button>
+        </div>
+      }
+    </form>
+  </div>
+
+  <div>
+    <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Telefones</h2>
+
+    @if (cust.phones?.length) {
+      <ul class="flex flex-col gap-1">
+        @for (phone of cust.phones; track phone.id) {
+          <li class="text-sm text-neutral-700 dark:text-neutral-200">
+            {{ phone.type }}: {{ phone.number }}
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum telefone cadastrado.</p>
+    }
+  </div>
+
+  @if (canViewAppointments()) {
+    <div>
+      <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+        Agendamentos recentes
+      </h2>
+
+      <div [loadingOverlay]="appointmentsLoading()">
+        @if (!appointmentsLoading() && appointments().length === 0) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum agendamento encontrado.</p>
+        } @else {
+          <ul class="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-700 dark:border-neutral-700">
+            @for (appointment of appointments(); track appointment.id) {
+              <li>
+                <a
+                  [routerLink]="['/appointments', appointment.id]"
+                  class="flex items-center justify-between gap-4 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                >
+                  <span class="text-sm text-neutral-800 dark:text-neutral-100">
+                    {{ appointment.startTime | date: 'dd/MM/yyyy HH:mm' }} ·
+                    {{ appointment.catalogItemName }}
+                  </span>
+                  @switch (appointment.status) {
+                    @case (AppointmentStatus.Scheduled) {
+                      <app-badge primary>{{ appointment.status }}</app-badge>
+                    }
+                    @case (AppointmentStatus.Completed) {
+                      <app-badge secondary>{{ appointment.status }}</app-badge>
+                    }
+                    @default {
+                      <app-badge>{{ appointment.status }}</app-badge>
+                    }
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+
+  @if (canViewSales()) {
+    <div>
+      <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Vendas recentes</h2>
+
+      <div [loadingOverlay]="salesLoading()">
+        @if (!salesLoading() && sales().length === 0) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma venda encontrada.</p>
+        } @else {
+          <ul class="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-700 dark:border-neutral-700">
+            @for (sale of sales(); track sale.id) {
+              <li>
+                <a
+                  [routerLink]="['/sales', sale.id]"
+                  class="flex items-center justify-between gap-4 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                >
+                  <span class="text-sm text-neutral-800 dark:text-neutral-100">
+                    {{ sale.createdAt | date: 'dd/MM/yyyy HH:mm' }} ·
+                    {{ sale.totalAmount | currency: 'BRL' }}
+                  </span>
+                  @switch (sale.status) {
+                    @case (SaleStatus.Paid) {
+                      <app-badge secondary>{{ sale.status }}</app-badge>
+                    }
+                    @case (SaleStatus.Pending) {
+                      <app-badge primary>{{ sale.status }}</app-badge>
+                    }
+                    @default {
+                      <app-badge>{{ sale.status }}</app-badge>
+                    }
+                  }
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+</div>
