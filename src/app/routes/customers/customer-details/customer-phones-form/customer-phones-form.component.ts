@@ -1,9 +1,11 @@
 import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { applyEach, disabled, form, FormField, FormRoot, required } from '@angular/forms/signals';
+import { LucideTrash2 } from '@lucide/angular';
 import { NgxMaskDirective } from 'ngx-mask';
 import { AlertComponent } from '../../../../components/alert/alert.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
+import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
 import { InputDirective } from '../../../../components/input/input.directive';
 import { LabelComponent } from '../../../../components/label/label.component';
 import { SelectDirective } from '../../../../components/select/select.directive';
@@ -36,6 +38,7 @@ function toPhonesFormModel(phones: CustomerPhone[] | undefined): { phones: Phone
     FormField,
     FormFieldComponent,
     FormRoot,
+    IconButtonComponent,
     InputDirective,
     LabelComponent,
     NgxMaskDirective,
@@ -54,6 +57,7 @@ export class CustomerPhonesFormComponent {
   private readonly toastService = inject(ToastService);
 
   protected readonly PhoneType = PhoneType;
+  protected readonly LucideTrash2 = LucideTrash2;
 
   protected readonly canUpdate = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { customer: ['update'] } }),
