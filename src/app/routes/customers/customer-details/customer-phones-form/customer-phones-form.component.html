@@ -1,0 +1,58 @@
+<h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Telefones</h2>
+
+<form [formRoot]="phonesForm" class="flex flex-col gap-3">
+  @if (!phonesForm.phones().value().length) {
+    <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum telefone cadastrado.</p>
+  }
+
+  @for (phone of phonesForm.phones; track $index; let i = $index) {
+    <div class="flex items-end gap-2">
+      <app-form-field class="flex-1">
+        <label appLabel [for]="'customer-phone-number-' + i">Número</label>
+        <input
+          appInput
+          [formField]="phone.number"
+          [id]="'customer-phone-number-' + i"
+          type="text"
+          inputmode="numeric"
+          mask="(00) 00000-0000"
+          placeholder="(00) 00000-0000"
+        />
+      </app-form-field>
+
+      <app-form-field class="flex-1">
+        <label appLabel [for]="'customer-phone-type-' + i">Tipo</label>
+        <select appSelect [formField]="phone.type" [id]="'customer-phone-type-' + i">
+          <option [value]="PhoneType.Mobile">{{ PhoneType.Mobile }}</option>
+          <option [value]="PhoneType.Home">{{ PhoneType.Home }}</option>
+          <option [value]="PhoneType.Work">{{ PhoneType.Work }}</option>
+        </select>
+      </app-form-field>
+
+      @if (canUpdate()) {
+        <button btn btnOutline type="button" (click)="removePhone(i)">Remover</button>
+      }
+    </div>
+  }
+
+  @if (phonesSaveErrorMessage(); as message) {
+    <app-alert error>{{ message }}</app-alert>
+  }
+
+  @if (canUpdate()) {
+    <div class="flex items-center justify-between">
+      <button btn btnOutline type="button" (click)="addPhone()">Adicionar telefone</button>
+
+      <button
+        btn
+        btnPrimary
+        type="button"
+        [disabled]="!phonesForm().dirty() || phonesSaving()"
+        [btnLoading]="phonesSaving()"
+        (click)="savePhones()"
+      >
+        Salvar
+      </button>
+    </div>
+  }
+</form>

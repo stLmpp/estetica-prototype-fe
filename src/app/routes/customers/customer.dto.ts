@@ -22,9 +22,11 @@ export interface CustomerPayload {
   phones?: CustomerPhonePayload[];
 }
 
-// The update endpoint doesn't accept `phones` - a customer's phones can only
-// be set at creation time.
+// The update endpoint doesn't accept `phones` - phones are managed
+// separately via CustomerService.syncPhones (PUT .../phones).
 export type UpdateCustomerPayload = Partial<Omit<CustomerPayload, 'phones'>>;
+
+export type SyncCustomerPhonesPayload = CustomerPhonePayload[];
 
 export interface ListCustomerFilter {
   page?: number;

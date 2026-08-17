@@ -1,0 +1,87 @@
+<h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Dados do cliente</h2>
+
+<form [formRoot]="infoForm" class="flex flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <app-form-field>
+      <label appLabel for="customer-birth-date">Data de nascimento</label>
+      <input appInput [formField]="infoForm.birthDate" id="customer-birth-date" type="date" />
+    </app-form-field>
+
+    <app-form-field>
+      <label appLabel for="customer-marital-status">Estado civil</label>
+      <select appSelect [formField]="infoForm.maritalStatus" id="customer-marital-status">
+        <option value="">Selecione</option>
+        <option [value]="MaritalStatus.Single">{{ MaritalStatus.Single }}</option>
+        <option [value]="MaritalStatus.Married">{{ MaritalStatus.Married }}</option>
+        <option [value]="MaritalStatus.Divorced">{{ MaritalStatus.Divorced }}</option>
+        <option [value]="MaritalStatus.Widowed">{{ MaritalStatus.Widowed }}</option>
+      </select>
+    </app-form-field>
+  </div>
+
+  <app-form-field>
+    <label appLabel for="customer-email">E-mail</label>
+    <input appInput [formField]="infoForm.email" id="customer-email" type="email" />
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="customer-job-name">Profissão</label>
+    <input appInput [formField]="infoForm.jobName" id="customer-job-name" type="text" />
+  </app-form-field>
+
+  <app-form-field>
+    <label appLabel for="customer-address">Endereço</label>
+    <input appInput [formField]="infoForm.address" id="customer-address" type="text" />
+  </app-form-field>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <app-form-field>
+      <label appLabel for="customer-zip-code">CEP</label>
+      <input
+        appInput
+        [formField]="infoForm.zipCode"
+        id="customer-zip-code"
+        type="text"
+        inputmode="numeric"
+        mask="00000-000"
+        placeholder="00000-000"
+      />
+    </app-form-field>
+
+    <app-form-field>
+      <label appLabel for="customer-neighborhood">Bairro</label>
+      <input appInput [formField]="infoForm.neighborhood" id="customer-neighborhood" type="text" />
+    </app-form-field>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <app-form-field>
+      <label appLabel for="customer-city">Cidade</label>
+      <input appInput [formField]="infoForm.city" id="customer-city" type="text" />
+    </app-form-field>
+
+    <app-form-field>
+      <label appLabel for="customer-state">Estado</label>
+      <input appInput [formField]="infoForm.state" id="customer-state" type="text" />
+    </app-form-field>
+  </div>
+
+  @if (infoSaveErrorMessage(); as message) {
+    <app-alert error>{{ message }}</app-alert>
+  }
+
+  @if (canUpdate()) {
+    <div class="flex justify-end">
+      <button
+        btn
+        btnPrimary
+        type="button"
+        [disabled]="!infoForm().dirty() || infoSaving()"
+        [btnLoading]="infoSaving()"
+        (click)="saveInfo()"
+      >
+        Salvar
+      </button>
+    </div>
+  }
+</form>

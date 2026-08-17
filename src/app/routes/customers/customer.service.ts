@@ -8,12 +8,17 @@ import {
   CustomerPayload,
   ListCustomerFilter,
   ListCustomerResult,
+  SyncCustomerPhonesPayload,
   UpdateCustomerPayload,
 } from './customer.dto';
-import { Customer, CustomerDetail } from './customer.model';
+import { Customer, CustomerDetail, CustomerPhone } from './customer.model';
 
 interface CustomerResponse {
   data: { customer: CustomerDetail };
+}
+
+interface SyncCustomerPhonesResponse {
+  data: { phones: CustomerPhone[] };
 }
 
 interface ListCustomerResponse {
@@ -62,5 +67,13 @@ export class CustomerService {
 
   delete(customerId: string) {
     return this.http.delete<void>(`${this.baseUrl}/${customerId}`);
+  }
+
+  syncPhones(customerId: string, phones: SyncCustomerPhonesPayload) {
+    return this.http
+      .put<SyncCustomerPhonesResponse>(`${this.baseUrl}/${customerId}/phones`, {
+        customer: { phones },
+      })
+      .pipe(map((response) => response.data.phones));
   }
 }
