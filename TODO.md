@@ -31,6 +31,24 @@ move to `TODO_DONE.md` instead of being deleted outright.
       'http://localhost:3000'` with no per-environment override. Needs real
       `environment.*.ts` files (or however this project wants to handle it)
       once there's a staging/production API URL to point at.
+- [ ] `appointments-calendar` (`calendar-month-grid`,
+      `calendar-time-grid`) has no way to create an appointment by
+      selecting a span of time directly on the grid — the only path to
+      booking is the "Novo agendamento" button, which starts the
+      multi-step wizard (`appointment-booking/`, steps: customer, service,
+      professional, schedule, review) with nothing pre-filled. Add
+      click-and-drag (or click-two-points) selection on the time grid to
+      start that same wizard with the selected day/start-time/end-time
+      (and, if the calendar is filtered to one professional via the
+      existing `employeeId` filter in `AppointmentsCalendarStore`, that
+      professional too) pre-filled — skipping straight to the `schedule`
+      step's day picked, or further if enough is known. Needs a decision
+      on how much of the wizard a pre-filled selection can skip, since
+      today nothing passes initial values into it (no query-param/state
+      pre-fill mechanism exists yet for `appointment-booking` at all).
+      Month view is a click on a whole day, not a time range — decide
+      whether it should jump into the day/week view at that date instead
+      of trying to select a time span directly on month cells.
 - [ ] `appointment-details.component.ts`'s notes-editing form only lets
       `notes` be changed via `PATCH /v1/appointment/:id`, even though the
       backend also accepts `startTime`/`endTime` there (with
