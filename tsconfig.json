@@ -17,7 +17,8 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "lib": ["ES2022", "ESNext.Temporal", "DOM"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

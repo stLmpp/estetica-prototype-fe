@@ -1,4 +1,4 @@
-import { Temporal } from 'temporal-polyfill';
+import 'temporal-polyfill/global';
 
 export function minutesToIsoDuration(minutes: number): string {
   return Temporal.Duration.from({ minutes }).round({ largestUnit: 'hours' }).toString();
