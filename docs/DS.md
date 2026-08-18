@@ -2,9 +2,9 @@
 
 Usage guide for the components in `src/app/components/` — what each one is
 for, its key inputs/outputs, and a minimal usage snippet. `docs/CONVENTIONS.md`
-→ **Styling and UI** covers the *rules* (Tailwind-first, dark mode required,
-prefer these components over ad hoc markup); this document covers *how to use
-each one*.
+→ **Styling and UI** covers the _rules_ (Tailwind-first, dark mode required,
+prefer these components over ad hoc markup); this document covers _how to use
+each one_.
 
 A live, interactive showcase of a subset of these components exists at the
 `/ds` route (`src/app/ds.component.ts`) — useful for eyeballing states, but it
@@ -29,7 +29,7 @@ component's `imports: []` array, there's no shared module.
   `<app-form-field>` with no `appInput`/`appSelect`/`FormFieldInput`-derived
   child; it throws (`ngAfterContentInit`) if none is projected.
 - Boolean-style inputs (`disabled`, `btnPrimary`, etc.) use `transform:
-  booleanAttribute` so they work as either `[disabled]="expr()"` or the bare
+booleanAttribute` so they work as either `[disabled]="expr()"` or the bare
   attribute `disabled`.
 
 ## Buttons & icons
@@ -61,7 +61,7 @@ component, so it works on links too (e.g. a `routerLink` styled as a button).
   `@lucide/angular`; use the `lucide-icons` skill to find the right name).
 - `size`: `'xs' | 'sm' | 'md' | 'lg' | 'xl'` (default `'md'`).
 - `color`: `'primary' | 'neutral' | 'success' | 'error' | 'warning' | 'info' |
-  'white' | 'inherit'` (default `'inherit'`).
+'white' | 'inherit'` (default `'inherit'`).
 
 ### Icon button (`iconBtn`)
 
@@ -70,7 +70,13 @@ Same idea as `btn`, but icon-only, on `button[iconBtn]`/`a[iconBtn]`. Same
 `btn`, plus:
 
 ```html
-<button iconBtn [icon]="LucideTrash2" ariaLabel="Remover item" size="sm" (click)="remove()"></button>
+<button
+  iconBtn
+  [icon]="LucideTrash2"
+  ariaLabel="Remover item"
+  size="sm"
+  (click)="remove()"
+></button>
 ```
 
 - `icon` (required), `ariaLabel` (required — icon-only buttons need it), `size`.
@@ -121,7 +127,14 @@ components). Style/validation-state (red border) come for free; pair with
 `[formField]` and, for money fields, `ngx-mask`:
 
 ```html
-<input appInput [formField]="f.priceApplied" type="text" inputmode="decimal" mask="separator.2" prefix="R$ " />
+<input
+  appInput
+  [formField]="f.priceApplied"
+  type="text"
+  inputmode="decimal"
+  mask="separator.2"
+  prefix="R$ "
+/>
 ```
 
 Numeric fields (`type="number"`) are modeled as `string` in the form model
@@ -139,7 +152,7 @@ Same idea as `appInput`, for `select[appSelect]`:
 <select appSelect [formField]="f.status" id="status-filter">
   <option value="">Todos</option>
   @for (status of statusOptions; track status) {
-    <option [value]="status">{{ status }}</option>
+  <option [value]="status">{{ status }}</option>
   }
 </select>
 ```
@@ -175,6 +188,7 @@ when you need the full selected object (not just its id):
   emptyMessage="Nenhum cliente encontrado."
 />
 ```
+
 ```ts
 protected readonly customerSearchFn = (query: string) =>
   this.customerService.list({ name: query, limit: 10 }).pipe(
@@ -200,9 +214,13 @@ components just `extends`/re-provide the CDK class for styling — not a
 `FormValueControl`, so use CDK's own inputs/outputs, not custom ones):
 
 ```html
-<app-listbox aria-label="Serviços" [cdkListboxValue]="selectedServiceIds()" (cdkListboxValueChange)="onServiceChange($event)">
+<app-listbox
+  aria-label="Serviços"
+  [cdkListboxValue]="selectedServiceIds()"
+  (cdkListboxValueChange)="onServiceChange($event)"
+>
   @for (option of options(); track option.id) {
-    <app-listbox-option [cdkOption]="option.id">{{ option.name }}</app-listbox-option>
+  <app-listbox-option [cdkOption]="option.id">{{ option.name }}</app-listbox-option>
   }
 </app-listbox>
 ```
@@ -219,7 +237,7 @@ Implements `FormValueControl<T[]>`:
 ```
 
 - `options` (required) — `{ value: T; label: string; variant?: 'primary' |
-  'secondary' | 'default' }[]`.
+'secondary' | 'default' }[]`.
 
 ### Transfer list (`app-transfer-list`)
 
@@ -236,7 +254,7 @@ move-all — used for e.g. assigning services to an employee. Implements
 />
 ```
 
-- `items` (required) — `{ id: string; label: string }[]`, the *full* set;
+- `items` (required) — `{ id: string; label: string }[]`, the _full_ set;
   membership in `value` determines which side an item is on.
 
 ### Calendar (`app-calendar`)
@@ -254,13 +272,14 @@ date `YYYY-MM-DD`):
 
 Per-weekday open/closed + start/end time editor. Implements
 `FormValueControl<WeeklyWorkingHours>` (`src/app/model/working-hours.model.ts`).
-Typically the form's model *is* a `WeeklyWorkingHours` directly (not nested
+Typically the form's model _is_ a `WeeklyWorkingHours` directly (not nested
 under a wrapper key), so `[formField]` binds the whole form:
 
 ```ts
 protected readonly workingHoursModel = linkedSignal<WeeklyWorkingHours>(() => employee()?.workingHours ?? EMPTY_WEEKLY_WORKING_HOURS);
 protected readonly workingHoursForm = form(this.workingHoursModel);
 ```
+
 ```html
 <form [formRoot]="workingHoursForm">
   <app-working-hours-editor [formField]="workingHoursForm" />
@@ -312,6 +331,33 @@ spinner, instead of swapping the DOM out from under it:
 
 ## Layout & data
 
+### List (`appList` / `appListItem`)
+
+Plain bordered, divided row list — for a simple history/index list (a name +
+a badge, say) where `app-table`'s column config is overkill. Not related to
+`app-listbox`/`app-listbox-option` below, which is a CDK single-select
+widget, not a static content list.
+
+```html
+<ul appList>
+  @for (item of items(); track item.id) {
+  <li>
+    <a appListItem interactive [routerLink]="[item.id]">
+      <span class="text-sm text-neutral-800 dark:text-neutral-100">{{ item.name }}</span>
+      <app-badge>{{ item.status }}</app-badge>
+    </a>
+  </li>
+  }
+</ul>
+```
+
+- `appList` goes on the `ul`; each row's content wrapper (an `a`, `button`,
+  or plain `div` — whatever's the direct child of `li`) gets `appListItem`.
+- `interactive` (boolean attribute, default `false`) adds the hover
+  background — set it on rows that are themselves a link/click target (e.g.
+  `routerLink`); leave it off for static rows whose actions are separate
+  buttons inside the row.
+
 ### Table (`app-table`)
 
 Built on CDK Table (`CdkTable`), driven entirely by a `ColDef[]` — no
@@ -325,8 +371,14 @@ protected readonly columns = computed<ColDef<Sale>[]>(() => [
   { key: 'id', title: 'Ações', type: 'template', template: this.actionsTemplate },
 ]);
 ```
+
 ```html
-<app-table [columns]="columns()" [data]="store.entities()" [trackBy]="trackBy" [loadingOverlay]="store.loading()" />
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
 ```
 
 - `ColDef` (`components/table/model/col-def.ts`) `type`: default (plain
@@ -338,7 +390,15 @@ protected readonly columns = computed<ColDef<Sale>[]>(() => [
 ### Paginator (`app-paginator`)
 
 ```html
-<app-paginator mode="compact" [page]="store.page()" (pageChange)="goToPage($event)" [pageSize]="pageSize" [length]="store.total()" [showPageSizeSelector]="false" [disabled]="store.loading()" />
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  (pageChange)="goToPage($event)"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+/>
 ```
 
 - `mode`: `'compact'` (prev/next + range label, used alongside a fixed
@@ -370,9 +430,9 @@ protected readonly tabs = computed<TabItem[]>(() => [
   ...(canViewSales() ? [{ label: 'Vendas recentes', link: 'sales' }] : []),
 ]);
 ```
+
 ```html
-<app-tabs [tabs]="tabs()" label="Seções do cliente" />
-<router-outlet />
+<app-tabs [tabs]="tabs()" label="Seções do cliente" /> <router-outlet />
 ```
 
 - `TabItem` (`components/tabs/tab-item.model.ts`): `label`, `link` (passed to
@@ -406,13 +466,22 @@ Not used directly in a template — open it via `DialogService`:
 
 ```ts
 const dialogRef = this.dialogService.open<boolean, ConfirmDialogData>(ConfirmDialogComponent, {
-  data: { title: 'Excluir venda', message: `Tem certeza...?`, confirmLabel: 'Excluir', danger: true },
+  data: {
+    title: 'Excluir venda',
+    message: `Tem certeza...?`,
+    confirmLabel: 'Excluir',
+    danger: true,
+  },
   size: 'md',
   role: 'alertdialog',
   ariaModal: true,
   ariaLabelledBy: 'confirm-dialog-title',
 });
-dialogRef.closed.subscribe((confirmed) => { if (confirmed) { /* ... */ } });
+dialogRef.closed.subscribe((confirmed) => {
+  if (confirmed) {
+    /* ... */
+  }
+});
 ```
 
 - `ConfirmDialogData`: `title`, `message`, `confirmLabel?`, `cancelLabel?`,
@@ -427,7 +496,9 @@ Warms a lazy-loaded chunk (a dialog opened via `DialogService`'s lazy
 overload, a routed component) ahead of the action that needs it:
 
 ```html
-<button btn btnPrimary [appPreloadLoader]="customerFormDialogLoader" (click)="openCreateDialog()">Novo cliente</button>
+<button btn btnPrimary [appPreloadLoader]="customerFormDialogLoader" (click)="openCreateDialog()">
+  Novo cliente
+</button>
 ```
 
 - `appPreloadLoader` (required) — the same `() => Promise<Component>` loader

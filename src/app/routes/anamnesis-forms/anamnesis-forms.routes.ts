@@ -16,6 +16,17 @@ export const ANAMNESIS_FORM_ROUTES: Routes = [
     ],
   },
   {
+    path: 'new',
+    loadComponent: () =>
+      import('./anamnesis-form-create/anamnesis-form-create.component').then(
+        (m) => m.AnamnesisFormCreateComponent,
+      ),
+    canActivate: [
+      requireAuthenticatedWithOrganizationGuard(),
+      hasPermissionGuard({ orgPermissions: { anamnesisField: ['create'] } }),
+    ],
+  },
+  {
     path: ':anamnesisFormId',
     loadComponent: () =>
       import('./anamnesis-form-detail/anamnesis-form-detail.component').then(

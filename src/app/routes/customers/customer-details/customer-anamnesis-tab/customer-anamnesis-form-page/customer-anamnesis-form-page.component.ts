@@ -1,6 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { rxResource, takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { Router, RouterLink } from '@angular/router';
 import { applyEach, form, FormField, FormRoot, validate } from '@angular/forms/signals';
 import dayjs from 'dayjs/esm';
 import {
@@ -35,18 +35,13 @@ import { AnamnesisFieldType } from '../../../../anamnesis-forms/anamnesis-field-
 import { AnamnesisFieldValidationType } from '../../../../anamnesis-forms/anamnesis-field-validation-type.enum';
 import { AnamnesisField } from '../../../../anamnesis-forms/anamnesis-field.model';
 import { AnamnesisFieldService } from '../../../../anamnesis-forms/anamnesis-field.service';
-import { AnamnesisForm } from '../../../../anamnesis-forms/anamnesis-form.model';
+import { AnamnesisFormService } from '../../../../anamnesis-forms/anamnesis-form.service';
 import { AnamnesisSection } from '../../../../anamnesis-forms/anamnesis-section.model';
 import { AnamnesisSectionService } from '../../../../anamnesis-forms/anamnesis-section.service';
+import { CustomerDetailsStore } from '../../customer-details.store';
 import { CustomerAnamnesisAnswerPayload } from '../customer-anamnesis.dto';
 import { CustomerAnamnesis, CustomerAnamnesisField } from '../customer-anamnesis.model';
 import { CustomerAnamnesisService } from '../customer-anamnesis.service';
-
-export interface CustomerAnamnesisFormDialogData {
-  customerId: string;
-  forms: AnamnesisForm[];
-  customerAnamnesis?: CustomerAnamnesis;
-}
 
 interface CheckboxOptionValue {
   value: string;
@@ -76,6 +71,7 @@ type SaveResult =
   | { ok: true; customerAnamnesis: CustomerAnamnesis }
   | { ok: false; message: string; fieldErrors: Map<string, string[]> };
 
+const FORMS_LIMIT = 100;
 const FIELDS_LIMIT = 100;
 const DEFAULT_LOAD_ERROR_MESSAGE = 'Não foi possível carregar os campos deste formulário.';
 const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar a anamnese. Tente novamente.';
@@ -157,7 +153,8 @@ function textAnswerValidationError(
           break;
         }
         const num = Number(trimmed);
-        const min = (validation.validationArgs as { value: number } | undefined)?.value ?? -Infinity;
+        const min =
+          (validation.validationArgs as { value: number } | undefined)?.value ?? -Infinity;
         if (!Number.isNaN(num) && num < min) {
           return { kind: 'minValue', message: `Valor mínimo de ${min}` };
         }
@@ -202,7 +199,8 @@ function checkboxAnswerValidationError(
   options: CheckboxOptionValue[],
 ): AnswerValidationError | null {
   const requiresAtLeastOne = (field.validations ?? []).some(
-    (validation) => validation.active && validation.validationType === AnamnesisFieldValidationType.REQUIRED,
+    (validation) =>
+      validation.active && validation.validationType === AnamnesisFieldValidationType.REQUIRED,
   );
   if (requiresAtLeastOne && !options.some((option) => option.checked)) {
     return { kind: 'required', message: 'Selecione ao menos uma opção' };
@@ -211,7 +209,7 @@ function checkboxAnswerValidationError(
 }
 
 @Component({
-  selector: 'app-customer-anamnesis-form-dialog',
+  selector: 'app-customer-anamnesis-form-page',
   imports: [
     ButtonComponent,
     ButtonToggleGroupComponent,
@@ -224,25 +222,28 @@ function checkboxAnswerValidationError(
     InputDirective,
     LabelComponent,
     LoadingOverlayDirective,
+    RouterLink,
     SelectDirective,
     SwitchComponent,
   ],
-  templateUrl: './customer-anamnesis-form-dialog.component.html',
+  templateUrl: './customer-anamnesis-form-page.component.html',
   host: {
-    class:
-      'block max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
+    class: 'page-container',
   },
 })
-export class CustomerAnamnesisFormDialogComponent {
-  protected readonly data = inject<CustomerAnamnesisFormDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<CustomerAnamnesis | undefined>);
+export class CustomerAnamnesisFormPageComponent {
+  readonly customerAnamnesis = input<CustomerAnamnesis>();
+
+  private readonly customerDetailsStore = inject(CustomerDetailsStore);
   private readonly customerAnamnesisService = inject(CustomerAnamnesisService);
+  private readonly anamnesisFormService = inject(AnamnesisFormService);
   private readonly anamnesisFieldService = inject(AnamnesisFieldService);
   private readonly anamnesisSectionService = inject(AnamnesisSectionService);
   private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
 
-  protected readonly isEditing = !!this.data.customerAnamnesis;
-  protected readonly showFormSelector = !this.isEditing && this.data.forms.length > 1;
+  protected readonly customerId = computed(() => this.customerDetailsStore.customerId());
+  protected readonly isEditing = computed(() => !!this.customerAnamnesis());
   protected readonly AnamnesisFieldType = AnamnesisFieldType;
 
   protected readonly submitErrorMessage = signal<string | null>(null);
@@ -256,6 +257,15 @@ export class CustomerAnamnesisFormDialogComponent {
 
   private readonly fieldById = computed(
     () => new Map(this.fieldsSignal().map((field) => [field.id, field])),
+  );
+
+  protected readonly formsResource = rxResource({
+    stream: () => this.anamnesisFormService.list({ limit: FORMS_LIMIT }),
+  });
+  protected readonly forms = computed(() => this.formsResource.value()?.items ?? []);
+  protected readonly activeForms = computed(() => this.forms().filter((form) => form.active));
+  protected readonly showFormSelector = computed(
+    () => !this.isEditing() && this.activeForms().length > 1,
   );
 
   protected readonly fieldMeta = computed<FieldMeta[]>(() => {
@@ -273,20 +283,18 @@ export class CustomerAnamnesisFormDialogComponent {
   });
 
   protected readonly orphanedAnswerLabels = computed(() => {
-    if (!this.isEditing || this.loadingFields()) {
+    if (!this.isEditing() || this.loadingFields()) {
       return [];
     }
     const activeFieldIds = new Set(this.fieldsSignal().map((field) => field.id));
-    return (this.data.customerAnamnesis?.answers ?? [])
+    return (this.customerAnamnesis()?.answers ?? [])
       .filter((answer) => !activeFieldIds.has(answer.anamnesisFieldId))
       .map((answer) => answer.anamnesisFieldLabel);
   });
 
   protected readonly model = signal<FormModel>({
-    anamnesisFormId: this.initialFormId(),
-    date: this.data.customerAnamnesis
-      ? dayjs(this.data.customerAnamnesis.date).format('YYYY-MM-DD')
-      : dayjs().format('YYYY-MM-DD'),
+    anamnesisFormId: '',
+    date: dayjs().format('YYYY-MM-DD'),
     answers: [],
   });
 
@@ -335,15 +343,42 @@ export class CustomerAnamnesisFormDialogComponent {
           }
 
           this.toastService.success(
-            this.isEditing ? 'Anamnese atualizada com sucesso.' : 'Anamnese criada com sucesso.',
+            this.isEditing() ? 'Anamnese atualizada com sucesso.' : 'Anamnese criada com sucesso.',
           );
-          this.dialogRef.close(result.customerAnamnesis);
+          await this.router.navigate([
+            '/customers',
+            this.customerId(),
+            'anamnesis',
+            result.customerAnamnesis.id,
+          ]);
         },
       },
     },
   );
 
   constructor() {
+    effect(() => {
+      const customerAnamnesis = this.customerAnamnesis();
+      if (customerAnamnesis) {
+        untracked(() => {
+          this.model.update((value) => ({
+            ...value,
+            anamnesisFormId: customerAnamnesis.anamnesisFormId,
+            date: dayjs(customerAnamnesis.date).format('YYYY-MM-DD'),
+          }));
+        });
+        return;
+      }
+
+      if (this.model().anamnesisFormId) {
+        return;
+      }
+      const active = this.activeForms();
+      if (active.length === 1) {
+        this.model.update((value) => ({ ...value, anamnesisFormId: active[0]!.id }));
+      }
+    });
+
     toObservable(computed(() => this.f.anamnesisFormId().value()))
       .pipe(
         filter((anamnesisFormId): anamnesisFormId is string => !!anamnesisFormId),
@@ -351,16 +386,6 @@ export class CustomerAnamnesisFormDialogComponent {
         takeUntilDestroyed(),
       )
       .subscribe();
-  }
-
-  private initialFormId(): string {
-    if (this.data.customerAnamnesis) {
-      return this.data.customerAnamnesis.anamnesisFormId;
-    }
-    if (this.data.forms.length === 1) {
-      return this.data.forms[0]!.id;
-    }
-    return '';
   }
 
   private loadFieldsForForm$(anamnesisFormId: string): Observable<void> {
@@ -379,7 +404,7 @@ export class CustomerAnamnesisFormDialogComponent {
         this.sectionsSignal.set(sections);
         this.model.update((value) => ({
           ...value,
-          answers: buildAnswerRows(sortedFields, this.data.customerAnamnesis?.answers),
+          answers: buildAnswerRows(sortedFields, this.customerAnamnesis()?.answers),
         }));
         this.loadingFields.set(false);
       }),
@@ -430,24 +455,23 @@ export class CustomerAnamnesisFormDialogComponent {
 
   private save(value: FormModel, answers: CustomerAnamnesisAnswerPayload[]): Promise<SaveResult> {
     const isoDate = value.date ? dayjs(value.date).toISOString() : undefined;
-    const customerAnamnesis = this.data.customerAnamnesis;
+    const customerAnamnesis = this.customerAnamnesis();
+    const customerId = this.customerId();
 
     const request$: Observable<SaveResult> = customerAnamnesis
       ? this.customerAnamnesisService
-          .update(this.data.customerId, customerAnamnesis.id, { date: isoDate, answers })
+          .update(customerId, customerAnamnesis.id, { date: isoDate, answers })
           .pipe(
-            map(
-              (): SaveResult => ({
-                ok: true,
-                customerAnamnesis: {
-                  ...customerAnamnesis,
-                  date: isoDate ?? customerAnamnesis.date,
-                },
-              }),
-            ),
+            map((): SaveResult => ({
+              ok: true,
+              customerAnamnesis: {
+                ...customerAnamnesis,
+                date: isoDate ?? customerAnamnesis.date,
+              },
+            })),
           )
       : this.customerAnamnesisService
-          .create(this.data.customerId, {
+          .create(customerId, {
             anamnesisFormId: value.anamnesisFormId,
             date: isoDate,
             answers,
@@ -478,10 +502,6 @@ export class CustomerAnamnesisFormDialogComponent {
       message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
       fieldErrors,
     };
-  }
-
-  protected cancel() {
-    this.dialogRef.close(undefined);
   }
 }
 

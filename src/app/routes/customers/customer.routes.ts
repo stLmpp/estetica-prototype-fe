@@ -3,6 +3,7 @@ import {
   hasPermissionGuard,
   requireAuthenticatedWithOrganizationGuard,
 } from '../../core/auth/auth.guards';
+import { customerAnamnesisDetailResolver } from './customer-details/customer-anamnesis-tab/customer-anamnesis-detail.resolver';
 import { customerDetailsResolver } from './customer-details/customer-details.resolver';
 
 export const CUSTOMER_ROUTES: Routes = [
@@ -61,11 +62,46 @@ export const CUSTOMER_ROUTES: Routes = [
       },
       {
         path: 'anamnesis',
-        loadComponent: () =>
-          import('./customer-details/customer-anamnesis-tab/customer-anamnesis-tab.component').then(
-            (m) => m.CustomerAnamnesisTabComponent,
-          ),
-        canActivate: [hasPermissionGuard({ orgPermissions: { customerAnamnesis: ['get'] } })],
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./customer-details/customer-anamnesis-tab/customer-anamnesis-tab.component').then(
+                (m) => m.CustomerAnamnesisTabComponent,
+              ),
+            canActivate: [hasPermissionGuard({ orgPermissions: { customerAnamnesis: ['get'] } })],
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./customer-details/customer-anamnesis-tab/customer-anamnesis-form-page/customer-anamnesis-form-page.component').then(
+                (m) => m.CustomerAnamnesisFormPageComponent,
+              ),
+            canActivate: [
+              hasPermissionGuard({ orgPermissions: { customerAnamnesis: ['create'] } }),
+            ],
+          },
+          {
+            path: ':customerAnamnesisId',
+            loadComponent: () =>
+              import('./customer-details/customer-anamnesis-tab/customer-anamnesis-detail-page/customer-anamnesis-detail-page.component').then(
+                (m) => m.CustomerAnamnesisDetailPageComponent,
+              ),
+            canActivate: [hasPermissionGuard({ orgPermissions: { customerAnamnesis: ['get'] } })],
+            resolve: { customerAnamnesis: customerAnamnesisDetailResolver() },
+          },
+          {
+            path: ':customerAnamnesisId/edit',
+            loadComponent: () =>
+              import('./customer-details/customer-anamnesis-tab/customer-anamnesis-form-page/customer-anamnesis-form-page.component').then(
+                (m) => m.CustomerAnamnesisFormPageComponent,
+              ),
+            canActivate: [
+              hasPermissionGuard({ orgPermissions: { customerAnamnesis: ['update'] } }),
+            ],
+            resolve: { customerAnamnesis: customerAnamnesisDetailResolver() },
+          },
+        ],
       },
     ],
   },

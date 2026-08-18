@@ -1,0 +1,99 @@
+<div
+  class="rounded-2xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-neutral-800"
+>
+  @if (formName()) {
+    <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">{{ formName() }}</h2>
+  }
+  @if (formDescription()) {
+    <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{{ formDescription() }}</p>
+  }
+
+  @if (!fieldMeta().length) {
+    <p class="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+      Nenhum campo ativo para exibir ainda.
+    </p>
+  }
+
+  <div class="mt-4 flex flex-col gap-4">
+    @for (meta of fieldMeta(); track meta.field.id) {
+      @if (meta.showSectionHeader && meta.sectionLabel) {
+        <h3 class="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+          {{ meta.sectionLabel }}
+        </h3>
+      }
+
+      <div class="flex flex-col gap-1">
+        @switch (meta.field.fieldType) {
+          @case (AnamnesisFieldType.TEXT) {
+            <label appLabel [for]="'anamnesis-preview-field-' + meta.field.id">{{
+              meta.field.label
+            }}</label>
+            <input
+              appInput
+              type="text"
+              [id]="'anamnesis-preview-field-' + meta.field.id"
+              [disabled]="true"
+            />
+          }
+          @case (AnamnesisFieldType.NUMBER) {
+            <label appLabel [for]="'anamnesis-preview-field-' + meta.field.id">{{
+              meta.field.label
+            }}</label>
+            <input
+              appInput
+              type="number"
+              [id]="'anamnesis-preview-field-' + meta.field.id"
+              [disabled]="true"
+            />
+          }
+          @case (AnamnesisFieldType.DATE) {
+            <label appLabel [for]="'anamnesis-preview-field-' + meta.field.id">{{
+              meta.field.label
+            }}</label>
+            <input
+              appInput
+              type="date"
+              [id]="'anamnesis-preview-field-' + meta.field.id"
+              [disabled]="true"
+            />
+          }
+          @case (AnamnesisFieldType.BOOLEAN) {
+            <app-switch [disabled]="true">{{ meta.field.label }}</app-switch>
+          }
+          @case (AnamnesisFieldType.RADIO) {
+            <app-button-toggle-group [disabled]="true" [label]="meta.field.label">
+              @for (option of meta.field.fieldArgs?.options ?? []; track option.value) {
+                <button btnToggle [value]="option.value" [disabled]="true">
+                  {{ option.label }}
+                </button>
+              }
+            </app-button-toggle-group>
+          }
+          @case (AnamnesisFieldType.SELECT) {
+            <label appLabel [for]="'anamnesis-preview-field-' + meta.field.id">{{
+              meta.field.label
+            }}</label>
+            <select appSelect [id]="'anamnesis-preview-field-' + meta.field.id" [disabled]="true">
+              <option>Selecione</option>
+              @for (option of meta.field.fieldArgs?.options ?? []; track option.value) {
+                <option>{{ option.label }}</option>
+              }
+            </select>
+          }
+          @case (AnamnesisFieldType.CHECKBOX) {
+            <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              {{ meta.field.label }}
+            </span>
+            @for (option of meta.field.fieldArgs?.options ?? []; track option.value) {
+              <app-checkbox [disabled]="true">{{ option.label }}</app-checkbox>
+            }
+          }
+        }
+
+        @if (meta.field.extraLabels?.description) {
+          <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
+        }
+      </div>
+    }
+  </div>
+</div>

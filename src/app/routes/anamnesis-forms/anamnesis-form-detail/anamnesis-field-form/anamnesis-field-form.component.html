@@ -1,9 +1,6 @@
-<h2
-  id="anamnesis-field-dialog-title"
-  class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
->
-  {{ isEditing ? 'Editar campo' : 'Novo campo' }}
-</h2>
+<h4 class="mb-3 text-sm font-bold text-neutral-800 dark:text-neutral-100">
+  {{ isEditing() ? 'Editar campo' : 'Novo campo' }}
+</h4>
 
 <form [formRoot]="f" class="flex flex-col gap-4">
   <app-form-field>
@@ -24,14 +21,14 @@
     <label appLabel for="anamnesis-field-section">Seção</label>
     <select appSelect [formField]="f.anamnesisSectionId" id="anamnesis-field-section">
       <option value="">Nenhuma</option>
-      @for (section of data.sections; track section.id) {
+      @for (section of sections(); track section.id) {
         <option [value]="section.id">{{ section.label }}</option>
       }
     </select>
   </app-form-field>
 
   <app-form-field>
-    <label appLabel for="anamnesis-field-description">Texto de ajuda (opcional)</label>
+    <label appLabel for="anamnesis-field-description">Texto de ajuda</label>
     <input appInput [formField]="f.description" id="anamnesis-field-description" type="text" />
   </app-form-field>
 
@@ -206,10 +203,10 @@
       btn
       btnPrimary
       type="submit"
-      [disabled]="isEditing && !f().dirty()"
+      [disabled]="isEditing() && !f().dirty()"
       [btnLoading]="f().submitting()"
     >
-      {{ isEditing ? 'Salvar' : 'Criar' }}
+      {{ isEditing() ? 'Salvar' : 'Criar' }}
     </button>
   </div>
 </form>

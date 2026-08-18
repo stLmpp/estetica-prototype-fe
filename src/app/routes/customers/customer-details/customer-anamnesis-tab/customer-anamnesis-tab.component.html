@@ -1,17 +1,17 @@
 <div class="flex flex-wrap items-center justify-between gap-4">
   <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Anamneses</h2>
   @if (canCreate()) {
-    <button
+    <a
       btn
       btnPrimary
-      type="button"
-      [disabled]="!activeForms().length"
-      [appPreloadLoader]="customerAnamnesisFormDialogLoader"
-      (click)="openCreateDialog()"
+      routerLink="new"
+      [attr.aria-disabled]="!activeForms().length"
+      [class.pointer-events-none]="!activeForms().length"
+      [class.opacity-50]="!activeForms().length"
     >
       <app-icon [icon]="LucidePlus" size="sm" color="white" />
       Nova anamnese
-    </button>
+    </a>
   }
 </div>
 
@@ -69,27 +69,17 @@
 
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
-    <button
-      iconBtn
-      type="button"
-      [icon]="LucideEye"
-      ariaLabel="Ver anamnese"
-      size="sm"
-      [appPreloadLoader]="customerAnamnesisDetailDialogLoader"
-      (click)="openDetailDialog(row)"
-    ></button>
+    <a iconBtn [routerLink]="[row.id]" [icon]="LucideEye" ariaLabel="Ver anamnese" size="sm"></a>
 
     @if (row.status === CustomerAnamnesisStatus.DRAFT) {
       @if (canUpdate()) {
-        <button
+        <a
           iconBtn
-          type="button"
+          [routerLink]="[row.id, 'edit']"
           [icon]="LucidePencil"
           ariaLabel="Editar anamnese"
           size="sm"
-          [appPreloadLoader]="customerAnamnesisFormDialogLoader"
-          (click)="openEditDialog(row)"
-        ></button>
+        ></a>
       }
       @if (canFinalize()) {
         <button

@@ -1,5 +1,13 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
 import {
   applyEach,
   form,
@@ -10,44 +18,39 @@ import {
   validate,
 } from '@angular/forms/signals';
 import { catchError, firstValueFrom, map, Observable, of } from 'rxjs';
-import { ButtonComponent } from '../../../components/button/button.component';
-import { FormFieldComponent } from '../../../components/form-field/form-field.component';
-import { IconButtonComponent } from '../../../components/icon-button/icon-button.component';
-import { InputDirective } from '../../../components/input/input.directive';
-import { LabelComponent } from '../../../components/label/label.component';
-import { SelectDirective } from '../../../components/select/select.directive';
-import { SwitchComponent } from '../../../components/switch/switch.component';
-import { ToastService } from '../../../components/toast/toast.service';
-import { extractApiErrorMessage } from '../../../model/api-error';
+import { ButtonComponent } from '../../../../components/button/button.component';
+import { FormFieldComponent } from '../../../../components/form-field/form-field.component';
+import { IconButtonComponent } from '../../../../components/icon-button/icon-button.component';
+import { InputDirective } from '../../../../components/input/input.directive';
+import { LabelComponent } from '../../../../components/label/label.component';
+import { SelectDirective } from '../../../../components/select/select.directive';
+import { SwitchComponent } from '../../../../components/switch/switch.component';
+import { ToastService } from '../../../../components/toast/toast.service';
+import { extractApiErrorMessage } from '../../../../model/api-error';
 import { LucideTrash2 } from '@lucide/angular';
 import {
   ANAMNESIS_FIELD_TYPE_LABELS,
   AnamnesisFieldType,
   CHOICE_FIELD_TYPES,
-} from '../anamnesis-field-type.enum';
+} from '../../anamnesis-field-type.enum';
 import {
   ANAMNESIS_FIELD_VALIDATION_TYPE_LABELS,
   AnamnesisFieldValidationType,
   VALIDATION_ARGS_KEY,
   VALIDATION_TYPES_BY_FIELD_TYPE,
-} from '../anamnesis-field-validation-type.enum';
+} from '../../anamnesis-field-validation-type.enum';
 import {
   AnamnesisFieldValidationPayload,
   CreateAnamnesisFieldPayload,
-} from '../anamnesis-field.dto';
+} from '../../anamnesis-field.dto';
 import {
   AnamnesisField,
+  AnamnesisFieldOption,
   AnamnesisFieldValidation,
   AnamnesisFieldValidationArgs,
-} from '../anamnesis-field.model';
-import { AnamnesisFieldService } from '../anamnesis-field.service';
-import { AnamnesisSection } from '../anamnesis-section.model';
-
-export interface AnamnesisFieldDialogData {
-  anamnesisFormId: string;
-  sections: AnamnesisSection[];
-  anamnesisField?: AnamnesisField;
-}
+} from '../../anamnesis-field.model';
+import { AnamnesisFieldService } from '../../anamnesis-field.service';
+import { AnamnesisSection } from '../../anamnesis-section.model';
 
 interface ValidationRowValue {
   validationType: AnamnesisFieldValidationType;
@@ -105,7 +108,7 @@ function buildValidationArgs(row: ValidationRowValue): AnamnesisFieldValidationA
 }
 
 @Component({
-  selector: 'app-anamnesis-field-dialog',
+  selector: 'app-anamnesis-field-form',
   imports: [
     ButtonComponent,
     FormField,
@@ -117,19 +120,24 @@ function buildValidationArgs(row: ValidationRowValue): AnamnesisFieldValidationA
     SelectDirective,
     SwitchComponent,
   ],
-  templateUrl: './anamnesis-field-dialog.component.html',
+  templateUrl: './anamnesis-field-form.component.html',
   host: {
     class:
-      'block max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-neutral-800',
+      'block rounded-xl border border-neutral-200 p-4 dark:border-neutral-700 dark:bg-neutral-800/50',
   },
 })
-export class AnamnesisFieldDialogComponent {
-  protected readonly data = inject<AnamnesisFieldDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<AnamnesisField | undefined>);
+export class AnamnesisFieldFormComponent {
+  readonly anamnesisFormId = input.required<string>();
+  readonly sections = input.required<AnamnesisSection[]>();
+  readonly anamnesisField = input<AnamnesisField>();
+
+  readonly saved = output<AnamnesisField>();
+  readonly cancelled = output<void>();
+
   private readonly anamnesisFieldService = inject(AnamnesisFieldService);
   private readonly toastService = inject(ToastService);
 
-  protected readonly isEditing = !!this.data.anamnesisField;
+  protected readonly isEditing = computed(() => !!this.anamnesisField());
   protected readonly submitErrorMessage = signal<string | null>(null);
 
   protected readonly AnamnesisFieldType = AnamnesisFieldType;
@@ -142,16 +150,14 @@ export class AnamnesisFieldDialogComponent {
   protected readonly LucideTrash2 = LucideTrash2;
 
   protected readonly model = signal({
-    label: this.data.anamnesisField?.label ?? '',
-    fieldType: this.data.anamnesisField?.fieldType ?? AnamnesisFieldType.TEXT,
-    anamnesisSectionId: this.data.anamnesisField?.anamnesisSectionId ?? '',
-    description: this.data.anamnesisField?.extraLabels?.description ?? '',
-    displayOrder: String(this.data.anamnesisField?.displayOrder ?? 0),
-    active: this.data.anamnesisField?.active ?? true,
-    options: this.data.anamnesisField?.fieldArgs?.options.map((option) => ({ ...option })) ?? [],
-    validations: (this.data.anamnesisField?.validations ?? []).map((validation) =>
-      toValidationRow(validation.validationType, validation.validationArgs, validation.active),
-    ),
+    label: '',
+    fieldType: AnamnesisFieldType.TEXT,
+    anamnesisSectionId: '',
+    description: '',
+    displayOrder: '0',
+    active: true,
+    options: [] as AnamnesisFieldOption[],
+    validations: [] as ValidationRowValue[],
   });
 
   protected readonly availableValidationTypes = computed(
@@ -160,14 +166,36 @@ export class AnamnesisFieldDialogComponent {
 
   constructor() {
     effect(() => {
+      const anamnesisField = this.anamnesisField();
+      if (anamnesisField) {
+        untracked(() => {
+          this.model.set({
+            label: anamnesisField.label,
+            fieldType: anamnesisField.fieldType,
+            anamnesisSectionId: anamnesisField.anamnesisSectionId ?? '',
+            description: anamnesisField.extraLabels?.description ?? '',
+            displayOrder: String(anamnesisField.displayOrder),
+            active: anamnesisField.active,
+            options: anamnesisField.fieldArgs?.options.map((option) => ({ ...option })) ?? [],
+            validations: (anamnesisField.validations ?? []).map((validation) =>
+              toValidationRow(
+                validation.validationType,
+                validation.validationArgs,
+                validation.active,
+              ),
+            ),
+          });
+        });
+      }
+    });
+
+    effect(() => {
       const allowedTypes = new Set(this.availableValidationTypes());
       this.model.update((value) => {
         const validations = value.validations.filter((validationRow) =>
           allowedTypes.has(validationRow.validationType),
         );
-        return validations.length === value.validations.length
-          ? value
-          : { ...value, validations };
+        return validations.length === value.validations.length ? value : { ...value, validations };
       });
     });
   }
@@ -237,7 +265,7 @@ export class AnamnesisFieldDialogComponent {
 
           const value = field().value();
           const payload: CreateAnamnesisFieldPayload = {
-            anamnesisFormId: this.data.anamnesisFormId,
+            anamnesisFormId: this.anamnesisFormId(),
             anamnesisSectionId: value.anamnesisSectionId || null,
             fieldType: value.fieldType,
             fieldArgs: CHOICE_FIELD_TYPES.has(value.fieldType)
@@ -271,9 +299,9 @@ export class AnamnesisFieldDialogComponent {
           }
 
           this.toastService.success(
-            this.isEditing ? 'Campo atualizado com sucesso.' : 'Campo criado com sucesso.',
+            this.isEditing() ? 'Campo atualizado com sucesso.' : 'Campo criado com sucesso.',
           );
-          this.dialogRef.close(result.anamnesisField);
+          this.saved.emit(result.anamnesisField);
         },
       },
     },
@@ -315,7 +343,7 @@ export class AnamnesisFieldDialogComponent {
   }
 
   private save(payload: CreateAnamnesisFieldPayload): Promise<SaveResult> {
-    const anamnesisField = this.data.anamnesisField;
+    const anamnesisField = this.anamnesisField();
     const request$: Observable<SaveResult> = anamnesisField
       ? this.anamnesisFieldService
           .update(anamnesisField.id, {
@@ -329,22 +357,20 @@ export class AnamnesisFieldDialogComponent {
             validations: payload.validations,
           })
           .pipe(
-            map(
-              (): SaveResult => ({
-                ok: true,
-                anamnesisField: {
-                  ...anamnesisField,
-                  anamnesisSectionId: payload.anamnesisSectionId ?? undefined,
-                  fieldType: payload.fieldType,
-                  fieldArgs: payload.fieldArgs ?? undefined,
-                  label: payload.label,
-                  extraLabels: payload.extraLabels ?? undefined,
-                  active: payload.active,
-                  displayOrder: payload.displayOrder,
-                  validations: mergeValidations(payload.validations, anamnesisField.validations),
-                },
-              }),
-            ),
+            map((): SaveResult => ({
+              ok: true,
+              anamnesisField: {
+                ...anamnesisField,
+                anamnesisSectionId: payload.anamnesisSectionId ?? undefined,
+                fieldType: payload.fieldType,
+                fieldArgs: payload.fieldArgs ?? undefined,
+                label: payload.label,
+                extraLabels: payload.extraLabels ?? undefined,
+                active: payload.active,
+                displayOrder: payload.displayOrder,
+                validations: mergeValidations(payload.validations, anamnesisField.validations),
+              },
+            })),
           )
       : this.anamnesisFieldService
           .create(payload)
@@ -363,6 +389,6 @@ export class AnamnesisFieldDialogComponent {
   }
 
   protected cancel() {
-    this.dialogRef.close(undefined);
+    this.cancelled.emit();
   }
 }

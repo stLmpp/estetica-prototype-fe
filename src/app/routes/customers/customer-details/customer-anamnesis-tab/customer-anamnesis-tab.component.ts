@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, Injector, TemplateRef, viewChild } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { LucideCheck, LucideEye, LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../../../components/alert/alert.component';
 import { BadgeComponent } from '../../../../components/badge/badge.component';
@@ -18,11 +18,8 @@ import { AuthStore } from '../../../../core/auth/auth.store';
 import { DialogService } from '../../../../core/dialog/dialog.service';
 import { AnamnesisFormService } from '../../../anamnesis-forms/anamnesis-form.service';
 import { CustomerDetailsStore } from '../customer-details.store';
-import { type CustomerAnamnesisDetailDialogData } from './customer-anamnesis-detail-dialog/customer-anamnesis-detail-dialog.component';
 import { type CustomerAnamnesisFinalizeDialogData } from './customer-anamnesis-finalize-dialog/customer-anamnesis-finalize-dialog.component';
-import { type CustomerAnamnesisFormDialogData } from './customer-anamnesis-form-dialog/customer-anamnesis-form-dialog.component';
 import { CustomerAnamnesis, CustomerAnamnesisStatus } from './customer-anamnesis.model';
-import { CustomerAnamnesisService } from './customer-anamnesis.service';
 import { CustomerAnamnesisTabStore, PAGE_SIZE } from './customer-anamnesis-tab.store';
 
 const FORMS_LIMIT = 100;
@@ -40,6 +37,7 @@ const DEFAULT_FORM_NAME = 'Formulário removido';
     LoadingOverlayDirective,
     PaginatorComponent,
     PreloadDirective,
+    RouterLink,
     TableComponent,
   ],
   templateUrl: './customer-anamnesis-tab.component.html',
@@ -51,7 +49,6 @@ export class CustomerAnamnesisTabComponent {
   private readonly authStore = inject(AuthStore);
   private readonly dialogService = inject(DialogService);
   private readonly anamnesisFormService = inject(AnamnesisFormService);
-  private readonly customerAnamnesisService = inject(CustomerAnamnesisService);
   private readonly injector = inject(Injector);
 
   protected readonly LucidePlus = LucidePlus;
@@ -106,14 +103,6 @@ export class CustomerAnamnesisTabComponent {
     { key: 'id', title: 'Ações', type: 'template', template: this.actionsTemplate },
   ]);
 
-  protected readonly customerAnamnesisFormDialogLoader = () =>
-    import('./customer-anamnesis-form-dialog/customer-anamnesis-form-dialog.component').then(
-      (m) => m.CustomerAnamnesisFormDialogComponent,
-    );
-  protected readonly customerAnamnesisDetailDialogLoader = () =>
-    import('./customer-anamnesis-detail-dialog/customer-anamnesis-detail-dialog.component').then(
-      (m) => m.CustomerAnamnesisDetailDialogComponent,
-    );
   protected readonly customerAnamnesisFinalizeDialogLoader = () =>
     import('./customer-anamnesis-finalize-dialog/customer-anamnesis-finalize-dialog.component').then(
       (m) => m.CustomerAnamnesisFinalizeDialogComponent,
@@ -121,74 +110,6 @@ export class CustomerAnamnesisTabComponent {
 
   protected goToPage(page: number) {
     this.store.setPage(page);
-  }
-
-  protected async openCreateDialog() {
-    const customerId = this.detailsStore.customerId();
-    const data: CustomerAnamnesisFormDialogData = { customerId, forms: this.activeForms() };
-    const dialogRef = await this.dialogService.open<
-      CustomerAnamnesis | undefined,
-      CustomerAnamnesisFormDialogData
-    >(this.customerAnamnesisFormDialogLoader, {
-      data,
-      size: 'xl',
-      injector: this.injector,
-      ariaModal: true,
-      ariaLabelledBy: 'customer-anamnesis-form-dialog-title',
-    });
-    dialogRef.closed.subscribe((result) => {
-      if (result) {
-        this.store.addRecord(result);
-      }
-    });
-  }
-
-  protected async openEditDialog(record: CustomerAnamnesis) {
-    const customerId = this.detailsStore.customerId();
-    const fullRecord = await firstValueFrom(
-      this.customerAnamnesisService.getById(customerId, record.id),
-    );
-    const data: CustomerAnamnesisFormDialogData = {
-      customerId,
-      forms: this.activeForms(),
-      customerAnamnesis: fullRecord,
-    };
-    const dialogRef = await this.dialogService.open<
-      CustomerAnamnesis | undefined,
-      CustomerAnamnesisFormDialogData
-    >(this.customerAnamnesisFormDialogLoader, {
-      data,
-      size: 'xl',
-      injector: this.injector,
-      ariaModal: true,
-      ariaLabelledBy: 'customer-anamnesis-form-dialog-title',
-    });
-    dialogRef.closed.subscribe((result) => {
-      if (result) {
-        this.store.patchRecord(record.id, result);
-      }
-    });
-  }
-
-  protected async openDetailDialog(record: CustomerAnamnesis) {
-    const customerId = this.detailsStore.customerId();
-    const fullRecord = await firstValueFrom(
-      this.customerAnamnesisService.getById(customerId, record.id),
-    );
-    const data: CustomerAnamnesisDetailDialogData = {
-      customerAnamnesis: fullRecord,
-      formName: this.formName(fullRecord.anamnesisFormId),
-    };
-    await this.dialogService.open<void, CustomerAnamnesisDetailDialogData>(
-      this.customerAnamnesisDetailDialogLoader,
-      {
-        data,
-        size: 'lg',
-        injector: this.injector,
-        ariaModal: true,
-        ariaLabelledBy: 'customer-anamnesis-detail-dialog-title',
-      },
-    );
   }
 
   protected async openFinalizeDialog(record: CustomerAnamnesis) {

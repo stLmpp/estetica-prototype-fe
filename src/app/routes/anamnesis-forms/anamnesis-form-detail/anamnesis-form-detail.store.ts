@@ -1,13 +1,12 @@
 import { computed, inject } from '@angular/core';
+import { patchState, signalStore, type, withComputed, withMethods, withState } from '@ngrx/signals';
 import {
-  patchState,
-  signalStore,
-  type,
-  withComputed,
-  withMethods,
-  withState,
-} from '@ngrx/signals';
-import { addEntity, removeEntity, setAllEntities, updateEntity, withEntities } from '@ngrx/signals/entities';
+  addEntity,
+  removeEntity,
+  setAllEntities,
+  updateEntity,
+  withEntities,
+} from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { forkJoin, map, pipe, switchMap, tap } from 'rxjs';
@@ -91,7 +90,9 @@ export const AnamnesisFormDetailStore = signalStore(
 
         patchAnamnesisForm(patch: Partial<AnamnesisForm>) {
           patchState(store, (state) => ({
-            anamnesisForm: state.anamnesisForm ? { ...state.anamnesisForm, ...patch } : state.anamnesisForm,
+            anamnesisForm: state.anamnesisForm
+              ? { ...state.anamnesisForm, ...patch }
+              : state.anamnesisForm,
           }));
         },
 
@@ -112,10 +113,7 @@ export const AnamnesisFormDetailStore = signalStore(
               next: () => patchState(store, removeEntity(section.id, { collection: 'sections' })),
               error: (error: unknown) => {
                 patchState(store, {
-                  errorMessage: extractApiErrorMessage(
-                    error,
-                    DEFAULT_DELETE_SECTION_ERROR_MESSAGE,
-                  ),
+                  errorMessage: extractApiErrorMessage(error, DEFAULT_DELETE_SECTION_ERROR_MESSAGE),
                 });
               },
             }),
@@ -127,7 +125,10 @@ export const AnamnesisFormDetailStore = signalStore(
         },
 
         patchField(fieldId: string, field: AnamnesisField) {
-          patchState(store, updateEntity({ id: fieldId, changes: field }, { collection: 'fields' }));
+          patchState(
+            store,
+            updateEntity({ id: fieldId, changes: field }, { collection: 'fields' }),
+          );
         },
 
         deleteField(field: AnamnesisField) {

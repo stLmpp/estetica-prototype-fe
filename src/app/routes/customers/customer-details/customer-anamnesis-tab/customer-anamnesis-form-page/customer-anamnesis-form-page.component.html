@@ -1,17 +1,23 @@
-<h2
-  id="customer-anamnesis-form-dialog-title"
-  class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
->
-  {{ isEditing ? 'Editar anamnese' : 'Nova anamnese' }}
-</h2>
+<div>
+  <a
+    [routerLink]="['/customers', customerId(), 'anamnesis']"
+    class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+  >
+    ← Voltar para anamneses
+  </a>
+</div>
 
-<form [formRoot]="f" class="flex flex-col gap-4">
-  @if (showFormSelector) {
+<h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">
+  {{ isEditing() ? 'Editar anamnese' : 'Nova anamnese' }}
+</h1>
+
+<form [formRoot]="f" class="mt-4 flex max-w-2xl flex-col gap-4">
+  @if (showFormSelector()) {
     <app-form-field>
       <label appLabel for="customer-anamnesis-form-id">Formulário</label>
       <select appSelect [formField]="f.anamnesisFormId" id="customer-anamnesis-form-id">
         <option value="">Selecione</option>
-        @for (anamnesisForm of data.forms; track anamnesisForm.id) {
+        @for (anamnesisForm of activeForms(); track anamnesisForm.id) {
           <option [value]="anamnesisForm.id">{{ anamnesisForm.name }}</option>
         }
       </select>
@@ -159,19 +165,22 @@
   }
 
   <div class="mt-2 flex justify-end gap-3">
-    <button btn btnOutline type="button" [disabled]="f().submitting()" (click)="cancel()">
+    <a
+      btn
+      btnOutline
+      [routerLink]="['/customers', customerId(), 'anamnesis']"
+      [class.pointer-events-none]="f().submitting()"
+    >
       Cancelar
-    </button>
+    </a>
     <button
       btn
       btnPrimary
       type="submit"
-      [disabled]="
-        !f.anamnesisFormId().value() || loadingFields() || (isEditing && !f().dirty())
-      "
+      [disabled]="!f.anamnesisFormId().value() || loadingFields() || (isEditing() && !f().dirty())"
       [btnLoading]="f().submitting()"
     >
-      {{ isEditing ? 'Salvar' : 'Criar' }}
+      {{ isEditing() ? 'Salvar' : 'Criar' }}
     </button>
   </div>
 </form>

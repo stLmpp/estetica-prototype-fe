@@ -1,12 +1,6 @@
 import { computed, inject } from '@angular/core';
 import { patchState, signalStore, withHooks, withMethods, withState } from '@ngrx/signals';
-import {
-  prependEntity,
-  removeEntity,
-  setAllEntities,
-  updateEntity,
-  withEntities,
-} from '@ngrx/signals/entities';
+import { removeEntity, setAllEntities, updateEntity, withEntities } from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
@@ -71,17 +65,6 @@ export const CustomerAnamnesisTabStore = signalStore(
 
     setPage(page: number) {
       patchState(store, { page });
-    },
-
-    addRecord(record: CustomerAnamnesis) {
-      patchState(store, prependEntity(record));
-      patchState(store, (state) => ({ total: state.total + 1 }));
-
-      const entities = store.entities();
-      const lastEntity = entities.at(-1);
-      if (entities.length > PAGE_SIZE && lastEntity) {
-        patchState(store, removeEntity(lastEntity.id));
-      }
     },
 
     patchRecord(recordId: string, changes: Partial<CustomerAnamnesis>) {

@@ -6,16 +6,10 @@
     </p>
   </div>
   @if (canCreate()) {
-    <button
-      btn
-      btnPrimary
-      type="button"
-      [appPreloadLoader]="anamnesisFormDialogLoader"
-      (click)="openCreateDialog()"
-    >
+    <a btn btnPrimary routerLink="new">
       <app-icon [icon]="LucidePlus" size="sm" color="white" />
       Novo formulário
-    </button>
+    </a>
   }
 </div>
 
@@ -69,20 +63,7 @@
 
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
-    <a [routerLink]="[row.id]" btn btnOutline class="!px-3 !py-1 text-xs">Seções e campos</a>
-
-    @let canUpdateForm = canUpdate();
-    @if (canUpdateForm) {
-      <button
-        iconBtn
-        type="button"
-        [icon]="LucidePencil"
-        ariaLabel="Editar formulário"
-        size="sm"
-        [appPreloadLoader]="anamnesisFormDialogLoader"
-        (click)="openEditDialog(row)"
-      ></button>
-    }
+    <a [routerLink]="[row.id]" btn btnOutline class="!px-3 !py-1 text-xs">Editar</a>
 
     @let canDeleteForm = canDelete();
     @if (canDeleteForm) {

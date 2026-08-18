@@ -4,7 +4,6 @@ import {
   effect,
   inject,
   input,
-  Injector,
   numberAttribute,
   signal,
   TemplateRef,
@@ -12,7 +11,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounce, form, FormField } from '@angular/forms/signals';
-import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
+import { LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../components/alert/alert.component';
 import { BadgeComponent } from '../../components/badge/badge.component';
 import { ButtonComponent } from '../../components/button/button.component';
@@ -23,13 +22,11 @@ import { InputDirective } from '../../components/input/input.directive';
 import { LabelComponent } from '../../components/label/label.component';
 import { LoadingOverlayDirective } from '../../components/loading-overlay/loading-overlay.directive';
 import { PaginatorComponent } from '../../components/paginator/paginator.component';
-import { PreloadDirective } from '../../components/preload/preload.directive';
 import { ColDef } from '../../components/table/model/col-def';
 import { TableEvent } from '../../components/table/model/table-event';
 import { TableComponent } from '../../components/table/table.component';
 import { AuthStore } from '../../core/auth/auth.store';
 import { DialogService } from '../../core/dialog/dialog.service';
-import { type AnamnesisFormDialogData } from './anamnesis-form-dialog/anamnesis-form-dialog.component';
 import { AnamnesisForm } from './anamnesis-form.model';
 import { AnamnesisFormsStore, PAGE_SIZE } from './anamnesis-forms.store';
 
@@ -49,7 +46,6 @@ const SEARCH_DEBOUNCE_MS = 300;
     LabelComponent,
     LoadingOverlayDirective,
     PaginatorComponent,
-    PreloadDirective,
     RouterLink,
     TableComponent,
   ],
@@ -71,10 +67,8 @@ export class AnamnesisFormsComponent {
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly injector = inject(Injector);
 
   protected readonly LucidePlus = LucidePlus;
-  protected readonly LucidePencil = LucidePencil;
   protected readonly LucideTrash2 = LucideTrash2;
   protected readonly pageSize = PAGE_SIZE;
 
@@ -85,16 +79,8 @@ export class AnamnesisFormsComponent {
 
   protected readonly trackBy = (anamnesisForm: AnamnesisForm) => anamnesisForm.id;
 
-  protected readonly anamnesisFormDialogLoader = () =>
-    import('./anamnesis-form-dialog/anamnesis-form-dialog.component').then(
-      (m) => m.AnamnesisFormDialogComponent,
-    );
-
   protected readonly canCreate = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { anamnesisField: ['create'] } }),
-  );
-  protected readonly canUpdate = computed(() =>
-    this.authStore.hasPermission({ orgPermissions: { anamnesisField: ['update'] } }),
   );
   protected readonly canDelete = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { anamnesisField: ['delete'] } }),
@@ -135,36 +121,6 @@ export class AnamnesisFormsComponent {
 
   protected goToPage(page: number) {
     this.store.setPage(page);
-  }
-
-  protected openCreateDialog() {
-    this.openFormDialog({});
-  }
-
-  protected openEditDialog(anamnesisForm: AnamnesisForm) {
-    this.openFormDialog({ anamnesisForm });
-  }
-
-  private async openFormDialog(data: AnamnesisFormDialogData) {
-    const dialogRef = await this.dialogService.open<
-      AnamnesisForm | undefined,
-      AnamnesisFormDialogData
-    >(this.anamnesisFormDialogLoader, {
-      data,
-      injector: this.injector,
-      ariaModal: true,
-      ariaLabelledBy: 'anamnesis-form-dialog-title',
-    });
-    dialogRef.closed.subscribe((result) => {
-      if (!result) {
-        return;
-      }
-      if (data.anamnesisForm) {
-        this.store.patchAnamnesisForm(data.anamnesisForm.id, result);
-      } else {
-        this.store.addAnamnesisForm(result);
-      }
-    });
   }
 
   protected openDeleteDialog(anamnesisForm: AnamnesisForm) {

@@ -7,13 +7,7 @@ import {
   withMethods,
   withState,
 } from '@ngrx/signals';
-import {
-  prependEntity,
-  removeEntity,
-  setAllEntities,
-  updateEntity,
-  withEntities,
-} from '@ngrx/signals/entities';
+import { removeEntity, setAllEntities, withEntities } from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
 import { pipe, switchMap, tap } from 'rxjs';
@@ -87,21 +81,6 @@ export const AnamnesisFormsStore = signalStore(
 
     setPage(page: number) {
       patchState(store, { page });
-    },
-
-    addAnamnesisForm(anamnesisForm: AnamnesisForm) {
-      patchState(store, prependEntity(anamnesisForm));
-      patchState(store, (state) => ({ total: state.total + 1 }));
-
-      const entities = store.entities();
-      const lastEntity = entities.at(-1);
-      if (entities.length > PAGE_SIZE && lastEntity) {
-        patchState(store, removeEntity(lastEntity.id));
-      }
-    },
-
-    patchAnamnesisForm(anamnesisFormId: string, changes: Partial<AnamnesisForm>) {
-      patchState(store, updateEntity({ id: anamnesisFormId, changes }));
     },
 
     deleteAnamnesisForm(anamnesisForm: AnamnesisForm) {

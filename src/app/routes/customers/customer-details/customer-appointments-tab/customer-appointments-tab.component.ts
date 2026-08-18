@@ -3,6 +3,8 @@ import { Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { BadgeComponent } from '../../../../components/badge/badge.component';
+import { ListItemComponent } from '../../../../components/list/list-item.component';
+import { ListComponent } from '../../../../components/list/list.component';
 import { LoadingOverlayDirective } from '../../../../components/loading-overlay/loading-overlay.directive';
 import { AppointmentStatus } from '../../../appointments/appointment-status.enum';
 import { AppointmentService } from '../../../appointments/appointment.service';
@@ -12,7 +14,14 @@ const HISTORY_LIMIT = 10;
 
 @Component({
   selector: 'app-customer-appointments-tab',
-  imports: [BadgeComponent, DatePipe, LoadingOverlayDirective, RouterLink],
+  imports: [
+    BadgeComponent,
+    DatePipe,
+    ListComponent,
+    ListItemComponent,
+    LoadingOverlayDirective,
+    RouterLink,
+  ],
   templateUrl: './customer-appointments-tab.component.html',
 })
 export class CustomerAppointmentsTabComponent {

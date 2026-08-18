@@ -1,11 +1,8 @@
-<h2
-  id="anamnesis-section-dialog-title"
-  class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
->
-  {{ isEditing ? 'Editar seção' : 'Nova seção' }}
-</h2>
+<h4 class="mb-3 text-sm font-bold text-neutral-800 dark:text-neutral-100">
+  {{ isEditing() ? 'Editar seção' : 'Nova seção' }}
+</h4>
 
-<form [formRoot]="f" class="flex flex-col gap-4">
+<form [formRoot]="f" class="flex flex-col gap-3">
   <app-form-field>
     <label appLabel for="anamnesis-section-label">Nome</label>
     <input appInput [formField]="f.label" id="anamnesis-section-label" type="text" />
@@ -30,7 +27,7 @@
     <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
   }
 
-  <div class="mt-2 flex justify-end gap-3">
+  <div class="flex justify-end gap-3">
     <button btn btnOutline type="button" [disabled]="f().submitting()" (click)="cancel()">
       Cancelar
     </button>
@@ -38,10 +35,10 @@
       btn
       btnPrimary
       type="submit"
-      [disabled]="isEditing && !f().dirty()"
+      [disabled]="isEditing() && !f().dirty()"
       [btnLoading]="f().submitting()"
     >
-      {{ isEditing ? 'Salvar' : 'Criar' }}
+      {{ isEditing() ? 'Salvar' : 'Criar' }}
     </button>
   </div>
 </form>
