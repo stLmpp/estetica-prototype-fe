@@ -23,3 +23,8 @@ export const CHOICE_FIELD_TYPES = new Set<AnamnesisFieldType>([
   AnamnesisFieldType.SELECT,
   AnamnesisFieldType.CHECKBOX,
 ]);
+
+export const SINGLE_CHOICE_FIELD_TYPES = new Set<AnamnesisFieldType>([
+  AnamnesisFieldType.RADIO,
+  AnamnesisFieldType.SELECT,
+]);

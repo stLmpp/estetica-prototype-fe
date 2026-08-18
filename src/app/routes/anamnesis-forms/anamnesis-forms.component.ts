@@ -4,6 +4,7 @@ import {
   effect,
   inject,
   input,
+  Injector,
   numberAttribute,
   signal,
   TemplateRef,
@@ -70,6 +71,7 @@ export class AnamnesisFormsComponent {
   private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly injector = inject(Injector);
 
   protected readonly LucidePlus = LucidePlus;
   protected readonly LucidePencil = LucidePencil;
@@ -149,6 +151,7 @@ export class AnamnesisFormsComponent {
       AnamnesisFormDialogData
     >(this.anamnesisFormDialogLoader, {
       data,
+      injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: 'anamnesis-form-dialog-title',
     });

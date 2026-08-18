@@ -40,10 +40,10 @@
         @for (answer of group.answers; track answer.id) {
           <div class="grid grid-cols-1 gap-1 sm:grid-cols-3 sm:gap-4">
             <dt class="text-sm text-neutral-500 dark:text-neutral-400">
-              {{ answer.anamnesisFieldLabel }}
+              {{ answer.label }}
             </dt>
             <dd class="text-sm text-neutral-800 sm:col-span-2 dark:text-neutral-100">
-              {{ formatAnswerValue(answer) }}
+              {{ answer.displayValue }}
             </dd>
           </div>
         }

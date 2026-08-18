@@ -132,6 +132,17 @@
               <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
             }
 
+            @if (row.value().invalid() && row.value().touched()) {
+              <p class="text-sm text-red-600 dark:text-red-400" role="alert">
+                {{ row.value().errors()[0]?.message }}
+              </p>
+            }
+            @if (row.checkboxOptions().invalid() && row.checkboxOptions().touched()) {
+              <p class="text-sm text-red-600 dark:text-red-400" role="alert">
+                {{ row.checkboxOptions().errors()[0]?.message }}
+              </p>
+            }
+
             @if (fieldErrorsByFieldId().get(meta.field.id); as messages) {
               <p class="text-sm text-red-600 dark:text-red-400" role="alert">
                 {{ messages.join(', ') }}
@@ -155,7 +166,9 @@
       btn
       btnPrimary
       type="submit"
-      [disabled]="!f.anamnesisFormId().value() || loadingFields()"
+      [disabled]="
+        !f.anamnesisFormId().value() || loadingFields() || (isEditing && !f().dirty())
+      "
       [btnLoading]="f().submitting()"
     >
       {{ isEditing ? 'Salvar' : 'Criar' }}

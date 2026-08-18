@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import {
   applyEach,
@@ -9,7 +9,7 @@ import {
   required,
   validate,
 } from '@angular/forms/signals';
-import { catchError, firstValueFrom, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, firstValueFrom, map, Observable, of } from 'rxjs';
 import { ButtonComponent } from '../../../components/button/button.component';
 import { FormFieldComponent } from '../../../components/form-field/form-field.component';
 import { IconButtonComponent } from '../../../components/icon-button/icon-button.component';
@@ -35,7 +35,11 @@ import {
   AnamnesisFieldValidationPayload,
   CreateAnamnesisFieldPayload,
 } from '../anamnesis-field.dto';
-import { AnamnesisField, AnamnesisFieldValidationArgs } from '../anamnesis-field.model';
+import {
+  AnamnesisField,
+  AnamnesisFieldValidation,
+  AnamnesisFieldValidationArgs,
+} from '../anamnesis-field.model';
 import { AnamnesisFieldService } from '../anamnesis-field.service';
 import { AnamnesisSection } from '../anamnesis-section.model';
 
@@ -69,6 +73,21 @@ function toValidationRow(
     pattern: validationArgs && 'pattern' in validationArgs ? validationArgs.pattern : '',
     active,
   };
+}
+
+function mergeValidations(
+  payloadValidations: AnamnesisFieldValidationPayload[],
+  previousValidations: AnamnesisFieldValidation[] | undefined,
+): AnamnesisFieldValidation[] {
+  const previousByType = new Map(
+    (previousValidations ?? []).map((validation) => [validation.validationType, validation]),
+  );
+  return payloadValidations.map((validationPayload) => ({
+    id: previousByType.get(validationPayload.validationType)?.id ?? crypto.randomUUID(),
+    validationType: validationPayload.validationType,
+    validationArgs: validationPayload.validationArgs ?? undefined,
+    active: validationPayload.active,
+  }));
 }
 
 function buildValidationArgs(row: ValidationRowValue): AnamnesisFieldValidationArgs | null {
@@ -138,6 +157,20 @@ export class AnamnesisFieldDialogComponent {
   protected readonly availableValidationTypes = computed(
     () => VALIDATION_TYPES_BY_FIELD_TYPE[this.f.fieldType().value()],
   );
+
+  constructor() {
+    effect(() => {
+      const allowedTypes = new Set(this.availableValidationTypes());
+      this.model.update((value) => {
+        const validations = value.validations.filter((validationRow) =>
+          allowedTypes.has(validationRow.validationType),
+        );
+        return validations.length === value.validations.length
+          ? value
+          : { ...value, validations };
+      });
+    });
+  }
 
   protected readonly f = form(
     this.model,
@@ -296,8 +329,22 @@ export class AnamnesisFieldDialogComponent {
             validations: payload.validations,
           })
           .pipe(
-            switchMap(() => this.anamnesisFieldService.getById(anamnesisField.id)),
-            map((updated): SaveResult => ({ ok: true, anamnesisField: updated })),
+            map(
+              (): SaveResult => ({
+                ok: true,
+                anamnesisField: {
+                  ...anamnesisField,
+                  anamnesisSectionId: payload.anamnesisSectionId ?? undefined,
+                  fieldType: payload.fieldType,
+                  fieldArgs: payload.fieldArgs ?? undefined,
+                  label: payload.label,
+                  extraLabels: payload.extraLabels ?? undefined,
+                  active: payload.active,
+                  displayOrder: payload.displayOrder,
+                  validations: mergeValidations(payload.validations, anamnesisField.validations),
+                },
+              }),
+            ),
           )
       : this.anamnesisFieldService
           .create(payload)

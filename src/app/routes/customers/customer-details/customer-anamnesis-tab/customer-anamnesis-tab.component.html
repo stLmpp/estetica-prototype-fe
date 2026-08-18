@@ -51,7 +51,8 @@
 />
 
 <ng-template #formTemplate let-row="row">
-  {{ formName(row.anamnesisFormId) }}
+  @let name = formNameById()[row.anamnesisFormId];
+  {{ name ?? 'Formulário removido' }}
 </ng-template>
 
 <ng-template #dateTemplate let-row="row">

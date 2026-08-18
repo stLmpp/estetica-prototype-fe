@@ -140,10 +140,6 @@
   </section>
 </div>
 
-<ng-template #fieldTypeTemplate let-row="row">
-  {{ fieldTypeLabel(row.fieldType) }}
-</ng-template>
-
 <ng-template #fieldStatusTemplate let-row="row">
   @if (row.active) {
     <app-badge primary>Ativo</app-badge>

@@ -95,10 +95,14 @@ export const CustomerAnamnesisTabStore = signalStore(
         tapResponse({
           next: () => {
             const isLastOnPage = store.entities().length === 1 && store.page() > 1;
+            const isFullPage = store.entities().length === PAGE_SIZE;
             if (isLastOnPage) {
               patchState(store, (state) => ({ page: state.page - 1 }));
-            } else {
+            } else if (isFullPage) {
               patchState(store, (state) => ({ reloadTrigger: state.reloadTrigger + 1 }));
+            } else {
+              patchState(store, removeEntity(record.id));
+              patchState(store, (state) => ({ total: state.total - 1, loading: false }));
             }
           },
           error: (error: unknown) => {

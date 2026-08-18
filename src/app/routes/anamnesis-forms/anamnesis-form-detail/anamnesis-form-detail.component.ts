@@ -1,4 +1,13 @@
-import { Component, computed, effect, inject, input, TemplateRef, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  Injector,
+  input,
+  TemplateRef,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
 import { AlertComponent } from '../../../components/alert/alert.component';
@@ -13,7 +22,7 @@ import { TableEvent } from '../../../components/table/model/table-event';
 import { TableComponent } from '../../../components/table/table.component';
 import { AuthStore } from '../../../core/auth/auth.store';
 import { DialogService } from '../../../core/dialog/dialog.service';
-import { ANAMNESIS_FIELD_TYPE_LABELS, AnamnesisFieldType } from '../anamnesis-field-type.enum';
+import { ANAMNESIS_FIELD_TYPE_LABELS } from '../anamnesis-field-type.enum';
 import { type AnamnesisFieldDialogData } from '../anamnesis-field-dialog/anamnesis-field-dialog.component';
 import { AnamnesisField } from '../anamnesis-field.model';
 import { AnamnesisForm } from '../anamnesis-form.model';
@@ -21,6 +30,10 @@ import { type AnamnesisFormDialogData } from '../anamnesis-form-dialog/anamnesis
 import { type AnamnesisSectionDialogData } from '../anamnesis-section-dialog/anamnesis-section-dialog.component';
 import { AnamnesisSection } from '../anamnesis-section.model';
 import { AnamnesisFormDetailStore } from './anamnesis-form-detail.store';
+
+type AnamnesisFieldInternal = AnamnesisField & {
+  fieldTypeLabel: string;
+};
 
 @Component({
   selector: 'app-anamnesis-form-detail',
@@ -47,15 +60,12 @@ export class AnamnesisFormDetailComponent {
   protected readonly store = inject(AnamnesisFormDetailStore);
   private readonly authStore = inject(AuthStore);
   private readonly dialogService = inject(DialogService);
+  private readonly injector = inject(Injector);
 
   protected readonly LucidePlus = LucidePlus;
   protected readonly LucidePencil = LucidePencil;
   protected readonly LucideTrash2 = LucideTrash2;
   protected readonly trackByFieldId = (field: AnamnesisField) => field.id;
-
-  protected fieldTypeLabel(fieldType: AnamnesisFieldType): string {
-    return ANAMNESIS_FIELD_TYPE_LABELS[fieldType];
-  }
 
   protected readonly canCreate = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { anamnesisField: ['create'] } }),
@@ -80,16 +90,14 @@ export class AnamnesisFormDetailComponent {
       (m) => m.AnamnesisFieldDialogComponent,
     );
 
-  private readonly fieldTypeTemplate =
-    viewChild.required<TemplateRef<TableEvent>>('fieldTypeTemplate');
   private readonly fieldStatusTemplate =
     viewChild.required<TemplateRef<TableEvent>>('fieldStatusTemplate');
   private readonly fieldActionsTemplate =
     viewChild.required<TemplateRef<TableEvent>>('fieldActionsTemplate');
 
-  protected readonly fieldColumns = computed<ColDef<AnamnesisField>[]>(() => [
+  protected readonly fieldColumns = computed<ColDef<AnamnesisFieldInternal>[]>(() => [
     { key: 'label', title: 'Campo' },
-    { key: 'fieldType', title: 'Tipo', type: 'template', template: this.fieldTypeTemplate },
+    { key: 'fieldTypeLabel', title: 'Tipo' },
     { key: 'displayOrder', title: 'Ordem' },
     { key: 'active', title: 'Status', type: 'template', template: this.fieldStatusTemplate },
     { key: 'id', title: 'Ações', type: 'template', template: this.fieldActionsTemplate },
@@ -97,8 +105,10 @@ export class AnamnesisFormDetailComponent {
 
   protected readonly groupedFields = computed(() => {
     const sections = this.store.sections();
-    const fields = this.store.fields();
-    const groups: { section?: AnamnesisSection; fields: AnamnesisField[] }[] = sections.map(
+    const fields: AnamnesisFieldInternal[] = this.store
+      .fields()
+      .map((field) => ({ ...field, fieldTypeLabel: ANAMNESIS_FIELD_TYPE_LABELS[field.fieldType] }));
+    const groups: { section?: AnamnesisSection; fields: AnamnesisFieldInternal[] }[] = sections.map(
       (section) => ({
         section,
         fields: fields.filter((field) => field.anamnesisSectionId === section.id),
@@ -122,6 +132,7 @@ export class AnamnesisFormDetailComponent {
       AnamnesisFormDialogData
     >(this.anamnesisFormDialogLoader, {
       data: { anamnesisForm },
+      injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: 'anamnesis-form-dialog-title',
     });
@@ -151,6 +162,7 @@ export class AnamnesisFormDetailComponent {
       AnamnesisSectionDialogData
     >(this.anamnesisSectionDialogLoader, {
       data,
+      injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: 'anamnesis-section-dialog-title',
     });
@@ -209,6 +221,7 @@ export class AnamnesisFormDetailComponent {
     >(this.anamnesisFieldDialogLoader, {
       data,
       size: 'lg',
+      injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: 'anamnesis-field-dialog-title',
     });

@@ -1,8 +1,19 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { form, FormField, FormRoot } from '@angular/forms/signals';
+import { applyEach, form, FormField, FormRoot, validate } from '@angular/forms/signals';
 import dayjs from 'dayjs/esm';
-import { catchError, firstValueFrom, forkJoin, map, Observable, of, switchMap } from 'rxjs';
+import {
+  catchError,
+  filter,
+  firstValueFrom,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { ButtonComponent } from '../../../../../components/button/button.component';
 import { ButtonToggleGroupComponent } from '../../../../../components/button-toggle-group/button-toggle-group.component';
 import { ButtonToggleDirective } from '../../../../../components/button-toggle-group/button-toggle.directive';
@@ -21,6 +32,7 @@ import {
   isApiErrorResponse,
 } from '../../../../../model/api-error';
 import { AnamnesisFieldType } from '../../../../anamnesis-forms/anamnesis-field-type.enum';
+import { AnamnesisFieldValidationType } from '../../../../anamnesis-forms/anamnesis-field-validation-type.enum';
 import { AnamnesisField } from '../../../../anamnesis-forms/anamnesis-field.model';
 import { AnamnesisFieldService } from '../../../../anamnesis-forms/anamnesis-field.service';
 import { AnamnesisForm } from '../../../../anamnesis-forms/anamnesis-form.model';
@@ -105,6 +117,99 @@ function buildAnswerRows(
   });
 }
 
+interface AnswerValidationError {
+  kind: string;
+  message: string;
+}
+
+function textAnswerValidationError(
+  field: AnamnesisField,
+  rawValue: string,
+): AnswerValidationError | null {
+  const trimmed = rawValue.trim();
+  for (const validation of field.validations ?? []) {
+    if (!validation.active) {
+      continue;
+    }
+    switch (validation.validationType) {
+      case AnamnesisFieldValidationType.REQUIRED:
+        if (!trimmed) {
+          return { kind: 'required', message: 'Campo obrigatório' };
+        }
+        break;
+      case AnamnesisFieldValidationType.MIN_LENGTH: {
+        const min = (validation.validationArgs as { length: number } | undefined)?.length ?? 0;
+        if (trimmed.length < min) {
+          return { kind: 'minLength', message: `Tamanho mínimo de ${min} caracteres` };
+        }
+        break;
+      }
+      case AnamnesisFieldValidationType.MAX_LENGTH: {
+        const max =
+          (validation.validationArgs as { length: number } | undefined)?.length ?? Infinity;
+        if (trimmed.length > max) {
+          return { kind: 'maxLength', message: `Tamanho máximo de ${max} caracteres` };
+        }
+        break;
+      }
+      case AnamnesisFieldValidationType.MIN_VALUE: {
+        if (!trimmed) {
+          break;
+        }
+        const num = Number(trimmed);
+        const min = (validation.validationArgs as { value: number } | undefined)?.value ?? -Infinity;
+        if (!Number.isNaN(num) && num < min) {
+          return { kind: 'minValue', message: `Valor mínimo de ${min}` };
+        }
+        break;
+      }
+      case AnamnesisFieldValidationType.MAX_VALUE: {
+        if (!trimmed) {
+          break;
+        }
+        const num = Number(trimmed);
+        const max = (validation.validationArgs as { value: number } | undefined)?.value ?? Infinity;
+        if (!Number.isNaN(num) && num > max) {
+          return { kind: 'maxValue', message: `Valor máximo de ${max}` };
+        }
+        break;
+      }
+      case AnamnesisFieldValidationType.PATTERN: {
+        if (!trimmed) {
+          break;
+        }
+        const pattern = (validation.validationArgs as { pattern: string } | undefined)?.pattern;
+        if (pattern) {
+          let matches: boolean;
+          try {
+            matches = new RegExp(pattern).test(trimmed);
+          } catch {
+            matches = true;
+          }
+          if (!matches) {
+            return { kind: 'pattern', message: 'Formato inválido' };
+          }
+        }
+        break;
+      }
+    }
+  }
+  return null;
+}
+
+function checkboxAnswerValidationError(
+  field: AnamnesisField,
+  options: CheckboxOptionValue[],
+): AnswerValidationError | null {
+  const requiresAtLeastOne = (field.validations ?? []).some(
+    (validation) => validation.active && validation.validationType === AnamnesisFieldValidationType.REQUIRED,
+  );
+  if (requiresAtLeastOne && !options.some((option) => option.checked)) {
+    return { kind: 'required', message: 'Selecione ao menos uma opção' };
+  }
+  return null;
+}
+
 @Component({
   selector: 'app-customer-anamnesis-form-dialog',
   imports: [
@@ -149,6 +254,10 @@ export class CustomerAnamnesisFormDialogComponent {
   private readonly fieldsSignal = signal<AnamnesisField[]>([]);
   private readonly sectionsSignal = signal<AnamnesisSection[]>([]);
 
+  private readonly fieldById = computed(
+    () => new Map(this.fieldsSignal().map((field) => [field.id, field])),
+  );
+
   protected readonly fieldMeta = computed<FieldMeta[]>(() => {
     const sections = this.sectionsSignal();
     const sectionLabelById = new Map(sections.map((section) => [section.id, section.label]));
@@ -181,41 +290,67 @@ export class CustomerAnamnesisFormDialogComponent {
     answers: [],
   });
 
-  protected readonly f = form(this.model, {
-    submission: {
-      action: async (field) => {
-        this.submitErrorMessage.set(null);
-        this.fieldErrorsByFieldId.set(new Map());
+  protected readonly f = form(
+    this.model,
+    (schema) => {
+      applyEach(schema.answers, (row) => {
+        validate(row.value, ({ value, valueOf }) => {
+          const field = this.fieldById().get(valueOf(row.anamnesisFieldId));
+          if (
+            !field ||
+            field.fieldType === AnamnesisFieldType.BOOLEAN ||
+            field.fieldType === AnamnesisFieldType.CHECKBOX
+          ) {
+            return null;
+          }
+          return textAnswerValidationError(field, value());
+        });
+        validate(row.checkboxOptions, ({ value, valueOf }) => {
+          const field = this.fieldById().get(valueOf(row.anamnesisFieldId));
+          if (!field || field.fieldType !== AnamnesisFieldType.CHECKBOX) {
+            return null;
+          }
+          return checkboxAnswerValidationError(field, value());
+        });
+      });
+    },
+    {
+      submission: {
+        action: async (field) => {
+          this.submitErrorMessage.set(null);
+          this.fieldErrorsByFieldId.set(new Map());
 
-        const value = field().value();
-        if (!value.anamnesisFormId) {
-          return;
-        }
+          const value = field().value();
+          if (!value.anamnesisFormId) {
+            return;
+          }
 
-        const answers = this.buildAnswerPayloads(value.answers);
-        const result = await this.save(value, answers);
+          const answers = this.buildAnswerPayloads(value.answers);
+          const result = await this.save(value, answers);
 
-        if (!result.ok) {
-          this.submitErrorMessage.set(result.message);
-          this.fieldErrorsByFieldId.set(result.fieldErrors);
-          return;
-        }
+          if (!result.ok) {
+            this.submitErrorMessage.set(result.message);
+            this.fieldErrorsByFieldId.set(result.fieldErrors);
+            return;
+          }
 
-        this.toastService.success(
-          this.isEditing ? 'Anamnese atualizada com sucesso.' : 'Anamnese criada com sucesso.',
-        );
-        this.dialogRef.close(result.customerAnamnesis);
+          this.toastService.success(
+            this.isEditing ? 'Anamnese atualizada com sucesso.' : 'Anamnese criada com sucesso.',
+          );
+          this.dialogRef.close(result.customerAnamnesis);
+        },
       },
     },
-  });
+  );
 
   constructor() {
-    effect(() => {
-      const anamnesisFormId = this.f.anamnesisFormId().value();
-      if (anamnesisFormId) {
-        this.loadFieldsForForm(anamnesisFormId);
-      }
-    });
+    toObservable(computed(() => this.f.anamnesisFormId().value()))
+      .pipe(
+        filter((anamnesisFormId): anamnesisFormId is string => !!anamnesisFormId),
+        switchMap((anamnesisFormId) => this.loadFieldsForForm$(anamnesisFormId)),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
   }
 
   private initialFormId(): string {
@@ -228,17 +363,17 @@ export class CustomerAnamnesisFormDialogComponent {
     return '';
   }
 
-  private loadFieldsForForm(anamnesisFormId: string) {
+  private loadFieldsForForm$(anamnesisFormId: string): Observable<void> {
     this.loadingFields.set(true);
     this.loadFieldsErrorMessage.set(null);
 
-    forkJoin({
+    return forkJoin({
       fields: this.anamnesisFieldService
         .list({ anamnesisFormId, active: true, limit: FIELDS_LIMIT })
         .pipe(map((result) => result.items)),
       sections: this.anamnesisSectionService.list(anamnesisFormId),
-    }).subscribe({
-      next: ({ fields, sections }) => {
+    }).pipe(
+      tap(({ fields, sections }) => {
         const sortedFields = [...fields].sort(byDisplayOrder(sections));
         this.fieldsSignal.set(sortedFields);
         this.sectionsSignal.set(sections);
@@ -247,12 +382,14 @@ export class CustomerAnamnesisFormDialogComponent {
           answers: buildAnswerRows(sortedFields, this.data.customerAnamnesis?.answers),
         }));
         this.loadingFields.set(false);
-      },
-      error: (error: unknown) => {
+      }),
+      map(() => undefined),
+      catchError((error: unknown) => {
         this.loadingFields.set(false);
         this.loadFieldsErrorMessage.set(extractApiErrorMessage(error, DEFAULT_LOAD_ERROR_MESSAGE));
-      },
-    });
+        return of(undefined);
+      }),
+    );
   }
 
   private buildAnswerPayloads(rows: AnswerRowValue[]): CustomerAnamnesisAnswerPayload[] {
@@ -277,19 +414,15 @@ export class CustomerAnamnesisFormDialogComponent {
         const values = row.checkboxOptions
           .filter((option) => option.checked)
           .map((option) => option.value);
-        if (values.length) {
-          payloads.push({
-            anamnesisFieldId: row.anamnesisFieldId,
-            value: '',
-            extraValues: { values },
-          });
-        }
+        payloads.push({
+          anamnesisFieldId: row.anamnesisFieldId,
+          value: '',
+          extraValues: { values },
+        });
         continue;
       }
 
-      if (row.value.trim()) {
-        payloads.push({ anamnesisFieldId: row.anamnesisFieldId, value: row.value.trim() });
-      }
+      payloads.push({ anamnesisFieldId: row.anamnesisFieldId, value: row.value.trim() });
     }
 
     return payloads;
@@ -303,10 +436,15 @@ export class CustomerAnamnesisFormDialogComponent {
       ? this.customerAnamnesisService
           .update(this.data.customerId, customerAnamnesis.id, { date: isoDate, answers })
           .pipe(
-            switchMap(() =>
-              this.customerAnamnesisService.getById(this.data.customerId, customerAnamnesis.id),
+            map(
+              (): SaveResult => ({
+                ok: true,
+                customerAnamnesis: {
+                  ...customerAnamnesis,
+                  date: isoDate ?? customerAnamnesis.date,
+                },
+              }),
             ),
-            map((updated): SaveResult => ({ ok: true, customerAnamnesis: updated })),
           )
       : this.customerAnamnesisService
           .create(this.data.customerId, {

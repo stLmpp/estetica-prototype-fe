@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, TemplateRef, viewChild } from '@angular/core';
+import { Component, computed, inject, Injector, TemplateRef, viewChild } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { LucideCheck, LucideEye, LucidePencil, LucidePlus, LucideTrash2 } from '@lucide/angular';
@@ -26,6 +26,7 @@ import { CustomerAnamnesisService } from './customer-anamnesis.service';
 import { CustomerAnamnesisTabStore, PAGE_SIZE } from './customer-anamnesis-tab.store';
 
 const FORMS_LIMIT = 100;
+const DEFAULT_FORM_NAME = 'Formulário removido';
 
 @Component({
   selector: 'app-customer-anamnesis-tab',
@@ -51,6 +52,7 @@ export class CustomerAnamnesisTabComponent {
   private readonly dialogService = inject(DialogService);
   private readonly anamnesisFormService = inject(AnamnesisFormService);
   private readonly customerAnamnesisService = inject(CustomerAnamnesisService);
+  private readonly injector = inject(Injector);
 
   protected readonly LucidePlus = LucidePlus;
   protected readonly LucideEye = LucideEye;
@@ -78,12 +80,16 @@ export class CustomerAnamnesisTabComponent {
   });
   protected readonly forms = computed(() => this.formsResource.value()?.items ?? []);
   protected readonly activeForms = computed(() => this.forms().filter((form) => form.active));
-  private readonly formNameById = computed(
-    () => new Map(this.forms().map((form) => [form.id, form.name])),
+  protected readonly formNameById = computed(
+    () =>
+      Object.fromEntries(this.forms().map((form) => [form.id, form.name])) as Record<
+        string,
+        string
+      >,
   );
 
   protected formName(anamnesisFormId: string): string {
-    return this.formNameById().get(anamnesisFormId) ?? 'Formulário removido';
+    return this.formNameById()[anamnesisFormId] ?? DEFAULT_FORM_NAME;
   }
 
   protected readonly trackBy = (record: CustomerAnamnesis) => record.id;
@@ -126,6 +132,7 @@ export class CustomerAnamnesisTabComponent {
     >(this.customerAnamnesisFormDialogLoader, {
       data,
       size: 'xl',
+      injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: 'customer-anamnesis-form-dialog-title',
     });
@@ -152,6 +159,7 @@ export class CustomerAnamnesisTabComponent {
     >(this.customerAnamnesisFormDialogLoader, {
       data,
       size: 'xl',
+      injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: 'customer-anamnesis-form-dialog-title',
     });
@@ -176,6 +184,7 @@ export class CustomerAnamnesisTabComponent {
       {
         data,
         size: 'lg',
+        injector: this.injector,
         ariaModal: true,
         ariaLabelledBy: 'customer-anamnesis-detail-dialog-title',
       },
@@ -190,6 +199,7 @@ export class CustomerAnamnesisTabComponent {
       CustomerAnamnesisFinalizeDialogData
     >(this.customerAnamnesisFinalizeDialogLoader, {
       data,
+      injector: this.injector,
       ariaModal: true,
       ariaLabelledBy: 'customer-anamnesis-finalize-dialog-title',
     });
