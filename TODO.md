@@ -81,6 +81,17 @@ move to `TODO_DONE.md` instead of being deleted outright.
       reserve `string` model fields for genuinely string-shaped API values
       (money, dates, ids) — across all the forms listed above, not just
       new ones.
+- [ ] No UI exists for customer follow-ups yet. Blocked on the backend TODO
+      of the same name (`estetica-prototype-api`'s `TODO.md`) — the DB
+      schema (`customer_followup`/`followup_item`: a dated note per
+      customer with priced/quantified follow-up items underneath) exists,
+      but there's no feature module or endpoints to build against yet.
+      Once available, the natural place is a new `customer-followup-tab`
+      alongside the existing `customer-details` tabs
+      (`customer-anamnesis-tab`, `customer-appointments-tab`,
+      `customer-sales-tab`, etc.) — actual UX/workflow (how a follow-up
+      gets created, whether it's tied to a specific appointment/procedure,
+      reminders) not designed yet.
 - [ ] Custom colors per organization (branding). Blocked on the backend
       TODO of the same name (`estetica-prototype-api`'s `TODO.md`) —
       needs an org-level color field(s) exposed on `activeOrganization`
