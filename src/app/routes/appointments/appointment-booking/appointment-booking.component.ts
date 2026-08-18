@@ -34,7 +34,7 @@ export class AppointmentBookingComponent {
   private readonly store = inject(AppointmentBookingStore);
 
   protected readonly steps = computed(() =>
-    STEPS.map((step) => ({
+    STEPS.map((step, index) => ({
       ...step,
       isStepReachable: isBookingStepReachable(index, this.store),
     })),
