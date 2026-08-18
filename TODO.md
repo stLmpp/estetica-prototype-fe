@@ -69,6 +69,26 @@ move to `TODO_DONE.md` instead of being deleted outright.
       `customer-sales-tab`, etc.) — actual UX/workflow (how a follow-up
       gets created, whether it's tied to a specific appointment/procedure,
       reminders) not designed yet.
+- [ ] Customer-followup before/after photos. Blocked on the backend TODO
+      of the same name (`estetica-prototype-api`'s `TODO.md`) — needs the
+      storage/upload design decided there first. Once available, the
+      natural place is inside the future `customer-followup-tab` (see the
+      customer-followup UI TODO above): an upload control per follow-up
+      (likely two slots or a `BEFORE`/`AFTER` toggle, matching whatever
+      the backend's `followup_photo.type` ends up being) and a viewer
+      (side-by-side or a slider comparison) for reviewing existing photos.
+      Actual upload flow (direct-to-bucket via presigned URL vs. through
+      the API) depends on what the backend decides.
+- [ ] Sale receipts (PDF) have no frontend surface — blocked on the
+      backend TODO of the same name. Once an endpoint exists,
+      `sale-details.component` is the natural place for a "Baixar recibo" /
+      "Gerar recibo" action (mirroring the existing view/download actions
+      elsewhere, e.g. `document`/`Ver venda` icon buttons in
+      `appointments.component.html`). Since generation is meant to be
+      idempotent server-side, the frontend action can be a plain
+      link/download without its own loading-then-cache logic — confirm
+      that holds once the backend's actual response shape (direct file vs.
+      a URL to fetch) is decided.
 - [ ] Custom colors per organization (branding). Blocked on the backend
       TODO of the same name (`estetica-prototype-api`'s `TODO.md`) —
       needs an org-level color field(s) exposed on `activeOrganization`
