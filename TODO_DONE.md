@@ -3,6 +3,32 @@
 Completed items moved out of `TODO.md`, kept for history instead of deleted
 outright.
 
+- [x] (2026-08-18) Every Signal Forms form with a `type="number"` input
+      modeled that field as `string` in its form model, converting with
+      `Number(...)` only when building the API payload, out of an
+      unverified assumption that Signal Forms' native `<input>` support
+      might not bind a `number`-typed field to `type="number"` cleanly.
+      Verified against `@angular/forms/signals`' own source
+      (`getNativeControlValue`/`setNativeControlValue` in
+      `node_modules/@angular/forms/fesm2022/signals.mjs`): `type="number"`
+      inputs read/write via `element.valueAsNumber` natively against a
+      `number | null` model field — the string-everywhere pattern was
+      habit, not a requirement. Migrated every plain-integer field to
+      `number | null`: `defaultDuration` in
+      `catalog-item-form-dialog.component.ts`, `durationMinutes` in
+      `appointment-booking.store.ts`/`schedule-step.component.ts`/
+      `review-step.component.ts`, and `quantity`/`installmentCount` in
+      `sale-form.component.ts` — plus `installmentCount` in
+      `add-sale-transaction-dialog.component.ts`, which had the identical
+      pattern but wasn't in the original TODO's file list. Left
+      money/currency fields (`priceApplied`, `amount`, etc.) as `string`,
+      since those genuinely need to stay strings end-to-end (Postgres
+      `numeric` columns come back as strings from drizzle to avoid
+      floating-point precision loss). Verified in-browser: catalog-item
+      duration edit (pre-filled, edited, saved, round-tripped correctly)
+      and sale-form quantity (default 1, total recalculates correctly on
+      change).
+
 - [x] `ConfirmDialogComponent`'s old fixed confirm/cancel API was replaced by
       an `actions: ConfirmDialogAction[]` array, where each action carries
       its own `btn`-style variant flags and an optional `onClick` callback

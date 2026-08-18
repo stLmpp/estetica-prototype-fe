@@ -26,7 +26,7 @@ interface FormModel {
   paymentMethod: PaymentMethod | '';
   amount: string;
   installments: boolean;
-  installmentCount: string;
+  installmentCount: number | null;
   dueDate: string;
   receivedNow: boolean;
   markFirstInstallmentAsReceived: boolean;
@@ -41,7 +41,7 @@ function emptyModel(): FormModel {
     paymentMethod: '',
     amount: '',
     installments: false,
-    installmentCount: '2',
+    installmentCount: 2,
     dueDate: '',
     receivedNow: false,
     markFirstInstallmentAsReceived: false,
@@ -100,8 +100,8 @@ export class AddSaleTransactionDialogComponent {
         when: (ctx) => ctx.valueOf(schema.installments),
       });
       validate(schema.installmentCount, ({ value }) => {
-        const count = Number(value().trim());
-        return !value().trim() || (Number.isInteger(count) && count >= 2)
+        const count = value();
+        return count === null || (Number.isInteger(count) && count >= 2)
           ? null
           : { kind: 'invalidInstallmentCount', message: 'Mínimo de 2 parcelas' };
       });
@@ -137,7 +137,7 @@ export class AddSaleTransactionDialogComponent {
       type: this.data.type,
       paymentMethod: value.installments ? PaymentMethod.CreditCard : (value.paymentMethod as PaymentMethod),
       amount: value.amount,
-      installmentCount: value.installments ? Number(value.installmentCount) : undefined,
+      installmentCount: value.installments ? value.installmentCount! : undefined,
       dueDate: value.dueDate || undefined,
       receivedAt: !value.installments && value.receivedNow ? new Date().toISOString() : undefined,
       markFirstInstallmentAsReceived: value.installments ? value.markFirstInstallmentAsReceived : undefined,

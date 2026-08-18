@@ -60,8 +60,8 @@ export class CatalogItemFormDialogComponent {
     itemType: this.data.catalogItem?.itemType ?? CatalogItemType.Product,
     defaultPrice: this.data.catalogItem?.defaultPrice ?? '',
     defaultDuration: this.data.catalogItem?.defaultDuration
-      ? String(isoDurationToMinutes(this.data.catalogItem.defaultDuration))
-      : '',
+      ? isoDurationToMinutes(this.data.catalogItem.defaultDuration)
+      : null,
     active: this.data.catalogItem?.active ?? true,
   });
 
@@ -78,8 +78,8 @@ export class CatalogItemFormDialogComponent {
         when: (ctx) => ctx.valueOf(schema.itemType) === CatalogItemType.Service,
       });
       validate(schema.defaultDuration, ({ value }) => {
-        const trimmed = value().trim();
-        if (!trimmed || (Number.isInteger(Number(trimmed)) && Number(trimmed) > 0)) {
+        const duration = value();
+        if (duration === null || (Number.isInteger(duration) && duration > 0)) {
           return null;
         }
         return { kind: 'invalidDuration', message: 'Duração inválida' };
@@ -96,8 +96,8 @@ export class CatalogItemFormDialogComponent {
             itemType: value.itemType,
             defaultPrice: value.defaultPrice.trim() || null,
             defaultDuration:
-              value.itemType === CatalogItemType.Service && value.defaultDuration.trim()
-                ? minutesToIsoDuration(Number(value.defaultDuration.trim()))
+              value.itemType === CatalogItemType.Service && value.defaultDuration
+                ? minutesToIsoDuration(value.defaultDuration)
                 : null,
             active: value.active,
           };

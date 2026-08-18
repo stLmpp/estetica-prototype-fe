@@ -141,8 +141,8 @@ export class ScheduleStepComponent {
     required(schema.startTime, { message: 'Horário é obrigatório' });
     required(schema.durationMinutes, { message: 'Duração é obrigatória' });
     validate(schema.durationMinutes, ({ value }) => {
-      const trimmed = value().trim();
-      if (Number.isInteger(Number(trimmed)) && Number(trimmed) > 0) {
+      const duration = value();
+      if (duration === null || (Number.isInteger(duration) && duration > 0)) {
         return null;
       }
       return { kind: 'invalidDuration', message: 'Duração inválida' };
@@ -177,7 +177,7 @@ export class ScheduleStepComponent {
     if (hours === undefined || minutes === undefined) {
       return '';
     }
-    const totalMinutes = hours * 60 + minutes + Number(durationMinutes);
+    const totalMinutes = hours * 60 + minutes + (durationMinutes ?? 0);
     const endHours = Math.floor(totalMinutes / 60) % 24;
     const endMinutes = totalMinutes % 60;
     return `${pad(endHours)}:${pad(endMinutes)}`;

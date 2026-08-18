@@ -32,7 +32,7 @@ const DEFAULT_ERROR_MESSAGE = 'Não foi possível criar a venda. Tente novamente
 interface SaleItemFormValue {
   catalogItemId: string;
   catalogItemName: string;
-  quantity: string;
+  quantity: number | null;
   priceApplied: string;
   defaultPrice: string;
 }
@@ -41,7 +41,7 @@ interface SaleTransactionFormValue {
   paymentMethod: PaymentMethod | '';
   amount: string;
   installments: boolean;
-  installmentCount: string;
+  installmentCount: number | null;
   dueDate: string;
   receivedNow: boolean;
   markFirstInstallmentAsReceived: boolean;
@@ -61,7 +61,7 @@ function emptyModel(): SaleFormModel {
 }
 
 function emptyItem(): SaleItemFormValue {
-  return { catalogItemId: '', catalogItemName: '', quantity: '1', priceApplied: '', defaultPrice: '' };
+  return { catalogItemId: '', catalogItemName: '', quantity: 1, priceApplied: '', defaultPrice: '' };
 }
 
 function emptyTransaction(): SaleTransactionFormValue {
@@ -69,7 +69,7 @@ function emptyTransaction(): SaleTransactionFormValue {
     paymentMethod: '',
     amount: '',
     installments: false,
-    installmentCount: '2',
+    installmentCount: 2,
     dueDate: '',
     receivedNow: false,
     markFirstInstallmentAsReceived: false,
@@ -151,7 +151,7 @@ export class SaleFormComponent {
         {
           catalogItemId: appointment.catalogItemId,
           catalogItemName: appointment.catalogItemName,
-          quantity: '1',
+          quantity: 1,
           priceApplied: appointment.priceApplied,
           defaultPrice: appointment.priceApplied,
         },
@@ -171,8 +171,8 @@ export class SaleFormComponent {
         required(item.catalogItemId, { message: 'Item é obrigatório' });
         required(item.quantity, { message: 'Quantidade é obrigatória' });
         validate(item.quantity, ({ value }) => {
-          const quantity = Number(value().trim());
-          return Number.isInteger(quantity) && quantity > 0
+          const quantity = value();
+          return quantity !== null && Number.isInteger(quantity) && quantity > 0
             ? null
             : { kind: 'invalidQuantity', message: 'Quantidade deve ser maior que zero' };
         });
@@ -191,8 +191,8 @@ export class SaleFormComponent {
           when: (ctx) => ctx.valueOf(transaction.installments),
         });
         validate(transaction.installmentCount, ({ value }) => {
-          const count = Number(value().trim());
-          return !value().trim() || (Number.isInteger(count) && count >= 2)
+          const count = value();
+          return count === null || (Number.isInteger(count) && count >= 2)
             ? null
             : { kind: 'invalidInstallmentCount', message: 'Mínimo de 2 parcelas' };
         });
@@ -232,7 +232,7 @@ export class SaleFormComponent {
     const items = this.f.items().value();
     const total = items.reduce((sum, item) => {
       const price = toBig(item.priceApplied) ?? toBig(item.defaultPrice);
-      const quantity = Number(item.quantity) || 0;
+      const quantity = item.quantity ?? 0;
       return price ? sum.plus(price.times(quantity)) : sum;
     }, new Big(0));
     return total.toFixed(2);
@@ -246,8 +246,13 @@ export class SaleFormComponent {
         return sum;
       }
       if (transaction.installments) {
-        const installmentCount = Number(transaction.installmentCount);
-        if (!transaction.markFirstInstallmentAsReceived || !Number.isInteger(installmentCount) || installmentCount < 2) {
+        const installmentCount = transaction.installmentCount;
+        if (
+          !transaction.markFirstInstallmentAsReceived ||
+          installmentCount === null ||
+          !Number.isInteger(installmentCount) ||
+          installmentCount < 2
+        ) {
           return sum;
         }
         return sum.plus(amount.div(installmentCount).round(2, Big.roundDown));
@@ -323,7 +328,7 @@ export class SaleFormComponent {
   private buildPayload(value: SaleFormModel): SalePayload {
     const items: SaleItemPayload[] = value.items.map((item) => ({
       catalogItemId: item.catalogItemId,
-      quantity: Number(item.quantity),
+      quantity: item.quantity!,
       priceApplied: item.priceApplied.trim() || undefined,
     }));
 
@@ -331,7 +336,7 @@ export class SaleFormComponent {
       type: SaleTransactionType.Payment,
       paymentMethod: transaction.installments ? PaymentMethod.CreditCard : (transaction.paymentMethod as PaymentMethod),
       amount: transaction.amount,
-      installmentCount: transaction.installments ? Number(transaction.installmentCount) : undefined,
+      installmentCount: transaction.installments ? transaction.installmentCount! : undefined,
       dueDate: transaction.dueDate || undefined,
       receivedAt:
         !transaction.installments && transaction.receivedNow ? new Date().toISOString() : undefined,

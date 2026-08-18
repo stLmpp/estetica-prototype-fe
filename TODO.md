@@ -58,29 +58,6 @@ move to `TODO_DONE.md` instead of being deleted outright.
       (`appointment-booking/steps/schedule-step/`), which doesn't have an
       equivalent standalone widget yet. Add reschedule support once that
       exists, or extract a reusable version of the schedule-step picker.
-- [ ] Every Signal Forms form with a `type="number"` input models that field
-      as `string` in its form model, converting with `Number(...)` only when
-      building the API payload — see `defaultDuration` in
-      `catalog-item-form-dialog.component.ts`, `durationMinutes` in
-      `appointment-booking.store.ts`, and `quantity`/`installmentCount` in
-      `sale-form.component.ts` (added copying that same pattern, since it
-      was the only precedent found at the time). That makes sense for
-      money/currency fields (`priceApplied`, `amount`, etc.) — the API
-      itself represents those as strings, since the backend's Postgres
-      `numeric` columns come back as strings from drizzle to avoid
-      floating-point precision loss — but plain integer fields (quantity,
-      duration in minutes, installment count) don't have that precision
-      concern; JS `number` represents them exactly, and the backend DTOs
-      already type them as `number` on the wire (see `sale.dto.ts`'s
-      `SaleItemPayload.quantity: number`). Figure out whether the
-      string-everywhere pattern was a deliberate choice (e.g. Angular
-      Signal Forms' native `<input>` support doesn't cleanly bind a
-      `number`-typed field to `type="number"` — unverified either way) or
-      just copied from the currency-field pattern out of habit. If
-      `number` binds fine, migrate every integer-typed form field to it and
-      reserve `string` model fields for genuinely string-shaped API values
-      (money, dates, ids) — across all the forms listed above, not just
-      new ones.
 - [ ] No UI exists for customer follow-ups yet. Blocked on the backend TODO
       of the same name (`estetica-prototype-api`'s `TODO.md`) — the DB
       schema (`customer_followup`/`followup_item`: a dated note per

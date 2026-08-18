@@ -26,7 +26,7 @@ import { tapResponse } from '@ngrx/operators';
 
 const STORAGE_KEY = 'appointment-booking';
 const MAX_LIMIT = 100;
-const DEFAULT_DURATION_MINUTES = '60';
+const DEFAULT_DURATION_MINUTES = 60;
 const DEFAULT_SERVICES_ERROR_MESSAGE = 'Não foi possível carregar os serviços.';
 const DEFAULT_EMPLOYEES_ERROR_MESSAGE = 'Não foi possível carregar os profissionais.';
 const DEFAULT_DAY_SCHEDULE_ERROR_MESSAGE = 'Não foi possível carregar a agenda do profissional.';
@@ -94,7 +94,7 @@ interface AppointmentBookingState {
   dayScheduleErrorMessage: string | null;
   date: string;
   startTime: string;
-  durationMinutes: string;
+  durationMinutes: number | null;
   notes: string;
   priceApplied: string;
   submitting: boolean;
@@ -255,7 +255,7 @@ export const AppointmentBookingStore = signalStore(
           patch: Partial<{
             date: string;
             startTime: string;
-            durationMinutes: string;
+            durationMinutes: number | null;
             notes: string;
             priceApplied: string;
           }>,
@@ -272,7 +272,7 @@ export const AppointmentBookingStore = signalStore(
           }
 
           const startDate = dayjs(`${store.date()}T${store.startTime()}`);
-          const endDate = startDate.add(Number(store.durationMinutes()), 'minute');
+          const endDate = startDate.add(store.durationMinutes() ?? 0, 'minute');
 
           const payload: AppointmentPayload = {
             customerId: customer.id,

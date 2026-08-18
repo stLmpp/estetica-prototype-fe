@@ -19,7 +19,7 @@ export class ReviewStepComponent {
     if (hours === undefined || minutes === undefined) {
       return '';
     }
-    const totalMinutes = hours * 60 + minutes + Number(this.store.durationMinutes());
+    const totalMinutes = hours * 60 + minutes + (this.store.durationMinutes() ?? 0);
     const endHours = Math.floor(totalMinutes / 60) % 24;
     const endMinutes = totalMinutes % 60;
     return `${String(endHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')}`;
