@@ -206,6 +206,16 @@ move to `TODO_DONE.md` instead of being deleted outright.
       `ListAnamnesisFieldResponse`'s `data: { anamnesisFields: [...] }`), so
       migrating those means either renaming that key to match the generic's
       shape or accepting the generic only covers the common case.
+- [ ] `HomeComponent` (`src/app/routes/home/`) is currently a placeholder
+      that just dumps `authStore` via `JsonPipe`. Build a real home page: a
+      dashboard of widgets (charts, stats like today's appointments,
+      revenue, customer counts, etc.) — start with a hardcoded set/layout
+      of widgets rather than building a drag-and-drop/configurable-layout
+      system speculatively. Needs a charting library decision (none in
+      `package.json` yet). Paired with the backend TODO of the same name in
+      `estetica-prototype-api`'s `TODO.md` — the widgets need real
+      aggregation endpoints to query, not existing per-entity list
+      endpoints reshaped client-side.
 - [ ] Split `docs/DS.md` into one `.md` per design-system component (e.g.
       `docs/ds/button.md`, `docs/ds/typeahead.md`, ...) once it gets
       unwieldy as a single file — noted inline in `docs/DS.md` itself too.
