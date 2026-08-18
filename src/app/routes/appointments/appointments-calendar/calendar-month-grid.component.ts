@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AppointmentStatus } from '../appointment-status.enum';
 import { CalendarAppointment } from '../appointment.model';
 
@@ -26,7 +27,7 @@ function statusColorClass(status: AppointmentStatus): string {
 
 @Component({
   selector: 'app-calendar-month-grid',
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './calendar-month-grid.component.html',
   host: {
     class: 'block',

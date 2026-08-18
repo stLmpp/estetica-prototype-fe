@@ -31,13 +31,6 @@ move to `TODO_DONE.md` instead of being deleted outright.
       'http://localhost:3000'` with no per-environment override. Needs real
       `environment.*.ts` files (or however this project wants to handle it)
       once there's a staging/production API URL to point at.
-- [ ] `src/app/routes/appointments/appointments-calendar` has no actions on
-      calendar entries yet — clicking an entry should at minimum link to
-      `/appointments/:appointmentId` (`appointment-details/`, added
-      alongside the list's row-level view action), which now covers
-      view/edit-notes/status-update/delete/sale-link in one place. Whether
-      the calendar also wants inline quick-actions (without leaving the
-      calendar view) is still open.
 - [ ] `appointment-details.component.ts`'s notes-editing form only lets
       `notes` be changed via `PATCH /v1/appointment/:id`, even though the
       backend also accepts `startTime`/`endTime` there (with

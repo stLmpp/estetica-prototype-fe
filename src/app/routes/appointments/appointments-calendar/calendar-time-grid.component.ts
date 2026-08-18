@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AppointmentStatus } from '../appointment-status.enum';
 import { CalendarAppointment } from '../appointment.model';
 
@@ -116,7 +117,7 @@ function layoutDay(
 
 @Component({
   selector: 'app-calendar-time-grid',
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './calendar-time-grid.component.html',
   host: {
     class: 'block',

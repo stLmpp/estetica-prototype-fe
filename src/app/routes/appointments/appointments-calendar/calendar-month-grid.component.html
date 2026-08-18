@@ -29,9 +29,13 @@
       </div>
       <div class="flex flex-col gap-0.5">
         @for (item of cell.visible; track item.appointment.id) {
-          <div class="truncate rounded px-1 py-0.5 text-[10.5px]" [class]="item.colorClass">
+          <a
+            [routerLink]="['/appointments', item.appointment.id]"
+            class="block truncate rounded px-1 py-0.5 text-[10.5px] hover:opacity-80"
+            [class]="item.colorClass"
+          >
             {{ item.appointment.startTime | date: 'HH:mm' }} {{ item.appointment.customerName }}
-          </div>
+          </a>
         }
         @if (cell.overflowCount > 0) {
           <div class="text-[10.5px] text-neutral-400 dark:text-neutral-500">

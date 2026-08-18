@@ -24,6 +24,17 @@ outright.
       - `src/app/routes/appointments/appointments.component.ts`
       - `src/app/routes/appointments/appointment-details/appointment-details.component.ts`
       - `src/app/routes/employees/employees.component.ts`
+- [x] (2026-08-18) `appointments-calendar` entries had no actions — clicking
+      one did nothing. Made every entry in both grid views
+      (`calendar-month-grid`, `calendar-time-grid`) a `RouterLink` to
+      `/appointments/:appointmentId`, matching the existing "Ver
+      agendamento" row action on the list page, plus a `hover:opacity-80`
+      affordance. Whether the calendar also wants inline quick-actions
+      (without leaving the calendar view) is still open, not addressed
+      here. Verified in-browser after a dev-server restart (a stale
+      Vite/dependency-optimization state had made `GET
+      /v1/appointment/:id` fail client-side app-wide, unrelated to this
+      change).
 - [x] (2026-08-18) `AnamnesisFieldService.list()` talked to a paginated
       backend endpoint (`page`/`limit` up to 100), faked by both call sites
       hardcoding `limit: FIELDS_LIMIT = 100`. Backend's paired TODO made
