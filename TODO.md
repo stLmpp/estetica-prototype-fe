@@ -186,6 +186,26 @@ move to `TODO_DONE.md` instead of being deleted outright.
       confirm this is actually the right split rather than assuming it),
       document it in `docs/CONVENTIONS.md`, then sweep every raw
       `<p role="alert">` instance above onto whichever standard is chosen.
+- [ ] Success responses have no shared generic type on this side, unlike
+      errors — `ApiErrorResponse`/`ApiError` (`src/app/model/api-error.ts`)
+      already give every error response one global shape, but every
+      `*.service.ts` (10 files, e.g. `anamnesis-field.service.ts`,
+      `customer.service.ts`, `sale.service.ts`) hand-rolls its own
+      `XResponse` interface with `data: {...}` inline instead of a shared
+      wrapper. The backend has the generic version of this on its side —
+      `createResponseSchema<T>`/`createPaginatedResponseSchema<T>`
+      (`src/shared/model/response.model.ts` in `estetica-prototype-api`) —
+      producing `{ data: T }` and `{ data: { items: T[] }, meta:
+      PaginationMetadata }` respectively. Add matching generics here, e.g.
+      `ApiResponse<T> = { data: T }` and `ApiPaginatedResponse<T> = { data:
+      { items: T[] }, meta: PaginationMetadata }` (this repo already has
+      `PaginationMetadata` globally in `src/app/shared/pagination.model.ts`,
+      just not the wrapper). Note the generic only fits directly where a
+      response's `data` is a single array/object matching `T` — several
+      current responses key `data` by a feature-specific name instead (e.g.
+      `ListAnamnesisFieldResponse`'s `data: { anamnesisFields: [...] }`), so
+      migrating those means either renaming that key to match the generic's
+      shape or accepting the generic only covers the common case.
 - [ ] Split `docs/DS.md` into one `.md` per design-system component (e.g.
       `docs/ds/button.md`, `docs/ds/typeahead.md`, ...) once it gets
       unwieldy as a single file — noted inline in `docs/DS.md` itself too.
