@@ -3,7 +3,7 @@
 Completed items moved out of `TODO.md`, kept for history instead of deleted
 outright.
 
-- [x] (2026-08-18) Every Signal Forms form with a `type="number"` input
+- [x] **FE-19** (2026-08-18) Every Signal Forms form with a `type="number"` input
       modeled that field as `string` in its form model, converting with
       `Number(...)` only when building the API payload, out of an
       unverified assumption that Signal Forms' native `<input>` support
@@ -29,7 +29,7 @@ outright.
       and sale-form quantity (default 1, total recalculates correctly on
       change).
 
-- [x] `ConfirmDialogComponent`'s old fixed confirm/cancel API was replaced by
+- [x] **FE-20** `ConfirmDialogComponent`'s old fixed confirm/cancel API was replaced by
       an `actions: ConfirmDialogAction[]` array, where each action carries
       its own `btn`-style variant flags and an optional `onClick` callback
       returning `MaybeAsync<R>` (same shape as a router resolver); the
@@ -50,7 +50,7 @@ outright.
       - `src/app/routes/appointments/appointments.component.ts`
       - `src/app/routes/appointments/appointment-details/appointment-details.component.ts`
       - `src/app/routes/employees/employees.component.ts`
-- [x] (2026-08-18) `appointments-calendar` entries had no actions — clicking
+- [x] **FE-21** (2026-08-18) `appointments-calendar` entries had no actions — clicking
       one did nothing. Made every entry in both grid views
       (`calendar-month-grid`, `calendar-time-grid`) a `RouterLink` to
       `/appointments/:appointmentId`, matching the existing "Ver
@@ -61,7 +61,7 @@ outright.
       Vite/dependency-optimization state had made `GET
       /v1/appointment/:id` fail client-side app-wide, unrelated to this
       change).
-- [x] (2026-08-18) `AnamnesisFieldService.list()` talked to a paginated
+- [x] **FE-22** (2026-08-18) `AnamnesisFieldService.list()` talked to a paginated
       backend endpoint (`page`/`limit` up to 100), faked by both call sites
       hardcoding `limit: FIELDS_LIMIT = 100`. Backend's paired TODO made
       `GET /v1/anamnesis-field` return a flat array; updated

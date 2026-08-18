@@ -4,7 +4,11 @@ Things noticed in passing that aren't worth stopping the current task for.
 Pull from this list when there's no specific task in flight. Finished items
 move to `TODO_DONE.md` instead of being deleted outright.
 
-- [ ] Figure out the documentation story for the frontend. Right now there's
+Each item has a stable ID (`FE-N`) for easy reference — keep the ID when an
+item moves to `TODO_DONE.md`, and give any new item the next unused number
+(highest across both files, plus one).
+
+- [ ] **FE-1** Figure out the documentation story for the frontend. Right now there's
       `AGENTS.md` + `docs/CONVENTIONS.md` (code-level rules) but nothing like
       the backend's `docs/features/<feature>/{FUNCTIONAL,DATABASE}.md`
       per-feature docs (see `estetica-prototype-api`'s `docs/CONVENTIONS.md`
@@ -16,22 +20,22 @@ move to `TODO_DONE.md` instead of being deleted outright.
       functional/database. Decide the structure, then backfill the features
       that already exist (customer, employee, catalog-item, appointment,
       organization settings, etc.).
-- [ ] `src/app/core/interceptors/small-ttl-cache.interceptor.ts` uses raw
+- [ ] **FE-2** `src/app/core/interceptors/small-ttl-cache.interceptor.ts` uses raw
       `console.log` in two places — the module-level legend printed once at
       load (the `symbolMap` entries logged on import) and every request
       inside `logRequest`. Route both through a real logger once one exists
       on this side (mirroring the backend's `LoggerService`), rather than
       leaving debug output on `console` in production builds.
-- [ ] `src/app/components/form-field/form-field.component.ts`'s
+- [ ] **FE-3** `src/app/components/form-field/form-field.component.ts`'s
       `ngAfterContentInit` throws a plain `new Error('InputDirective is
       required')` when no `FormFieldInput` is projected. Improve this —
       at minimum a clearer message (which component/template it's missing
       from), possibly a dev-mode-only warning instead of a hard throw.
-- [ ] `src/environments/environment.ts` hardcodes `api:
+- [ ] **FE-4** `src/environments/environment.ts` hardcodes `api:
       'http://localhost:3000'` with no per-environment override. Needs real
       `environment.*.ts` files (or however this project wants to handle it)
       once there's a staging/production API URL to point at.
-- [ ] `appointments-calendar` (`calendar-month-grid`,
+- [ ] **FE-5** `appointments-calendar` (`calendar-month-grid`,
       `calendar-time-grid`) has no way to create an appointment by
       selecting a span of time directly on the grid — the only path to
       booking is the "Novo agendamento" button, which starts the
@@ -49,7 +53,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       Month view is a click on a whole day, not a time range — decide
       whether it should jump into the day/week view at that date instead
       of trying to select a time span directly on month cells.
-- [ ] `appointment-details.component.ts`'s notes-editing form only lets
+- [ ] **FE-6** `appointment-details.component.ts`'s notes-editing form only lets
       `notes` be changed via `PATCH /v1/appointment/:id`, even though the
       backend also accepts `startTime`/`endTime` there (with
       conflict/working-hours validation server-side). Editing time was left
@@ -58,7 +62,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       (`appointment-booking/steps/schedule-step/`), which doesn't have an
       equivalent standalone widget yet. Add reschedule support once that
       exists, or extract a reusable version of the schedule-step picker.
-- [ ] No UI exists for customer follow-ups yet. Blocked on the backend TODO
+- [ ] **FE-7** No UI exists for customer follow-ups yet. Blocked on the backend TODO
       of the same name (`estetica-prototype-api`'s `TODO.md`) — the DB
       schema (`customer_followup`/`followup_item`: a dated note per
       customer with priced/quantified follow-up items underneath) exists,
@@ -69,7 +73,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       `customer-sales-tab`, etc.) — actual UX/workflow (how a follow-up
       gets created, whether it's tied to a specific appointment/procedure,
       reminders) not designed yet.
-- [ ] Customer-followup before/after photos. Blocked on the backend TODO
+- [ ] **FE-8** Customer-followup before/after photos. Blocked on the backend TODO
       of the same name (`estetica-prototype-api`'s `TODO.md`) — needs the
       storage/upload design decided there first. Once available, the
       natural place is inside the future `customer-followup-tab` (see the
@@ -79,7 +83,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       (side-by-side or a slider comparison) for reviewing existing photos.
       Actual upload flow (direct-to-bucket via presigned URL vs. through
       the API) depends on what the backend decides.
-- [ ] Sale receipts (PDF) have no frontend surface — blocked on the
+- [ ] **FE-9** Sale receipts (PDF) have no frontend surface — blocked on the
       backend TODO of the same name. Once an endpoint exists,
       `sale-details.component` is the natural place for a "Baixar recibo" /
       "Gerar recibo" action (mirroring the existing view/download actions
@@ -89,7 +93,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       link/download without its own loading-then-cache logic — confirm
       that holds once the backend's actual response shape (direct file vs.
       a URL to fetch) is decided.
-- [ ] Custom colors per organization (branding). Blocked on the backend
+- [ ] **FE-10** Custom colors per organization (branding). Blocked on the backend
       TODO of the same name (`estetica-prototype-api`'s `TODO.md`) —
       needs an org-level color field(s) exposed on `activeOrganization`
       first. Once available, `organization-settings.component.ts` is the
@@ -104,7 +108,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       the Tailwind config/utility classes reading from those variables
       instead of fixed hex values. Needs a design pass on how many
       shades need to be derived from a single chosen color.
-- [ ] Audit every `effect()` usage in the app (currently 15 files:
+- [ ] **FE-11** Audit every `effect()` usage in the app (currently 15 files:
       `grep -rl 'effect(' src/app --include='*.ts'`) — a chunk of them feel
       like a workaround rather than something genuinely reactive/imperative
       by nature. The pattern that prompted this: `AnamnesisSectionFormComponent`,
@@ -127,7 +131,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       `catalog-items.component.ts`, `employees.component.ts`,
       `anamnesis-forms.component.ts`) from signal-plumbing workarounds before
       deciding what actually needs to change.
-- [ ] The customer-facing anamnesis pages (`routes/customers/customer-details/customer-anamnesis-tab/customer-anamnesis-form-page/`
+- [ ] **FE-12** The customer-facing anamnesis pages (`routes/customers/customer-details/customer-anamnesis-tab/customer-anamnesis-form-page/`
       and `customer-anamnesis-detail-page/`) have a layout that's "all
       wrong" per direct feedback — flagged after only the admin builder side
       (`routes/anamnesis-forms/anamnesis-form-detail/`) got an actual
@@ -135,7 +139,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       by reading code only. Needs a real browser walkthrough (create, edit,
       view, finalize a customer's anamnesis) to see what's actually broken,
       then a fix plan — don't guess at the problem from code alone.
-- [ ] Anamnesis field options (RADIO/SELECT/CHECKBOX) ask the admin for both
+- [ ] **FE-13** Anamnesis field options (RADIO/SELECT/CHECKBOX) ask the admin for both
       "Valor" and "Rótulo" per option, in `AnamnesisFieldFormComponent`
       (`routes/anamnesis-forms/anamnesis-form-detail/anamnesis-field-form/`).
       Direct feedback: this reads as a confusing double-definition to the
@@ -154,7 +158,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       tradeoff is acceptable — if so, this is a paired FE (this repo) +
       backend (`estetica-prototype-api`, `AnamnesisFieldOption` model)
       change, not FE-only.
-- [ ] No submit button in the app disables itself when the form is
+- [ ] **FE-14** No submit button in the app disables itself when the form is
       invalid. Checked all 13 `type="submit"` buttons in `src/app`: 5 gate
       only on `!f().dirty()` (e.g. `anamnesis-section-form.component.html:38`,
       `anamnesis-field-form.component.html:206`,
@@ -175,7 +179,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       f().submitting() || (isEditing() && !f().dirty())"` or a shared
       helper/directive so every form doesn't hand-roll the same
       three-condition expression — then retrofit all 13 forms above to it.
-- [ ] API error display is inconsistent across three different patterns for
+- [ ] **FE-15** API error display is inconsistent across three different patterns for
       the same "a save/submit call failed" situation, despite
       `extractApiErrorMessage()` (`src/app/model/api-error.ts`, a pure
       string formatter, no display) being used 78 times to get the message:
@@ -205,7 +209,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       confirm this is actually the right split rather than assuming it),
       document it in `docs/CONVENTIONS.md`, then sweep every raw
       `<p role="alert">` instance above onto whichever standard is chosen.
-- [ ] Success responses have no shared generic type on this side, unlike
+- [ ] **FE-16** Success responses have no shared generic type on this side, unlike
       errors — `ApiErrorResponse`/`ApiError` (`src/app/model/api-error.ts`)
       already give every error response one global shape, but every
       `*.service.ts` (10 files, e.g. `anamnesis-field.service.ts`,
@@ -225,7 +229,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       `ListAnamnesisFieldResponse`'s `data: { anamnesisFields: [...] }`), so
       migrating those means either renaming that key to match the generic's
       shape or accepting the generic only covers the common case.
-- [ ] `HomeComponent` (`src/app/routes/home/`) is currently a placeholder
+- [ ] **FE-17** `HomeComponent` (`src/app/routes/home/`) is currently a placeholder
       that just dumps `authStore` via `JsonPipe`. Build a real home page: a
       dashboard of widgets (charts, stats like today's appointments,
       revenue, customer counts, etc.) — start with a hardcoded set/layout
@@ -235,7 +239,7 @@ move to `TODO_DONE.md` instead of being deleted outright.
       `estetica-prototype-api`'s `TODO.md` — the widgets need real
       aggregation endpoints to query, not existing per-entity list
       endpoints reshaped client-side.
-- [ ] Split `docs/DS.md` into one `.md` per design-system component (e.g.
+- [ ] **FE-18** Split `docs/DS.md` into one `.md` per design-system component (e.g.
       `docs/ds/button.md`, `docs/ds/typeahead.md`, ...) once it gets
       unwieldy as a single file — noted inline in `docs/DS.md` itself too.
       Keep each one scoped to that component's actual inputs/outputs/usage,
