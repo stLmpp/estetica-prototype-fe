@@ -72,7 +72,6 @@ type SaveResult =
   | { ok: false; message: string; fieldErrors: Map<string, string[]> };
 
 const FORMS_LIMIT = 100;
-const FIELDS_LIMIT = 100;
 const DEFAULT_LOAD_ERROR_MESSAGE = 'Não foi possível carregar os campos deste formulário.';
 const DEFAULT_ERROR_MESSAGE = 'Não foi possível salvar a anamnese. Tente novamente.';
 
@@ -393,9 +392,7 @@ export class CustomerAnamnesisFormPageComponent {
     this.loadFieldsErrorMessage.set(null);
 
     return forkJoin({
-      fields: this.anamnesisFieldService
-        .list({ anamnesisFormId, active: true, limit: FIELDS_LIMIT })
-        .pipe(map((result) => result.items)),
+      fields: this.anamnesisFieldService.list({ anamnesisFormId, active: true }),
       sections: this.anamnesisSectionService.list(anamnesisFormId),
     }).pipe(
       tap(({ fields, sections }) => {

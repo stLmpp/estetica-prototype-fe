@@ -1,8 +1,6 @@
-import { PaginationMetadata } from '../../shared/pagination.model';
 import { AnamnesisFieldType } from './anamnesis-field-type.enum';
 import { AnamnesisFieldValidationType } from './anamnesis-field-validation-type.enum';
 import {
-  AnamnesisField,
   AnamnesisFieldArgs,
   AnamnesisFieldExtraLabels,
   AnamnesisFieldValidationArgs,
@@ -31,14 +29,7 @@ export type UpdateAnamnesisFieldPayload = Partial<
 >;
 
 export interface ListAnamnesisFieldFilter {
-  page?: number;
-  limit?: 10 | 25 | 50 | 100;
   anamnesisFormId: string;
   anamnesisSectionId?: string;
   active?: boolean;
-}
-
-export interface ListAnamnesisFieldResult {
-  items: AnamnesisField[];
-  meta: PaginationMetadata;
 }

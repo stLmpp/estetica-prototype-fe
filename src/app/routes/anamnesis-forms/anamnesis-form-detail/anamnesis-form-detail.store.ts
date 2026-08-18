@@ -9,7 +9,7 @@ import {
 } from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tapResponse } from '@ngrx/operators';
-import { forkJoin, map, pipe, switchMap, tap } from 'rxjs';
+import { forkJoin, pipe, switchMap, tap } from 'rxjs';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { AnamnesisField } from '../anamnesis-field.model';
 import { AnamnesisFieldService } from '../anamnesis-field.service';
@@ -17,7 +17,6 @@ import { AnamnesisForm } from '../anamnesis-form.model';
 import { AnamnesisSection } from '../anamnesis-section.model';
 import { AnamnesisSectionService } from '../anamnesis-section.service';
 
-const FIELDS_LIMIT = 100;
 const DEFAULT_LOAD_ERROR_MESSAGE = 'Não foi possível carregar as seções e campos.';
 const DEFAULT_DELETE_SECTION_ERROR_MESSAGE = 'Não foi possível excluir a seção.';
 const DEFAULT_DELETE_FIELD_ERROR_MESSAGE = 'Não foi possível excluir o campo.';
@@ -58,9 +57,7 @@ export const AnamnesisFormDetailStore = signalStore(
           switchMap((anamnesisFormId) =>
             forkJoin({
               sections: anamnesisSectionService.list(anamnesisFormId),
-              fields: anamnesisFieldService
-                .list({ anamnesisFormId, limit: FIELDS_LIMIT })
-                .pipe(map((result) => result.items)),
+              fields: anamnesisFieldService.list({ anamnesisFormId }),
             }).pipe(
               tapResponse({
                 next: ({ sections, fields }) => {

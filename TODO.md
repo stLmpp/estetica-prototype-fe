@@ -85,6 +85,107 @@ move to `TODO_DONE.md` instead of being deleted outright.
       the Tailwind config/utility classes reading from those variables
       instead of fixed hex values. Needs a design pass on how many
       shades need to be derived from a single chosen color.
+- [ ] Audit every `effect()` usage in the app (currently 15 files:
+      `grep -rl 'effect(' src/app --include='*.ts'`) — a chunk of them feel
+      like a workaround rather than something genuinely reactive/imperative
+      by nature. The pattern that prompted this: `AnamnesisSectionFormComponent`,
+      `AnamnesisFieldFormComponent`, and `CustomerAnamnesisFormPageComponent`
+      (`routes/anamnesis-forms/anamnesis-form-detail/`,
+      `routes/customers/customer-details/customer-anamnesis-tab/customer-anamnesis-form-page/`)
+      all need an `effect()` + `untracked()` in the constructor just to seed
+      a form's `model` signal from an optional `input()`, because Angular
+      doesn't apply a bound input's value until after field initializers
+      run — so `signal({ label: this.someInput()?.label ?? '' })` silently
+      grabs the pre-binding default instead. `CustomerAnamnesisDetailPageComponent`
+      in the same folder sidesteps this entirely with `linkedSignal(() =>
+      this.customerAnamnesis())` (lazy, no effect needed) for the same kind
+      of "seed local state from an input, but let it be
+      locally-overridden-after" shape — worth checking whether `linkedSignal`
+      can replace the effect-based seeding in the three components above,
+      and more broadly whether it (or plain `computed()`) can replace other
+      entries in that 15-file list. Distinguish genuine side effects (e.g.
+      the router-query-param sync in `customers.component.ts`,
+      `catalog-items.component.ts`, `employees.component.ts`,
+      `anamnesis-forms.component.ts`) from signal-plumbing workarounds before
+      deciding what actually needs to change.
+- [ ] The customer-facing anamnesis pages (`routes/customers/customer-details/customer-anamnesis-tab/customer-anamnesis-form-page/`
+      and `customer-anamnesis-detail-page/`) have a layout that's "all
+      wrong" per direct feedback — flagged after only the admin builder side
+      (`routes/anamnesis-forms/anamnesis-form-detail/`) got an actual
+      browser pass this session; the customer-side pages were built/reviewed
+      by reading code only. Needs a real browser walkthrough (create, edit,
+      view, finalize a customer's anamnesis) to see what's actually broken,
+      then a fix plan — don't guess at the problem from code alone.
+- [ ] Anamnesis field options (RADIO/SELECT/CHECKBOX) ask the admin for both
+      "Valor" and "Rótulo" per option, in `AnamnesisFieldFormComponent`
+      (`routes/anamnesis-forms/anamnesis-form-detail/anamnesis-field-form/`).
+      Direct feedback: this reads as a confusing double-definition to the
+      admin filling out the field — most likely wants just one text input
+      per option. Before collapsing it to one field, note *why* it's two
+      today: `value` is the stable key an answer actually stores
+      (`customer_anamnesis_field.value` for RADIO/SELECT,
+      `extraValues.values[]` for CHECKBOX — see `AnamnesisFieldOption` in
+      both `estetica-prototype-api` and this repo's
+      `anamnesis-field.model.ts`), while `label` is just the display text —
+      so renaming an option's label today doesn't orphan customers' already-
+      recorded answers. Collapsing to a single field means the display text
+      *is* the stored value, so relabeling an option later would silently
+      change what past answers look like (or need to be treated as
+      immutable once any answer references it). Decide whether that
+      tradeoff is acceptable — if so, this is a paired FE (this repo) +
+      backend (`estetica-prototype-api`, `AnamnesisFieldOption` model)
+      change, not FE-only.
+- [ ] No submit button in the app disables itself when the form is
+      invalid. Checked all 13 `type="submit"` buttons in `src/app`: 5 gate
+      only on `!f().dirty()` (e.g. `anamnesis-section-form.component.html:38`,
+      `anamnesis-field-form.component.html:206`,
+      `customer-anamnesis-form-page.component.html:180`,
+      `anamnesis-form-detail.component.html:66`,
+      `organization-settings.component.html:24`), the other 8 have no
+      `[disabled]` binding at all (`customer-form-dialog`,
+      `employee-form-dialog`, `catalog-item-form-dialog`, `sale-form`,
+      `login`, `add-sale-transaction-dialog`,
+      `customer-anamnesis-finalize-dialog`, `anamnesis-form-create`) — none
+      check `f().invalid()`. It's a real, already-used signal
+      (`FieldState.invalid: Signal<boolean>` in `@angular/forms/signals`) —
+      `schedule-step.component.html:81` already disables a (non-submit)
+      "Avançar" link with `[disabled]="f().invalid()"`, so the primitive is
+      proven, just never applied to an actual submit button. Establish a
+      standard (document it in `docs/CONVENTIONS.md` next to the existing
+      Signal Forms rules) — likely `[disabled]="f().invalid() ||
+      f().submitting() || (isEditing() && !f().dirty())"` or a shared
+      helper/directive so every form doesn't hand-roll the same
+      three-condition expression — then retrofit all 13 forms above to it.
+- [ ] API error display is inconsistent across three different patterns for
+      the same "a save/submit call failed" situation, despite
+      `extractApiErrorMessage()` (`src/app/model/api-error.ts`, a pure
+      string formatter, no display) being used 78 times to get the message:
+      (1) `<app-alert error>` bound to a component error signal — e.g.
+      `customer-info-form.component.html:70`, `sale-form.component.html:224`,
+      `employee-details.component.html:35`/`68`; (2) a raw
+      `<p role="alert">` with hand-written Tailwind classes that bypasses
+      `app-alert` entirely — e.g. `customer-form-dialog.component.html:116`,
+      plus `catalog-item-form-dialog`, `employee-form-dialog`,
+      `organization-settings`, all three anamnesis inline forms
+      (`anamnesis-section-form`, `anamnesis-field-form`,
+      `anamnesis-form-create`), `customer-anamnesis-finalize-dialog`, and
+      every `appointment-booking` step component; (3)
+      `toastService.error(extractApiErrorMessage(...))` — only 4 call
+      sites total (`customer-details.component.ts:86`,
+      `sale-details.component.ts:125`,
+      `appointment-details.component.ts:153`/`233`), even though
+      `ToastService` is injected in ~24 components (almost always just for
+      `.success(...)`). `docs/CONVENTIONS.md`'s own canonical save-handler
+      example uses the toast pattern, but most actual submit handlers
+      don't follow it — and `docs/DS.md` documents both `app-alert error`
+      and `ToastService.error()` without ever saying which one a given
+      situation should use. Decide a real rule (a plausible split: toast
+      for one-shot submit/save failures since the form/dialog usually stays
+      open or closes right after, `app-alert` for a load/list error that
+      needs to stay visible while the user keeps looking at the page — but
+      confirm this is actually the right split rather than assuming it),
+      document it in `docs/CONVENTIONS.md`, then sweep every raw
+      `<p role="alert">` instance above onto whichever standard is chosen.
 - [ ] Split `docs/DS.md` into one `.md` per design-system component (e.g.
       `docs/ds/button.md`, `docs/ds/typeahead.md`, ...) once it gets
       unwieldy as a single file — noted inline in `docs/DS.md` itself too.

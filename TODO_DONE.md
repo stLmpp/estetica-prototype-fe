@@ -24,3 +24,13 @@ outright.
       - `src/app/routes/appointments/appointments.component.ts`
       - `src/app/routes/appointments/appointment-details/appointment-details.component.ts`
       - `src/app/routes/employees/employees.component.ts`
+- [x] (2026-08-18) `AnamnesisFieldService.list()` talked to a paginated
+      backend endpoint (`page`/`limit` up to 100), faked by both call sites
+      hardcoding `limit: FIELDS_LIMIT = 100`. Backend's paired TODO made
+      `GET /v1/anamnesis-field` return a flat array; updated
+      `ListAnamnesisFieldFilter` (dropped `page`/`limit`) and
+      `AnamnesisFieldService.list()` to match (returns `AnamnesisField[]`
+      directly instead of `{items, meta}`), and simplified both call sites
+      (`AnamnesisFormDetailStore.reload`,
+      `CustomerAnamnesisFormPageComponent.loadFieldsForForm$`) — no more
+      `.pipe(map((result) => result.items))`, no more `FIELDS_LIMIT`.

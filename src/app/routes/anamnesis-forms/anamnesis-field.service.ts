@@ -3,11 +3,9 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
 import {
   CreateAnamnesisFieldPayload,
   ListAnamnesisFieldFilter,
-  ListAnamnesisFieldResult,
   UpdateAnamnesisFieldPayload,
 } from './anamnesis-field.dto';
 import { AnamnesisField } from './anamnesis-field.model';
@@ -17,8 +15,7 @@ interface AnamnesisFieldResponse {
 }
 
 interface ListAnamnesisFieldResponse {
-  data: { items: AnamnesisField[] };
-  meta: PaginationMetadata;
+  data: { anamnesisFields: AnamnesisField[] };
 }
 
 @Service()
@@ -28,18 +25,13 @@ export class AnamnesisFieldService {
 
   list(filter: ListAnamnesisFieldFilter) {
     const params = httpParamsFromObject({
-      page: filter.page,
-      limit: filter.limit,
       anamnesisFormId: filter.anamnesisFormId,
       anamnesisSectionId: filter.anamnesisSectionId,
       active: filter.active,
     });
-    return this.http.get<ListAnamnesisFieldResponse>(this.baseUrl, { params }).pipe(
-      map((response): ListAnamnesisFieldResult => ({
-        items: response.data.items,
-        meta: response.meta,
-      })),
-    );
+    return this.http
+      .get<ListAnamnesisFieldResponse>(this.baseUrl, { params })
+      .pipe(map((response) => response.data.anamnesisFields));
   }
 
   getById(anamnesisFieldId: string) {
