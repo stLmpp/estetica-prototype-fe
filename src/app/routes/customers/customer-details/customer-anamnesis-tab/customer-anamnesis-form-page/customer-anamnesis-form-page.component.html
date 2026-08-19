@@ -138,7 +138,11 @@
               <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
             }
 
-            @if (row.value().invalid() && row.value().touched()) {
+            @if (
+              meta.field.fieldType === AnamnesisFieldType.RADIO &&
+              row.value().invalid() &&
+              row.value().touched()
+            ) {
               <p class="text-sm text-red-600 dark:text-red-400" role="alert">
                 {{ row.value().errors()[0]?.message }}
               </p>

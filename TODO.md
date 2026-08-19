@@ -198,14 +198,6 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
       `catalog-items.component.ts`, `employees.component.ts`,
       `anamnesis-forms.component.ts`) from signal-plumbing workarounds before
       deciding what actually needs to change.
-- [ ] **FE-12** The customer-facing anamnesis pages (`routes/customers/customer-details/customer-anamnesis-tab/customer-anamnesis-form-page/`
-      and `customer-anamnesis-detail-page/`) have a layout that's "all
-      wrong" per direct feedback — flagged after only the admin builder side
-      (`routes/anamnesis-forms/anamnesis-form-detail/`) got an actual
-      browser pass this session; the customer-side pages were built/reviewed
-      by reading code only. Needs a real browser walkthrough (create, edit,
-      view, finalize a customer's anamnesis) to see what's actually broken,
-      then a fix plan — don't guess at the problem from code alone.
 - [ ] **FE-13** Anamnesis field options (RADIO/SELECT/CHECKBOX) ask the admin for both
       "Valor" and "Rótulo" per option, in `AnamnesisFieldFormComponent`
       (`routes/anamnesis-forms/anamnesis-form-detail/anamnesis-field-form/`).

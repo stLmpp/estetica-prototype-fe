@@ -226,9 +226,6 @@ function checkboxAnswerValidationError(
     SwitchComponent,
   ],
   templateUrl: './customer-anamnesis-form-page.component.html',
-  host: {
-    class: 'page-container',
-  },
 })
 export class CustomerAnamnesisFormPageComponent {
   readonly customerAnamnesis = input<CustomerAnamnesis>();

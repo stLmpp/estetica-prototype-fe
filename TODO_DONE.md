@@ -3,6 +3,34 @@
 Completed items moved out of `TODO.md`, kept for history instead of deleted
 outright.
 
+- [x] **FE-12** (2026-08-19) The customer-facing anamnesis pages had a
+      layout that was "all wrong" per direct feedback. A real browser
+      walkthrough (create, edit, view, finalize) found the root cause:
+      `customer-anamnesis-form-page.component.ts` and
+      `customer-anamnesis-detail-page.component.ts` both applied a
+      `page-container` host class (`mx-auto flex max-w-7xl flex-col gap-6
+      p-6`) meant only for top-level routed pages, even though they're
+      rendered inside `customer-details.component`'s `<router-outlet>`,
+      which already applies `page-container` itself. The nested `mx-auto`
+      on a flex-column child made it shrink-wrap to content width and
+      center itself instead of stretching — confirmed via a computed-style
+      trace (parent 1232px wide, the page's own host only 265px). Fix:
+      removed `page-container` from both components. Two more bugs
+      surfaced during the same walkthrough and were fixed alongside it:
+      (1) `app-button-toggle-group` (used for RADIO fields) only wired its
+      `label` input to `aria-label`, never rendering it visibly — the
+      question text was invisible while answering, though the read-only
+      detail view did print it. Now rendered as a visible label above the
+      toggle group, matching `appLabel` styling; needed `self-start` on
+      the component's host class so it doesn't stretch full-width like a
+      text input. This also fixed the same invisible-label issue on the
+      admin form preview (`anamnesis-form-preview.component.html`), which
+      shares the component. (2) `customer-anamnesis-form-page` manually
+      re-rendered `row.value().invalid()` as a duplicate error message
+      outside `<app-form-field>`, which already has its own built-in error
+      slot for TEXT/NUMBER/DATE/SELECT fields — scoped the manual
+      duplicate to RADIO only, the one type that doesn't use
+      `<app-form-field>` and has no other way to show its error.
 - [x] **FE-19** (2026-08-18) Every Signal Forms form with a `type="number"` input
       modeled that field as `string` in its form model, converting with
       `Number(...)` only when building the API payload, out of an

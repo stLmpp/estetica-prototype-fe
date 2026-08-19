@@ -12,6 +12,9 @@ import { ButtonToggleDirective } from './button-toggle.directive';
 @Component({
   selector: 'app-button-toggle-group',
   template: `
+    @if (label(); as label) {
+      <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ label }}</span>
+    }
     <div
       role="radiogroup"
       [attr.aria-label]="label()"
@@ -24,6 +27,9 @@ import { ButtonToggleDirective } from './button-toggle.directive';
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: 'flex flex-col items-start gap-2 self-start',
+  },
 })
 export class ButtonToggleGroupComponent implements FormValueControl<any>, AfterContentInit {
   readonly value = model<any>();

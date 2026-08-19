@@ -81,9 +81,6 @@ function formatAnswerValue(answer: CustomerAnamnesisField): string {
     RouterLink,
   ],
   templateUrl: './customer-anamnesis-detail-page.component.html',
-  host: {
-    class: 'page-container',
-  },
 })
 export class CustomerAnamnesisDetailPageComponent {
   readonly customerAnamnesis = input.required<CustomerAnamnesis>();
