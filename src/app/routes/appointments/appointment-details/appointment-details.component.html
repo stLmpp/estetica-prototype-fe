@@ -1,5 +1,8 @@
 <div>
-  <a routerLink="/appointments" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+  <a
+    class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+    routerLink="/appointments"
+  >
     ← Voltar para agendamentos
   </a>
 </div>
@@ -35,16 +38,16 @@
         <a
           iconBtn
           type="button"
-          [icon]="LucideReceiptText"
           ariaLabel="Ver venda"
+          [icon]="LucideReceiptText"
           [routerLink]="['/sales', apt.saleId]"
         ></a>
       } @else if (showCreateSaleLink()) {
         <a
           iconBtn
           type="button"
-          [icon]="LucideReceiptText"
           ariaLabel="Finalizar venda"
+          [icon]="LucideReceiptText"
           [routerLink]="['/sales/new']"
           [queryParams]="{ appointmentId: apt.id }"
         ></a>
@@ -90,11 +93,11 @@
     <form [formRoot]="notesForm">
       <app-form-field>
         <label appLabel for="appointment-notes">Observações</label>
-        <input appInput [formField]="notesForm.notes" id="appointment-notes" type="text" />
+        <input id="appointment-notes" appInput type="text" [formField]="notesForm.notes" />
       </app-form-field>
 
       @if (notesSaveErrorMessage(); as message) {
-        <app-alert error class="mt-4">{{ message }}</app-alert>
+        <app-alert class="mt-4" error>{{ message }}</app-alert>
       }
 
       @if (canUpdate()) {

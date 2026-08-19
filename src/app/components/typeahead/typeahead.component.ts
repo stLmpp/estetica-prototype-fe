@@ -17,7 +17,13 @@ import {
 import { _IdGenerator, ActiveDescendantKeyManager } from '@angular/cdk/a11y';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
-import { debounce, disabled as disabledFn, form, FormField, FormValueControl } from '@angular/forms/signals';
+import {
+  debounce,
+  disabled as disabledFn,
+  form,
+  FormField,
+  FormValueControl,
+} from '@angular/forms/signals';
 import { Observable } from 'rxjs';
 import { LucideX } from '@lucide/angular';
 import { IconButtonComponent } from '../icon-button/icon-button.component';
@@ -195,8 +201,20 @@ export class TypeaheadComponent implements FormValueControl<string | null> {
       .position()
       .flexibleConnectedTo(inputElementRef)
       .withPositions([
-        { originX: 'start', originY: 'bottom', overlayX: 'start', overlayY: 'top', offsetY: OVERLAY_OFFSET_PX },
-        { originX: 'start', originY: 'top', overlayX: 'start', overlayY: 'bottom', offsetY: -OVERLAY_OFFSET_PX },
+        {
+          originX: 'start',
+          originY: 'bottom',
+          overlayX: 'start',
+          overlayY: 'top',
+          offsetY: OVERLAY_OFFSET_PX,
+        },
+        {
+          originX: 'start',
+          originY: 'top',
+          overlayX: 'start',
+          overlayY: 'bottom',
+          offsetY: -OVERLAY_OFFSET_PX,
+        },
       ])
       .withFlexibleDimensions(false)
       .withPush(false);

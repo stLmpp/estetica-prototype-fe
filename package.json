@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:estetica-prototype-fe": "node dist/estetica-prototype-fe/server/server.mjs",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "format": "prettier --write \"src/**/*.{ts,html,css,json}\""
   },
   "private": true,
   "packageManager": "pnpm@10.14.0",
@@ -36,6 +37,7 @@
     "ngx-cookie-service-ssr": "~22.0.0",
     "ngx-mask": "~22.1.0",
     "ngx-progressbar": "~14.0.0",
+    "prettier-plugin-organize-attributes": "~1.0.0",
     "rxjs": "~7.8.0",
     "temporal-polyfill": "~1.0.3",
     "thenby": "^1.4.1",

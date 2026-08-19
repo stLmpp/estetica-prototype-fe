@@ -45,6 +45,8 @@ export class SidebarComponent {
   }
 
   private filterByPermission(items: MenuItem[]): MenuItem[] {
-    return items.filter((item) => !item.permission || this.authStore.hasPermission(item.permission));
+    return items.filter(
+      (item) => !item.permission || this.authStore.hasPermission(item.permission),
+    );
   }
 }

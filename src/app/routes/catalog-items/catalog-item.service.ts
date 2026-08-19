@@ -4,7 +4,11 @@ import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
 import { PaginationMetadata } from '../../shared/pagination.model';
-import { CatalogItemPayload, ListCatalogItemFilter, ListCatalogItemResult } from './catalog-item.dto';
+import {
+  CatalogItemPayload,
+  ListCatalogItemFilter,
+  ListCatalogItemResult,
+} from './catalog-item.dto';
 import { CatalogItem } from './catalog-item.model';
 
 interface CatalogItemResponse {

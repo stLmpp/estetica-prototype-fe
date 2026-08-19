@@ -19,10 +19,10 @@ import { ButtonToggleDirective } from './button-toggle.directive';
       <span class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ label }}</span>
     }
     <div
+      class="border-primary-300 dark:border-primary-700 inline-flex rounded-full border"
       role="radiogroup"
       [attr.aria-label]="label()"
       [attr.aria-disabled]="disabled()"
-      class="border-primary-300 dark:border-primary-700 inline-flex rounded-full border"
       [class.opacity-50]="disabled()"
       [class.cursor-not-allowed]="disabled()"
     >

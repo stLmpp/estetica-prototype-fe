@@ -41,7 +41,9 @@ export class ServiceStepComponent {
       id: service.id,
       name: service.name,
       price: service.defaultPrice ?? null,
-      durationMinutes: service.defaultDuration ? isoDurationToMinutes(service.defaultDuration) : null,
+      durationMinutes: service.defaultDuration
+        ? isoDurationToMinutes(service.defaultDuration)
+        : null,
     })),
   );
 

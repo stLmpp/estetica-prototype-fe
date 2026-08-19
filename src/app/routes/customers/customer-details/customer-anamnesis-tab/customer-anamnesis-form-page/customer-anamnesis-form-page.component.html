@@ -1,7 +1,7 @@
 <div>
   <a
-    [routerLink]="['/customers', customerId(), 'anamnesis']"
     class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+    [routerLink]="['/customers', customerId(), 'anamnesis']"
   >
     ← Voltar para anamneses
   </a>
@@ -11,11 +11,11 @@
   {{ isEditing() ? 'Editar anamnese' : 'Nova anamnese' }}
 </h1>
 
-<form [formRoot]="f" class="mt-4 flex max-w-2xl flex-col gap-4">
+<form class="mt-4 flex max-w-2xl flex-col gap-4" [formRoot]="f">
   @if (showFormSelector()) {
     <app-form-field>
       <label appLabel for="customer-anamnesis-form-id">Formulário</label>
-      <select appSelect [formField]="f.anamnesisFormId" id="customer-anamnesis-form-id">
+      <select id="customer-anamnesis-form-id" appSelect [formField]="f.anamnesisFormId">
         <option value="">Selecione</option>
         @for (anamnesisForm of activeForms(); track anamnesisForm.id) {
           <option [value]="anamnesisForm.id">{{ anamnesisForm.name }}</option>
@@ -26,7 +26,7 @@
 
   <app-form-field>
     <label appLabel for="customer-anamnesis-date">Data</label>
-    <input appInput [formField]="f.date" id="customer-anamnesis-date" type="date" />
+    <input id="customer-anamnesis-date" appInput type="date" [formField]="f.date" />
   </app-form-field>
 
   @let orphanedAnswerLabels = orphanedAnswerLabelsText();
@@ -42,7 +42,7 @@
   }
 
   @if (f.anamnesisFormId().value()) {
-    <div [loadingOverlay]="loadingFields()" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4" [loadingOverlay]="loadingFields()">
       @if (!loadingFields() && !fieldMeta().length) {
         <p class="text-sm text-neutral-500 dark:text-neutral-400">
           Este formulário não possui campos ativos.
@@ -66,9 +66,9 @@
                 }}</label>
                 <input
                   appInput
+                  type="text"
                   [formField]="row.value"
                   [id]="'customer-anamnesis-answer-' + i"
-                  type="text"
                 />
                 @if (meta.field.extraLabels?.description) {
                   <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
@@ -82,10 +82,10 @@
                 }}</label>
                 <input
                   appInput
-                  [formField]="row.numberValue"
-                  [id]="'customer-anamnesis-answer-' + i"
                   type="number"
                   inputmode="decimal"
+                  [formField]="row.numberValue"
+                  [id]="'customer-anamnesis-answer-' + i"
                 />
                 @if (meta.field.extraLabels?.description) {
                   <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
@@ -99,9 +99,9 @@
                 }}</label>
                 <input
                   appInput
+                  type="date"
                   [formField]="row.value"
                   [id]="'customer-anamnesis-answer-' + i"
-                  type="date"
                 />
                 @if (meta.field.extraLabels?.description) {
                   <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>

@@ -4,7 +4,11 @@ import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
 import { PaginationMetadata } from '../../shared/pagination.model';
-import { EmployeeServicePayload, ListEmployeeServiceFilter, ListEmployeeServiceResult } from './employee-service.dto';
+import {
+  EmployeeServicePayload,
+  ListEmployeeServiceFilter,
+  ListEmployeeServiceResult,
+} from './employee-service.dto';
 import { EmployeeService as EmployeeServiceModel } from './employee-service.model';
 
 interface CreateEmployeeServiceResponse {
@@ -33,12 +37,10 @@ export class EmployeeServiceService {
       catalogItemId: filter.catalogItemId,
     });
     return this.http.get<ListEmployeeServiceResponse>(this.baseUrl, { params }).pipe(
-      map(
-        (response): ListEmployeeServiceResult => ({
-          items: response.data.items,
-          meta: response.meta,
-        }),
-      ),
+      map((response): ListEmployeeServiceResult => ({
+        items: response.data.items,
+        meta: response.meta,
+      })),
     );
   }
 
@@ -54,7 +56,9 @@ export class EmployeeServiceService {
 
   sync(employeeId: string, catalogItemIds: string[]) {
     return this.http
-      .put<SyncEmployeeServiceResponse>(`${this.baseUrl}/employee/${employeeId}`, { catalogItemIds })
+      .put<SyncEmployeeServiceResponse>(`${this.baseUrl}/employee/${employeeId}`, {
+        catalogItemIds,
+      })
       .pipe(map((response) => response.data.employeeServices));
   }
 }

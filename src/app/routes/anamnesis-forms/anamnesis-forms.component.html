@@ -7,7 +7,7 @@
   </div>
   @if (canCreate()) {
     <a btn btnPrimary routerLink="new">
-      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      <app-icon size="sm" color="white" [icon]="LucidePlus" />
       Novo formulário
     </a>
   }
@@ -16,11 +16,11 @@
 <app-form-field>
   <label appLabel for="anamnesis-form-search">Buscar por nome</label>
   <input
-    appInput
-    [formField]="searchForm.name"
     id="anamnesis-form-search"
+    appInput
     type="search"
     placeholder="Ex: Anamnese Facial"
+    [formField]="searchForm.name"
   />
 </app-form-field>
 
@@ -46,11 +46,11 @@
 <app-paginator
   mode="compact"
   [page]="store.page()"
-  (pageChange)="goToPage($event)"
   [pageSize]="pageSize"
   [length]="store.total()"
   [showPageSizeSelector]="false"
   [disabled]="store.loading()"
+  (pageChange)="goToPage($event)"
 />
 
 <ng-template #statusTemplate let-row="row">
@@ -63,16 +63,16 @@
 
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
-    <a [routerLink]="[row.id]" btn btnOutline class="!px-3 !py-1 text-xs">Editar</a>
+    <a class="!px-3 !py-1 text-xs" btn btnOutline [routerLink]="[row.id]">Editar</a>
 
     @let canDeleteForm = canDelete();
     @if (canDeleteForm) {
       <button
         iconBtn
         type="button"
-        [icon]="LucideTrash2"
         ariaLabel="Excluir formulário"
         size="sm"
+        [icon]="LucideTrash2"
         (click)="openDeleteDialog(row)"
       ></button>
     }

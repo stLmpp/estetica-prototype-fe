@@ -1,6 +1,6 @@
 <h2
-  id="customer-anamnesis-finalize-dialog-title"
   class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
+  id="customer-anamnesis-finalize-dialog-title"
 >
   Finalizar anamnese
 </h2>
@@ -10,14 +10,14 @@
   este registro.
 </p>
 
-<form [formRoot]="f" class="flex flex-col gap-4">
+<form class="flex flex-col gap-4" [formRoot]="f">
   <app-form-field>
     <label appLabel for="customer-anamnesis-signed-by-name">Nome de quem assina</label>
     <input
-      appInput
-      [formField]="f.signedByName"
       id="customer-anamnesis-signed-by-name"
+      appInput
       type="text"
+      [formField]="f.signedByName"
     />
   </app-form-field>
 

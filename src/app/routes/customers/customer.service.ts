@@ -38,12 +38,10 @@ export class CustomerService {
       name: filter.name,
     });
     return this.http.get<ListCustomerResponse>(this.baseUrl, { params }).pipe(
-      map(
-        (response): ListCustomerResult => ({
-          items: response.data.items,
-          meta: response.meta,
-        }),
-      ),
+      map((response): ListCustomerResult => ({
+        items: response.data.items,
+        meta: response.meta,
+      })),
     );
   }
 

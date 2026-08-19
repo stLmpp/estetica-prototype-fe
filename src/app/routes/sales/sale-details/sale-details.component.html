@@ -1,5 +1,5 @@
 <div>
-  <a routerLink="/sales" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+  <a class="text-primary-600 dark:text-primary-300 text-sm hover:underline" routerLink="/sales">
     ← Voltar para vendas
   </a>
 </div>
@@ -32,7 +32,7 @@
               Atendido por {{ sale.employeeName }}
               @if (sale.appointmentId) {
                 ·
-                <a [routerLink]="['/appointments', sale.appointmentId]" class="hover:underline"
+                <a class="hover:underline" [routerLink]="['/appointments', sale.appointmentId]"
                   >a partir de um agendamento</a
                 >
               }
@@ -41,13 +41,25 @@
 
           <div class="flex items-center gap-3">
             @if (canCancelSale()) {
-              <button btn btnOutline type="button" (click)="openCancelDialog()">Cancelar venda</button>
+              <button btn btnOutline type="button" (click)="openCancelDialog()">
+                Cancelar venda
+              </button>
             }
             @if (canRegisterTransactions()) {
-              <button btn btnOutline type="button" (click)="openTransactionDialog(SaleTransactionType.Refund)">
+              <button
+                btn
+                btnOutline
+                type="button"
+                (click)="openTransactionDialog(SaleTransactionType.Refund)"
+              >
                 Registrar estorno
               </button>
-              <button btn btnPrimary type="button" (click)="openTransactionDialog(SaleTransactionType.Payment)">
+              <button
+                btn
+                btnPrimary
+                type="button"
+                (click)="openTransactionDialog(SaleTransactionType.Payment)"
+              >
                 Adicionar pagamento
               </button>
             }
@@ -58,7 +70,9 @@
           <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Itens</h2>
           <div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-700">
             <table class="w-full text-left text-sm">
-              <thead class="bg-neutral-50 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+              <thead
+                class="bg-neutral-50 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
+              >
                 <tr>
                   <th class="px-4 py-2 font-medium">Item</th>
                   <th class="px-4 py-2 font-medium">Quantidade</th>
@@ -68,8 +82,12 @@
               <tbody>
                 @for (item of sale.items; track item.id) {
                   <tr class="border-t border-neutral-200 dark:border-neutral-700">
-                    <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">{{ item.catalogItemName }}</td>
-                    <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">{{ item.quantity }}</td>
+                    <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                      {{ item.catalogItemName }}
+                    </td>
+                    <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
+                      {{ item.quantity }}
+                    </td>
                     <td class="px-4 py-2 text-neutral-800 dark:text-neutral-100">
                       {{ item.priceApplied | currency: 'BRL' }}
                     </td>
@@ -84,13 +102,21 @@
         </div>
 
         <div>
-          <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Transações</h2>
+          <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">
+            Transações
+          </h2>
           @if (!sale.transactions.length) {
-            <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhuma transação registrada.</p>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+              Nenhuma transação registrada.
+            </p>
           } @else {
-            <div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-700">
+            <div
+              class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-700"
+            >
               <table class="w-full text-left text-sm">
-                <thead class="bg-neutral-50 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
+                <thead
+                  class="bg-neutral-50 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400"
+                >
                   <tr>
                     <th class="px-4 py-2 font-medium">Tipo</th>
                     <th class="px-4 py-2 font-medium">Forma de pagamento</th>

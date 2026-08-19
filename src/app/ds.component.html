@@ -1,15 +1,15 @@
 <section>
   <button
+    class="focus:ring-primary-400 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-neutral-600 transition-colors hover:bg-neutral-100 focus:ring-2 focus:outline-none dark:text-neutral-300 dark:hover:bg-neutral-700"
     id="theme-toggle"
     aria-label="Alternar tema"
-    class="focus:ring-primary-400 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-neutral-600 transition-colors hover:bg-neutral-100 focus:ring-2 focus:outline-none dark:text-neutral-300 dark:hover:bg-neutral-700"
     (click)="toggleTheme()"
   >
     @if (theme() === 'dark') {
       <svg
+        class="hidden h-5 w-5"
         id="icon-sun"
         xmlns="http://www.w3.org/2000/svg"
-        class="hidden h-5 w-5"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -23,9 +23,9 @@
       </svg>
     } @else {
       <svg
+        class="h-5 w-5"
         id="icon-moon"
         xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -86,15 +86,15 @@
 
 <!-- Transfer List -->
 <section aria-labelledby="sec-transfer-list">
-  <h2 id="sec-transfer-list" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">
+  <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold" id="sec-transfer-list">
     Transfer List
   </h2>
 
   <app-transfer-list
-    [formField]="f.transferList"
-    [items]="transferListItems"
     leftLabel="Serviços disponíveis"
     rightLabel="Serviços do profissional"
+    [formField]="f.transferList"
+    [items]="transferListItems"
   />
 
   <p class="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
@@ -104,7 +104,7 @@
 
 <!-- Calendar -->
 <section aria-labelledby="sec-calendar">
-  <h2 id="sec-calendar" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">
+  <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold" id="sec-calendar">
     Calendar
   </h2>
 
@@ -117,7 +117,7 @@
 
 <!-- Badges and chips -->
 <section aria-labelledby="sec-badges">
-  <h2 id="sec-badges" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">
+  <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold" id="sec-badges">
     Badges &amp; Chips
   </h2>
   <div class="flex flex-wrap items-center gap-4">
@@ -138,7 +138,7 @@
   <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">Forms</h2>
   <app-form-field>
     <label appLabel for="name">Name</label>
-    <input appInput [formField]="f.name" id="name" type="number" />
+    <input id="name" appInput type="number" [formField]="f.name" />
     <app-hint start>Hint start</app-hint>
     <app-hint start>Hint end</app-hint>
   </app-form-field>
@@ -148,7 +148,7 @@
 <section>
   <app-form-field>
     <label appLabel for="select">Select</label>
-    <select appSelect [formField]="f.select" id="select">
+    <select id="select" appSelect [formField]="f.select">
       @for (item of options; track item.id) {
         <option [value]="item.id | string">{{ item.id }}</option>
       }
@@ -177,26 +177,26 @@
 
 <!-- Paginator -->
 <section aria-labelledby="sec-paginator">
-  <h2 id="sec-paginator" class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold">
+  <h2 class="text-primary-800 dark:text-primary-300 mb-6 text-2xl font-bold" id="sec-paginator">
     Paginator
   </h2>
 
   <section class="mb-8">
     <h3 class="mb-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400">Full</h3>
     <app-paginator
+      [length]="237"
       [(page)]="paginatorFullPage"
       [(pageSize)]="paginatorFullPageSize"
-      [length]="237"
     />
   </section>
 
   <section class="mb-8">
     <h3 class="mb-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400">Compact</h3>
     <app-paginator
-      [(page)]="paginatorCompactPage"
       mode="compact"
       [length]="237"
       [showPageSizeSelector]="false"
+      [(page)]="paginatorCompactPage"
     />
   </section>
 

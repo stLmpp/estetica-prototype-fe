@@ -55,7 +55,10 @@ export class OrganizationSettingsComponent {
           this.organizationService.updateWorkingHours(value.workingHours).pipe(
             map((): SaveResult => ({ ok: true })),
             catchError((error: unknown) =>
-              of<SaveResult>({ ok: false, message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE) }),
+              of<SaveResult>({
+                ok: false,
+                message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
+              }),
             ),
           ),
         );

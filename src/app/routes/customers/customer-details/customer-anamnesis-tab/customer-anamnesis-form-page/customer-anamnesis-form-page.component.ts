@@ -298,10 +298,8 @@ export class CustomerAnamnesisFormPageComponent {
         pattern(
           row.value,
           (ctx) => {
-            const configured = findValidation(
-              fieldOf(ctx),
-              AnamnesisFieldValidationType.PATTERN,
-            )?.validationArgs.pattern;
+            const configured = findValidation(fieldOf(ctx), AnamnesisFieldValidationType.PATTERN)
+              ?.validationArgs.pattern;
             return configured ? new RegExp(configured) : /(?:)/;
           },
           {

@@ -1,17 +1,17 @@
 <div
+  class="flex items-center gap-1 border-b border-neutral-200 dark:border-neutral-700"
   role="tablist"
   [attr.aria-label]="label()"
-  class="flex items-center gap-1 border-b border-neutral-200 dark:border-neutral-700"
 >
   @for (tab of tabs(); track tab.label) {
     <a
-      role="tab"
-      [routerLink]="tab.disabled ? null : tab.link"
-      routerLinkActive="!border-primary-500 !text-primary-700 dark:!text-primary-300 !font-semibold bg-primary-100 dark:bg-primary-900/60"
+      class="hover:text-primary-600 focus:ring-primary-400 -mb-px rounded-t border-b-4 border-transparent px-4 py-2 text-sm font-medium text-neutral-500 transition-colors focus:ring-2 focus:outline-none dark:text-neutral-400"
       #rla="routerLinkActive"
+      role="tab"
+      routerLinkActive="!border-primary-500 !text-primary-700 dark:!text-primary-300 !font-semibold bg-primary-100 dark:bg-primary-900/60"
+      [routerLink]="tab.disabled ? null : tab.link"
       [attr.aria-selected]="rla.isActive"
       [attr.aria-disabled]="tab.disabled || null"
-      class="-mb-px rounded-t border-b-4 border-transparent px-4 py-2 text-sm font-medium text-neutral-500 transition-colors hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-400 dark:text-neutral-400"
       [class]="{
         'cursor-pointer': !tab.disabled,
         'pointer-events-none': tab.disabled,

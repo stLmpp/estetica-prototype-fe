@@ -6,8 +6,8 @@
   >
     <app-checkbox
       [checked]="allLeftSelected()"
-      (checkedChange)="toggleSelectAllLeft($event)"
       [disabled]="disabled() || !filteredLeftItems().length"
+      (checkedChange)="toggleSelectAllLeft($event)"
     >
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
         {{ leftLabel() }} ({{ leftItems().length }})
@@ -17,9 +17,9 @@
 
   <div class="px-3 pt-2">
     <input
+      class="w-full !py-1.5"
       appInput
       type="search"
-      class="w-full !py-1.5"
       placeholder="Buscar..."
       [attr.aria-label]="'Buscar em ' + leftLabel()"
       [value]="leftFilter()"
@@ -28,17 +28,17 @@
   </div>
 
   <ul
+    class="flex h-56 flex-col gap-0.5 overflow-y-auto px-2 pb-2"
     role="listbox"
     aria-multiselectable="true"
     [attr.aria-label]="leftLabel()"
-    class="flex h-56 flex-col gap-0.5 overflow-y-auto px-2 pb-2"
   >
     @for (item of filteredLeftItems(); track item.id) {
       <li
+        class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
         role="option"
         tabindex="0"
         [attr.aria-selected]="selectedLeftIds().has(item.id)"
-        class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
         [class]="{
           'bg-primary-100': item.isSelected,
           'dark:bg-primary-900': item.isSelected,
@@ -64,8 +64,8 @@
     iconBtn
     btnOutline
     type="button"
-    [icon]="LucideChevronRight"
     ariaLabel="Mover selecionados para a direita"
+    [icon]="LucideChevronRight"
     [disabled]="disabled() || !selectedLeftIds().size"
     (click)="moveSelectedToRight()"
   ></button>
@@ -73,8 +73,8 @@
     iconBtn
     btnOutline
     type="button"
-    [icon]="LucideChevronsRight"
     ariaLabel="Mover todos para a direita"
+    [icon]="LucideChevronsRight"
     [disabled]="disabled() || !leftItems().length"
     (click)="moveAllToRight()"
   ></button>
@@ -82,8 +82,8 @@
     iconBtn
     btnOutline
     type="button"
-    [icon]="LucideChevronsLeft"
     ariaLabel="Mover todos para a esquerda"
+    [icon]="LucideChevronsLeft"
     [disabled]="disabled() || !rightItems().length"
     (click)="moveAllToLeft()"
   ></button>
@@ -91,8 +91,8 @@
     iconBtn
     btnOutline
     type="button"
-    [icon]="LucideChevronLeft"
     ariaLabel="Mover selecionados para a esquerda"
+    [icon]="LucideChevronLeft"
     [disabled]="disabled() || !selectedRightIds().size"
     (click)="moveSelectedToLeft()"
   ></button>
@@ -106,8 +106,8 @@
   >
     <app-checkbox
       [checked]="allRightSelected()"
-      (checkedChange)="toggleSelectAllRight($event)"
       [disabled]="disabled() || !filteredRightItems().length"
+      (checkedChange)="toggleSelectAllRight($event)"
     >
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
         {{ rightLabel() }} ({{ rightItems().length }})
@@ -117,9 +117,9 @@
 
   <div class="px-3 pt-2">
     <input
+      class="w-full !py-1.5"
       appInput
       type="search"
-      class="w-full !py-1.5"
       placeholder="Buscar..."
       [attr.aria-label]="'Buscar em ' + rightLabel()"
       [value]="rightFilter()"
@@ -128,17 +128,17 @@
   </div>
 
   <ul
+    class="flex h-56 flex-col gap-0.5 overflow-y-auto px-2 pb-2"
     role="listbox"
     aria-multiselectable="true"
     [attr.aria-label]="rightLabel()"
-    class="flex h-56 flex-col gap-0.5 overflow-y-auto px-2 pb-2"
   >
     @for (item of filteredRightItems(); track item.id) {
       <li
+        class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
         role="option"
         tabindex="0"
         [attr.aria-selected]="item.isSelected"
-        class="cursor-pointer rounded-lg px-2 py-1.5 text-sm text-neutral-800 transition-colors dark:text-neutral-100"
         [class]="{
           'bg-primary-100': item.isSelected,
           'dark:bg-primary-900': item.isSelected,

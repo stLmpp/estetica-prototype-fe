@@ -140,7 +140,9 @@ export class EmployeeFormDialogComponent {
           }
 
           this.toastService.success(
-            this.isEditing ? 'Funcionário atualizado com sucesso.' : 'Funcionário criado com sucesso.',
+            this.isEditing
+              ? 'Funcionário atualizado com sucesso.'
+              : 'Funcionário criado com sucesso.',
           );
           this.dialogRef.close(result.employee);
         },
@@ -157,9 +159,7 @@ export class EmployeeFormDialogComponent {
           this.loading.set(false);
         },
         error: (error: unknown) => {
-          this.loadErrorMessage.set(
-            extractApiErrorMessage(error, DEFAULT_LOAD_ERROR_MESSAGE),
-          );
+          this.loadErrorMessage.set(extractApiErrorMessage(error, DEFAULT_LOAD_ERROR_MESSAGE));
           this.loading.set(false);
         },
       });
@@ -203,16 +203,14 @@ export class EmployeeFormDialogComponent {
     const request$: Observable<SaveResult> =
       this.isEditing && this.data.employeeId
         ? this.store.updateEmployee(this.data.employeeId, payload).pipe(
-            map(
-              (): SaveResult => ({
-                ok: true,
-                employee: {
-                  id: this.data.employeeId!,
-                  name: payload.name ?? '',
-                  role: payload.role ?? '',
-                },
-              }),
-            ),
+            map((): SaveResult => ({
+              ok: true,
+              employee: {
+                id: this.data.employeeId!,
+                name: payload.name ?? '',
+                role: payload.role ?? '',
+              },
+            })),
           )
         : this.store
             .createEmployee(payload as EmployeePayload)

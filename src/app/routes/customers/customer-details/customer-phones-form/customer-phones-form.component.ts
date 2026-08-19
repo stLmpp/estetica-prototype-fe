@@ -106,9 +106,7 @@ export class CustomerPhonesFormComponent {
       },
       error: (error: unknown) => {
         this.phonesSaving.set(false);
-        this.phonesSaveErrorMessage.set(
-          extractApiErrorMessage(error, DEFAULT_SAVE_ERROR_MESSAGE),
-        );
+        this.phonesSaveErrorMessage.set(extractApiErrorMessage(error, DEFAULT_SAVE_ERROR_MESSAGE));
       },
     });
   }

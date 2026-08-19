@@ -5,16 +5,16 @@
   </div>
   @if (canCreateSale()) {
     <a btn btnPrimary routerLink="/sales/new">
-      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      <app-icon size="sm" color="white" [icon]="LucidePlus" />
       Nova venda
     </a>
   }
 </div>
 
-<form [formRoot]="filtersForm" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+<form class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" [formRoot]="filtersForm">
   <app-form-field>
     <label appLabel for="sale-status-filter">Status</label>
-    <select appSelect [formField]="filtersForm.status" id="sale-status-filter">
+    <select id="sale-status-filter" appSelect [formField]="filtersForm.status">
       <option value="">Todos</option>
       @for (status of statusOptions; track status) {
         <option [value]="status">{{ status }}</option>
@@ -23,29 +23,29 @@
   </app-form-field>
 
   <app-typeahead
-    [formField]="filtersForm.customerId"
-    [searchFn]="customerSearchFn"
     label="Cliente"
     placeholder="Buscar cliente por nome"
     emptyMessage="Nenhum cliente encontrado."
+    [formField]="filtersForm.customerId"
+    [searchFn]="customerSearchFn"
   />
 
   <app-typeahead
-    [formField]="filtersForm.employeeId"
-    [searchFn]="employeeSearchFn"
     label="Funcionário"
     placeholder="Buscar funcionário por nome"
     emptyMessage="Nenhum funcionário encontrado."
+    [formField]="filtersForm.employeeId"
+    [searchFn]="employeeSearchFn"
   />
 
   <app-form-field>
     <label appLabel for="sale-from-date">A partir de</label>
-    <input appInput [formField]="filtersForm.fromDate" id="sale-from-date" type="date" />
+    <input id="sale-from-date" appInput type="date" [formField]="filtersForm.fromDate" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="sale-to-date">Até</label>
-    <input appInput [formField]="filtersForm.toDate" id="sale-to-date" type="date" />
+    <input id="sale-to-date" appInput type="date" [formField]="filtersForm.toDate" />
   </app-form-field>
 </form>
 
@@ -71,11 +71,11 @@
 <app-paginator
   mode="compact"
   [page]="store.page()"
-  (pageChange)="goToPage($event)"
   [pageSize]="pageSize"
   [length]="store.total()"
   [showPageSizeSelector]="false"
   [disabled]="store.loading()"
+  (pageChange)="goToPage($event)"
 />
 
 <ng-template #statusTemplate let-row="row">
@@ -97,9 +97,9 @@
     <a
       iconBtn
       type="button"
-      [icon]="LucideEye"
       ariaLabel="Ver venda"
       size="sm"
+      [icon]="LucideEye"
       [routerLink]="['/sales', row.id]"
     ></a>
 
@@ -108,9 +108,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucideTrash2"
         ariaLabel="Excluir venda"
         size="sm"
+        [icon]="LucideTrash2"
         (click)="openDeleteDialog(row)"
       ></button>
     }

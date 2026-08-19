@@ -13,7 +13,7 @@
       [appPreloadLoader]="catalogItemFormDialogLoader"
       (click)="openCreateDialog()"
     >
-      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      <app-icon size="sm" color="white" [icon]="LucidePlus" />
       Novo item
     </button>
   }
@@ -22,11 +22,11 @@
 <app-form-field>
   <label appLabel for="catalog-item-search">Buscar por nome</label>
   <input
-    appInput
-    [formField]="searchForm.name"
     id="catalog-item-search"
+    appInput
     type="search"
     placeholder="Ex: Limpeza de pele"
+    [formField]="searchForm.name"
   />
 </app-form-field>
 
@@ -52,11 +52,11 @@
 <app-paginator
   mode="compact"
   [page]="store.page()"
-  (pageChange)="goToPage($event)"
   [pageSize]="pageSize"
   [length]="store.total()"
   [showPageSizeSelector]="false"
   [disabled]="store.loading()"
+  (pageChange)="goToPage($event)"
 />
 
 <ng-template #statusTemplate let-row="row">
@@ -74,9 +74,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucidePencil"
         ariaLabel="Editar item"
         size="sm"
+        [icon]="LucidePencil"
         [appPreloadLoader]="catalogItemFormDialogLoader"
         (click)="openEditDialog(row)"
       ></button>
@@ -87,9 +87,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucideTrash2"
         ariaLabel="Excluir item"
         size="sm"
+        [icon]="LucideTrash2"
         (click)="openDeleteDialog(row)"
       ></button>
     }

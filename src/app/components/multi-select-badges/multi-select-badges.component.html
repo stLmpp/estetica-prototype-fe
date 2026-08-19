@@ -1,13 +1,13 @@
 @for (item of items(); track item.option.value) {
   <label
-    [for]="item.id"
     class="cursor-pointer rounded-full border px-2.5 py-0.5 text-xs font-bold transition-colors select-none"
+    [for]="item.id"
     [class]="item.colorClass"
   >
     <input
+      class="sr-only"
       #checkbox
       type="checkbox"
-      class="sr-only"
       [id]="item.id"
       [checked]="item.checked"
       [disabled]="disabled()"

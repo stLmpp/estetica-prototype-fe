@@ -44,12 +44,10 @@ export class SaleService {
       to: filter.to,
     });
     return this.http.get<ListSaleResponse>(this.baseUrl, { params }).pipe(
-      map(
-        (response): ListSaleResult => ({
-          items: response.data.items,
-          meta: response.meta,
-        }),
-      ),
+      map((response): ListSaleResult => ({
+        items: response.data.items,
+        meta: response.meta,
+      })),
     );
   }
 

@@ -1,7 +1,7 @@
 @if (success()) {
   <svg
-    xmlns="http://www.w3.org/2000/svg"
     class="h-5 w-5 shrink-0"
+    xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -16,8 +16,8 @@
   </svg>
 } @else if (error()) {
   <svg
-    xmlns="http://www.w3.org/2000/svg"
     class="h-5 w-5 shrink-0"
+    xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -32,8 +32,8 @@
   </svg>
 } @else {
   <svg
-    xmlns="http://www.w3.org/2000/svg"
     class="h-5 w-5 shrink-0"
+    xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke="currentColor"
@@ -52,14 +52,14 @@
 
 @if (showClose()) {
   <button
+    class="ml-auto shrink-0 cursor-pointer hover:opacity-75 focus:outline-none"
     type="button"
     aria-label="Fechar"
-    class="ml-auto shrink-0 cursor-pointer hover:opacity-75 focus:outline-none"
     (click)="clickClose.emit($event)"
   >
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       class="h-4 w-4"
+      xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"

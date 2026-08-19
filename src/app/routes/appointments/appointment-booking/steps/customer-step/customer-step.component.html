@@ -1,12 +1,12 @@
 <app-typeahead
-  [searchFn]="searchFn"
-  [initialItem]="initialItem()"
-  (itemSelected)="onItemSelected($event)"
   label="Cliente"
   placeholder="Buscar cliente por nome"
   emptyMessage="Nenhum cliente encontrado."
+  [searchFn]="searchFn"
+  [initialItem]="initialItem()"
+  (itemSelected)="onItemSelected($event)"
 />
 
 <div class="mt-6 flex justify-end">
-  <a btn btnPrimary [disabled]="!store.customer()" routerLink="../service">Avançar</a>
+  <a btn btnPrimary routerLink="../service" [disabled]="!store.customer()">Avançar</a>
 </div>

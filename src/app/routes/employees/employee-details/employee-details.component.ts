@@ -72,7 +72,10 @@ export class EmployeeDetailsComponent {
   });
   protected readonly employee = computed(() => this.employeeResource.value()?.employee ?? null);
   protected readonly services = computed<TransferListItem[]>(() =>
-    (this.employeeResource.value()?.services.items ?? []).map((item) => ({ id: item.id, label: item.name })),
+    (this.employeeResource.value()?.services.items ?? []).map((item) => ({
+      id: item.id,
+      label: item.name,
+    })),
   );
 
   private readonly initialCatalogItemIds = computed(() =>

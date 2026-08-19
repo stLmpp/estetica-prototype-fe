@@ -13,7 +13,7 @@
       [appPreloadLoader]="employeeFormDialogLoader"
       (click)="openCreateDialog()"
     >
-      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      <app-icon size="sm" color="white" [icon]="LucidePlus" />
       Novo funcionário
     </button>
   }
@@ -22,11 +22,11 @@
 <app-form-field>
   <label appLabel for="employee-search">Buscar por nome</label>
   <input
-    appInput
-    [formField]="searchForm.name"
     id="employee-search"
+    appInput
     type="search"
     placeholder="Ex: João Souza"
+    [formField]="searchForm.name"
   />
 </app-form-field>
 
@@ -52,20 +52,20 @@
 <app-paginator
   mode="compact"
   [page]="store.page()"
-  (pageChange)="goToPage($event)"
   [pageSize]="pageSize"
   [length]="store.total()"
   [showPageSizeSelector]="false"
   [disabled]="store.loading()"
+  (pageChange)="goToPage($event)"
 />
 
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
     <a
       iconBtn
-      [icon]="LucideEye"
       ariaLabel="Ver detalhes do funcionário"
       size="sm"
+      [icon]="LucideEye"
       [routerLink]="['/employees', row.id]"
     ></a>
 
@@ -74,9 +74,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucidePencil"
         ariaLabel="Editar funcionário"
         size="sm"
+        [icon]="LucidePencil"
         [appPreloadLoader]="employeeFormDialogLoader"
         (click)="openEditDialog(row)"
       ></button>
@@ -87,9 +87,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucideTrash2"
         ariaLabel="Excluir funcionário"
         size="sm"
+        [icon]="LucideTrash2"
         (click)="openDeleteDialog(row)"
       ></button>
     }

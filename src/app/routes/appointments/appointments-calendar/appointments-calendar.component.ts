@@ -17,7 +17,11 @@ import {
 } from '../../../components/multi-select-badges/multi-select-badges.component';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { AuthStore } from '../../../core/auth/auth.store';
-import { parseWorkingHours, WEEKDAYS, WeeklyWorkingHours } from '../../../model/working-hours.model';
+import {
+  parseWorkingHours,
+  WEEKDAYS,
+  WeeklyWorkingHours,
+} from '../../../model/working-hours.model';
 import { AppointmentStatus } from '../appointment-status.enum';
 import { CalendarAppointment } from '../appointment.model';
 import { Employee } from '../../employees/employee.model';

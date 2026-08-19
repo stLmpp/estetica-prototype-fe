@@ -1,14 +1,14 @@
-<ol role="tablist" [attr.aria-orientation]="orientation" class="flex items-center">
+<ol class="flex items-center" role="tablist" [attr.aria-orientation]="orientation">
   @for (step of stepsInternal(); track step; let index = $index; let last = $last) {
     <li class="flex flex-1 items-center gap-2">
       <button
+        class="flex cursor-pointer items-center gap-2 focus:outline-none disabled:cursor-not-allowed"
         type="button"
         cdkStepHeader
         [id]="step.stepLabelId"
         [attr.aria-selected]="step.isSelected()"
         [attr.aria-controls]="step.stepContentId"
         [disabled]="!step.isNavigable()"
-        class="flex cursor-pointer items-center gap-2 focus:outline-none disabled:cursor-not-allowed"
         (click)="onHeaderClick(index)"
         (keydown)="_onKeydown($event)"
       >

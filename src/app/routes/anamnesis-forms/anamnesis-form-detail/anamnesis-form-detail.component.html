@@ -1,7 +1,7 @@
 <div>
   <a
-    routerLink="/anamnesis-forms"
     class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+    routerLink="/anamnesis-forms"
   >
     ← Voltar para anamneses
   </a>
@@ -11,42 +11,42 @@
   <app-alert error>{{ message }}</app-alert>
 }
 
-<div [loadingOverlay]="store.loading()" class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2" [loadingOverlay]="store.loading()">
   <div class="flex flex-col gap-8">
     <section class="rounded-2xl border border-neutral-200 p-6 dark:border-neutral-700">
       <h2 class="mb-4 text-lg font-bold text-neutral-800 dark:text-neutral-100">
         Configurações do formulário
       </h2>
 
-      <form [formRoot]="settingsForm" class="flex flex-col gap-4">
+      <form class="flex flex-col gap-4" [formRoot]="settingsForm">
         <app-form-field>
           <label appLabel for="anamnesis-form-settings-name">Nome</label>
           <input
-            appInput
-            [formField]="settingsForm.name"
             id="anamnesis-form-settings-name"
+            appInput
             type="text"
+            [formField]="settingsForm.name"
           />
         </app-form-field>
 
         <app-form-field>
           <label appLabel for="anamnesis-form-settings-description">Descrição</label>
           <input
-            appInput
-            [formField]="settingsForm.description"
             id="anamnesis-form-settings-description"
+            appInput
             type="text"
+            [formField]="settingsForm.description"
           />
         </app-form-field>
 
         <app-form-field>
           <label appLabel for="anamnesis-form-settings-display-order">Ordem de exibição</label>
           <input
-            appInput
-            [formField]="settingsForm.displayOrder"
             id="anamnesis-form-settings-display-order"
+            appInput
             type="number"
             inputmode="numeric"
+            [formField]="settingsForm.displayOrder"
           />
         </app-form-field>
 
@@ -77,7 +77,7 @@
         <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Seções</h2>
         @if (canCreate() && !addingSection()) {
           <button btn btnOutline type="button" (click)="addingSection.set(true)">
-            <app-icon [icon]="LucidePlus" size="sm" />
+            <app-icon size="sm" [icon]="LucidePlus" />
             Nova seção
           </button>
         }
@@ -116,9 +116,9 @@
                     <button
                       iconBtn
                       type="button"
-                      [icon]="LucidePencil"
                       ariaLabel="Editar seção"
                       size="sm"
+                      [icon]="LucidePencil"
                       (click)="editingSectionId.set(section.id)"
                     ></button>
                   }
@@ -126,9 +126,9 @@
                     <button
                       iconBtn
                       type="button"
-                      [icon]="LucideTrash2"
                       ariaLabel="Excluir seção"
                       size="sm"
+                      [icon]="LucideTrash2"
                       (click)="openDeleteSectionDialog(section)"
                     ></button>
                   }
@@ -153,7 +153,7 @@
         <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Campos</h2>
         @if (canCreate() && !addingField()) {
           <button btn btnOutline type="button" (click)="addingField.set(true)">
-            <app-icon [icon]="LucidePlus" size="sm" />
+            <app-icon size="sm" [icon]="LucidePlus" />
             Novo campo
           </button>
         }
@@ -211,9 +211,9 @@
                           <button
                             iconBtn
                             type="button"
-                            [icon]="LucidePencil"
                             ariaLabel="Editar campo"
                             size="sm"
+                            [icon]="LucidePencil"
                             (click)="editingFieldId.set(field.id)"
                           ></button>
                         }
@@ -221,9 +221,9 @@
                           <button
                             iconBtn
                             type="button"
-                            [icon]="LucideTrash2"
                             ariaLabel="Excluir campo"
                             size="sm"
+                            [icon]="LucideTrash2"
                             (click)="openDeleteFieldDialog(field)"
                           ></button>
                         }

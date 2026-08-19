@@ -1,7 +1,15 @@
 import { Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { applyEach, form, FormField, FormRoot, hidden, required, validate } from '@angular/forms/signals';
+import {
+  applyEach,
+  form,
+  FormField,
+  FormRoot,
+  hidden,
+  required,
+  validate,
+} from '@angular/forms/signals';
 import { catchError, firstValueFrom, map, Observable, of } from 'rxjs';
 import Big from 'big.js';
 import { NgxMaskDirective } from 'ngx-mask';
@@ -14,7 +22,10 @@ import { InputDirective } from '../../../components/input/input.directive';
 import { LabelComponent } from '../../../components/label/label.component';
 import { SelectDirective } from '../../../components/select/select.directive';
 import { SwitchComponent } from '../../../components/switch/switch.component';
-import { TypeaheadComponent, TypeaheadItem } from '../../../components/typeahead/typeahead.component';
+import {
+  TypeaheadComponent,
+  TypeaheadItem,
+} from '../../../components/typeahead/typeahead.component';
 import { ToastService } from '../../../components/toast/toast.service';
 import { extractApiErrorMessage } from '../../../model/api-error';
 import { AppointmentDetail } from '../../appointments/appointment.model';
@@ -61,7 +72,13 @@ function emptyModel(): SaleFormModel {
 }
 
 function emptyItem(): SaleItemFormValue {
-  return { catalogItemId: '', catalogItemName: '', quantity: 1, priceApplied: '', defaultPrice: '' };
+  return {
+    catalogItemId: '',
+    catalogItemName: '',
+    quantity: 1,
+    priceApplied: '',
+    defaultPrice: '',
+  };
 }
 
 function emptyTransaction(): SaleTransactionFormValue {
@@ -136,7 +153,9 @@ export class SaleFormComponent {
 
   protected readonly itemInitialItems = computed<(TypeaheadItem | null)[]>(() => {
     const appointment = this.appointment();
-    return appointment ? [{ id: appointment.catalogItemId, label: appointment.catalogItemName }] : [];
+    return appointment
+      ? [{ id: appointment.catalogItemId, label: appointment.catalogItemName }]
+      : [];
   });
 
   protected readonly model = linkedSignal<SaleFormModel>(() => {
@@ -270,12 +289,20 @@ export class SaleFormComponent {
   protected readonly customerSearchFn = (query: string) =>
     this.customerService
       .list({ name: query, limit: 10 })
-      .pipe(map((result) => result.items.map((customer) => ({ id: customer.id, label: customer.name }))));
+      .pipe(
+        map((result) =>
+          result.items.map((customer) => ({ id: customer.id, label: customer.name })),
+        ),
+      );
 
   protected readonly employeeSearchFn = (query: string) =>
     this.employeeService
       .list({ name: query, limit: 10 })
-      .pipe(map((result) => result.items.map((employee) => ({ id: employee.id, label: employee.name }))));
+      .pipe(
+        map((result) =>
+          result.items.map((employee) => ({ id: employee.id, label: employee.name })),
+        ),
+      );
 
   protected readonly catalogItemSearchFn = (query: string): Observable<TypeaheadItem[]> =>
     this.catalogItemService.list({ name: query, active: true, limit: 10 }).pipe(
@@ -293,7 +320,11 @@ export class SaleFormComponent {
       ...value,
       items: value.items.map((row, i) =>
         i === index
-          ? { ...row, catalogItemName: item?.label ?? '', defaultPrice: catalogItem?.defaultPrice ?? '' }
+          ? {
+              ...row,
+              catalogItemName: item?.label ?? '',
+              defaultPrice: catalogItem?.defaultPrice ?? '',
+            }
           : row,
       ),
     }));
@@ -308,7 +339,10 @@ export class SaleFormComponent {
   }
 
   protected addTransaction() {
-    this.model.update((value) => ({ ...value, transactions: [...value.transactions, emptyTransaction()] }));
+    this.model.update((value) => ({
+      ...value,
+      transactions: [...value.transactions, emptyTransaction()],
+    }));
   }
 
   protected removeTransaction(index: number) {
@@ -334,7 +368,9 @@ export class SaleFormComponent {
 
     const transactions: SaleTransactionPayload[] = value.transactions.map((transaction) => ({
       type: SaleTransactionType.Payment,
-      paymentMethod: transaction.installments ? PaymentMethod.CreditCard : (transaction.paymentMethod as PaymentMethod),
+      paymentMethod: transaction.installments
+        ? PaymentMethod.CreditCard
+        : (transaction.paymentMethod as PaymentMethod),
       amount: transaction.amount,
       installmentCount: transaction.installments ? transaction.installmentCount! : undefined,
       dueDate: transaction.dueDate || undefined,
@@ -360,7 +396,10 @@ export class SaleFormComponent {
       this.saleService.create(payload).pipe(
         map((sale): SaveResult => ({ ok: true, saleId: sale.id })),
         catchError((error: unknown) =>
-          of<SaveResult>({ ok: false, message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE) }),
+          of<SaveResult>({
+            ok: false,
+            message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
+          }),
         ),
       ),
     );

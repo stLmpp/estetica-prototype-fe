@@ -9,11 +9,11 @@
           type="button"
           iconBtn
           btnSecondary
-          [icon]="LucideMenu"
           ariaLabel="Open menu"
-          (click)="toggleSidebar()"
-          [attr.aria-expanded]="sidebarService.isOpen()"
           aria-controls="sidebar-menu"
+          [icon]="LucideMenu"
+          [attr.aria-expanded]="sidebarService.isOpen()"
+          (click)="toggleSidebar()"
         ></button>
       }
       <div class="text-primary-800 dark:text-primary-200 text-xl font-bold">
@@ -32,16 +32,16 @@
           type="button"
           iconBtn
           btnSecondary
+          ariaLabel="Toggle dark mode"
           [icon]="theme() === 'dark' ? LucideSun : LucideMoon"
           (click)="changeTheme()"
-          ariaLabel="Toggle dark mode"
         ></button>
         <button
           type="button"
           iconBtn
           btnSecondary
-          [icon]="LucideLogOut"
           ariaLabel="Logout"
+          [icon]="LucideLogOut"
           (click)="logout()"
         ></button>
       </div>

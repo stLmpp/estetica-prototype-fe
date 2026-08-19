@@ -20,5 +20,5 @@
 
 <div class="mt-6 flex justify-between">
   <a btn btnOutline routerLink="../service">Voltar</a>
-  <a btn btnPrimary [disabled]="!store.employee()" routerLink="../schedule">Avançar</a>
+  <a btn btnPrimary routerLink="../schedule" [disabled]="!store.employee()">Avançar</a>
 </div>

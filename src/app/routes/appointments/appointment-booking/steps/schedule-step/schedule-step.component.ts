@@ -127,7 +127,11 @@ export class ScheduleStepComponent {
       buildTimeSlots(
         this.store.date(),
         this.store.daySchedule(),
-        resolveDayHours(this.store.date(), this.store.employee()?.workingHours, this.orgWorkingHours()),
+        resolveDayHours(
+          this.store.date(),
+          this.store.employee()?.workingHours,
+          this.orgWorkingHours(),
+        ),
       ),
       this.store.startTime(),
     ),
@@ -157,7 +161,11 @@ export class ScheduleStepComponent {
   });
 
   protected readonly dayHours = computed<DayWorkingHours | null>(() =>
-    resolveDayHours(this.f.date().value(), this.store.employee()?.workingHours, this.orgWorkingHours()),
+    resolveDayHours(
+      this.f.date().value(),
+      this.store.employee()?.workingHours,
+      this.orgWorkingHours(),
+    ),
   );
 
   protected readonly timeSlots = computed<TimeSlot[]>(() =>

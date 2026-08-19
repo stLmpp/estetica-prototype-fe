@@ -1,25 +1,25 @@
 <h2
-  id="customer-form-dialog-title"
   class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
+  id="customer-form-dialog-title"
 >
   Novo cliente
 </h2>
 
-<form [formRoot]="f" class="flex flex-col gap-4">
+<form class="flex flex-col gap-4" [formRoot]="f">
   <app-form-field>
     <label appLabel for="customer-name">Nome</label>
-    <input appInput [formField]="f.name" id="customer-name" type="text" />
+    <input id="customer-name" appInput type="text" [formField]="f.name" />
   </app-form-field>
 
   <div class="grid grid-cols-2 gap-4">
     <app-form-field>
       <label appLabel for="customer-birth-date">Data de nascimento</label>
-      <input appInput [formField]="f.birthDate" id="customer-birth-date" type="date" />
+      <input id="customer-birth-date" appInput type="date" [formField]="f.birthDate" />
     </app-form-field>
 
     <app-form-field>
       <label appLabel for="customer-marital-status">Estado civil</label>
-      <select appSelect [formField]="f.maritalStatus" id="customer-marital-status">
+      <select id="customer-marital-status" appSelect [formField]="f.maritalStatus">
         <option value="">Selecione</option>
         <option [value]="MaritalStatus.Single">{{ MaritalStatus.Single }}</option>
         <option [value]="MaritalStatus.Married">{{ MaritalStatus.Married }}</option>
@@ -31,48 +31,48 @@
 
   <app-form-field>
     <label appLabel for="customer-email">E-mail</label>
-    <input appInput [formField]="f.email" id="customer-email" type="email" />
+    <input id="customer-email" appInput type="email" [formField]="f.email" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="customer-job-name">Profissão</label>
-    <input appInput [formField]="f.jobName" id="customer-job-name" type="text" />
+    <input id="customer-job-name" appInput type="text" [formField]="f.jobName" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="customer-address">Endereço</label>
-    <input appInput [formField]="f.address" id="customer-address" type="text" />
+    <input id="customer-address" appInput type="text" [formField]="f.address" />
   </app-form-field>
 
   <div class="grid grid-cols-2 gap-4">
     <app-form-field>
       <label appLabel for="customer-zip-code">CEP</label>
       <input
-        appInput
-        [formField]="f.zipCode"
         id="customer-zip-code"
+        appInput
         type="text"
         inputmode="numeric"
         mask="00000-000"
         placeholder="00000-000"
+        [formField]="f.zipCode"
       />
     </app-form-field>
 
     <app-form-field>
       <label appLabel for="customer-neighborhood">Bairro</label>
-      <input appInput [formField]="f.neighborhood" id="customer-neighborhood" type="text" />
+      <input id="customer-neighborhood" appInput type="text" [formField]="f.neighborhood" />
     </app-form-field>
   </div>
 
   <div class="grid grid-cols-2 gap-4">
     <app-form-field>
       <label appLabel for="customer-city">Cidade</label>
-      <input appInput [formField]="f.city" id="customer-city" type="text" />
+      <input id="customer-city" appInput type="text" [formField]="f.city" />
     </app-form-field>
 
     <app-form-field>
       <label appLabel for="customer-state">Estado</label>
-      <input appInput [formField]="f.state" id="customer-state" type="text" />
+      <input id="customer-state" appInput type="text" [formField]="f.state" />
     </app-form-field>
   </div>
 
@@ -89,12 +89,12 @@
             <label appLabel [for]="'customer-phone-number-' + i">Número</label>
             <input
               appInput
-              [formField]="phone.number"
-              [id]="'customer-phone-number-' + i"
               type="text"
               inputmode="numeric"
               mask="(00) 00000-0000"
               placeholder="(00) 00000-0000"
+              [formField]="phone.number"
+              [id]="'customer-phone-number-' + i"
             />
           </app-form-field>
 

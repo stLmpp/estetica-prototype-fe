@@ -6,44 +6,44 @@
     <p class="text-neutral-500 dark:text-neutral-400">Por favor, faça login para continuar</p>
   </div>
 
-  <form [formRoot]="loginForm" class="flex flex-col gap-6">
+  <form class="flex flex-col gap-6" [formRoot]="loginForm">
     <app-form-field>
       <label appLabel for="email">E-mail</label>
       <input
-        appInput
-        [formField]="loginForm.email"
         id="email"
+        appInput
         type="email"
         placeholder="E-mail"
         autocomplete="email"
         autoFocus
+        [formField]="loginForm.email"
       />
     </app-form-field>
 
     <app-form-field>
       <label appLabel for="password">Senha</label>
       <input
-        appInput
-        [formField]="loginForm.password"
         id="password"
+        appInput
         type="password"
         placeholder="Senha"
         autocomplete="current-password"
+        [formField]="loginForm.password"
       />
     </app-form-field>
 
     <a
-      routerLink="/forgot-password"
       class="text-primary-600 hover:text-primary-500 dark:text-primary-400 text-sm font-medium transition-colors"
+      routerLink="/forgot-password"
     >
       Esqueci minha senha
     </a>
 
     <div class="mt-2">
       <button
+        class="w-full justify-center py-3 text-lg"
         btn
         btnPrimary
-        class="w-full justify-center py-3 text-lg"
         type="submit"
         [btnLoading]="loginForm().submitting()"
       >

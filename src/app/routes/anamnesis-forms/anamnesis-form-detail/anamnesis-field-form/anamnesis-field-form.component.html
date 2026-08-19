@@ -2,15 +2,15 @@
   {{ isEditing() ? 'Editar campo' : 'Novo campo' }}
 </h4>
 
-<form [formRoot]="f" class="flex flex-col gap-4">
+<form class="flex flex-col gap-4" [formRoot]="f">
   <app-form-field>
     <label appLabel for="anamnesis-field-label">Nome</label>
-    <input appInput [formField]="f.label" id="anamnesis-field-label" type="text" />
+    <input id="anamnesis-field-label" appInput type="text" [formField]="f.label" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="anamnesis-field-type">Tipo</label>
-    <select appSelect [formField]="f.fieldType" id="anamnesis-field-type">
+    <select id="anamnesis-field-type" appSelect [formField]="f.fieldType">
       @for (fieldType of fieldTypeOptions; track fieldType) {
         <option [value]="fieldType">{{ ANAMNESIS_FIELD_TYPE_LABELS[fieldType] }}</option>
       }
@@ -19,7 +19,7 @@
 
   <app-form-field>
     <label appLabel for="anamnesis-field-section">Seção</label>
-    <select appSelect [formField]="f.anamnesisSectionId" id="anamnesis-field-section">
+    <select id="anamnesis-field-section" appSelect [formField]="f.anamnesisSectionId">
       <option value="">Nenhuma</option>
       @for (section of sections(); track section.id) {
         <option [value]="section.id">{{ section.label }}</option>
@@ -29,17 +29,17 @@
 
   <app-form-field>
     <label appLabel for="anamnesis-field-description">Texto de ajuda</label>
-    <input appInput [formField]="f.description" id="anamnesis-field-description" type="text" />
+    <input id="anamnesis-field-description" appInput type="text" [formField]="f.description" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="anamnesis-field-display-order">Ordem de exibição</label>
     <input
-      appInput
-      [formField]="f.displayOrder"
       id="anamnesis-field-display-order"
+      appInput
       type="number"
       inputmode="numeric"
+      [formField]="f.displayOrder"
     />
   </app-form-field>
 
@@ -63,26 +63,26 @@
             <label appLabel [for]="'anamnesis-field-option-value-' + i">Valor</label>
             <input
               appInput
+              type="text"
               [formField]="option.value"
               [id]="'anamnesis-field-option-value-' + i"
-              type="text"
             />
           </app-form-field>
           <app-form-field class="flex-1">
             <label appLabel [for]="'anamnesis-field-option-label-' + i">Rótulo</label>
             <input
               appInput
+              type="text"
               [formField]="option.label"
               [id]="'anamnesis-field-option-label-' + i"
-              type="text"
             />
           </app-form-field>
           <button
             iconBtn
             type="button"
-            [icon]="LucideTrash2"
             ariaLabel="Remover opção"
             size="sm"
+            [icon]="LucideTrash2"
             (click)="removeOption(i)"
           ></button>
         </div>
@@ -94,7 +94,7 @@
         </p>
       }
 
-      <button btn btnOutline type="button" class="self-start" (click)="addOption()">
+      <button class="self-start" btn btnOutline type="button" (click)="addOption()">
         Adicionar opção
       </button>
     </div>
@@ -133,10 +133,10 @@
               <label appLabel [for]="'anamnesis-field-validation-length-' + i">Tamanho</label>
               <input
                 appInput
-                [formField]="validationRow.length"
-                [id]="'anamnesis-field-validation-length-' + i"
                 type="number"
                 inputmode="numeric"
+                [formField]="validationRow.length"
+                [id]="'anamnesis-field-validation-length-' + i"
               />
             </app-form-field>
           }
@@ -145,10 +145,10 @@
               <label appLabel [for]="'anamnesis-field-validation-value-' + i">Valor</label>
               <input
                 appInput
-                [formField]="validationRow.value"
-                [id]="'anamnesis-field-validation-value-' + i"
                 type="number"
                 inputmode="decimal"
+                [formField]="validationRow.value"
+                [id]="'anamnesis-field-validation-value-' + i"
               />
             </app-form-field>
           }
@@ -159,9 +159,9 @@
               >
               <input
                 appInput
+                type="text"
                 [formField]="validationRow.pattern"
                 [id]="'anamnesis-field-validation-pattern-' + i"
-                type="text"
               />
             </app-form-field>
           }
@@ -169,9 +169,9 @@
           <button
             iconBtn
             type="button"
-            [icon]="LucideTrash2"
             ariaLabel="Remover validação"
             size="sm"
+            [icon]="LucideTrash2"
             (click)="removeValidation(i)"
           ></button>
         </div>
@@ -186,7 +186,7 @@
       </p>
     }
 
-    <button btn btnOutline type="button" class="self-start" (click)="addValidation()">
+    <button class="self-start" btn btnOutline type="button" (click)="addValidation()">
       Adicionar validação
     </button>
   </div>

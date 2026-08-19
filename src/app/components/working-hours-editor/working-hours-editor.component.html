@@ -10,20 +10,20 @@
       {{ row.label }}
     </label>
     <input
+      class="w-32"
       #startInput
       appInput
       type="time"
-      class="w-32"
       [value]="row.start"
       [disabled]="!row.isOpen"
       (change)="setStart(row.weekday, startInput.value)"
     />
     <span class="text-sm text-neutral-500 dark:text-neutral-400">até</span>
     <input
+      class="w-32"
       #endInput
       appInput
       type="time"
-      class="w-32"
       [value]="row.end"
       [disabled]="!row.isOpen"
       (change)="setEnd(row.weekday, endInput.value)"

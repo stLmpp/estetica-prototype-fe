@@ -4,7 +4,7 @@ import { Component, input } from '@angular/core';
   selector: 'app-loading-overlay-content',
   template: `
     <div
-      class="bg-white/80 dark:bg-neutral-900/80 absolute inset-0 z-10 flex cursor-wait items-center justify-center"
+      class="absolute inset-0 z-10 flex cursor-wait items-center justify-center bg-white/80 dark:bg-neutral-900/80"
       role="status"
       [attr.aria-label]="label()"
       (click)="$event.stopPropagation()"

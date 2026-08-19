@@ -1,19 +1,19 @@
 <h2
-  id="catalog-item-form-dialog-title"
   class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
+  id="catalog-item-form-dialog-title"
 >
   {{ isEditing ? 'Editar item' : 'Novo item' }}
 </h2>
 
-<form [formRoot]="f" class="flex flex-col gap-4">
+<form class="flex flex-col gap-4" [formRoot]="f">
   <app-form-field>
     <label appLabel for="catalog-item-name">Nome</label>
-    <input appInput [formField]="f.name" id="catalog-item-name" type="text" />
+    <input id="catalog-item-name" appInput type="text" [formField]="f.name" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="catalog-item-type">Tipo</label>
-    <select appSelect [formField]="f.itemType" id="catalog-item-type">
+    <select id="catalog-item-type" appSelect [formField]="f.itemType">
       <option [value]="CatalogItemType.Product">{{ CatalogItemType.Product }}</option>
       <option [value]="CatalogItemType.Service">{{ CatalogItemType.Service }}</option>
     </select>
@@ -22,16 +22,16 @@
   <app-form-field>
     <label appLabel for="catalog-item-price">Preço padrão</label>
     <input
-      appInput
-      [formField]="f.defaultPrice"
       id="catalog-item-price"
+      appInput
       type="text"
       inputmode="decimal"
       mask="separator.2"
       separatorLimit="99999999"
       prefix="R$ "
-      [allowNegativeNumbers]="false"
       placeholder="19,90"
+      [formField]="f.defaultPrice"
+      [allowNegativeNumbers]="false"
     />
     <app-hint start>Opcional. Use ponto para casas decimais, ex: 19.90</app-hint>
   </app-form-field>
@@ -40,12 +40,12 @@
     <app-form-field>
       <label appLabel for="catalog-item-duration">Duração padrão (minutos)</label>
       <input
-        appInput
-        [formField]="f.defaultDuration"
         id="catalog-item-duration"
+        appInput
         type="number"
         inputmode="numeric"
         placeholder="60"
+        [formField]="f.defaultDuration"
       />
     </app-form-field>
   }

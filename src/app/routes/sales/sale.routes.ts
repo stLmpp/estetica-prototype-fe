@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
-import { hasPermissionGuard, requireAuthenticatedWithOrganizationGuard } from '../../core/auth/auth.guards';
+import {
+  hasPermissionGuard,
+  requireAuthenticatedWithOrganizationGuard,
+} from '../../core/auth/auth.guards';
 import { saleFormAppointmentResolver } from './sale-form/sale-form-appointment.resolver';
 
 export const SALE_ROUTES: Routes = [

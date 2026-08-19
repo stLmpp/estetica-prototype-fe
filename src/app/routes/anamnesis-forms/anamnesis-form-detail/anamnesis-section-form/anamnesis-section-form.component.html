@@ -2,20 +2,20 @@
   {{ isEditing() ? 'Editar seção' : 'Nova seção' }}
 </h4>
 
-<form [formRoot]="f" class="flex flex-col gap-3">
+<form class="flex flex-col gap-3" [formRoot]="f">
   <app-form-field>
     <label appLabel for="anamnesis-section-label">Nome</label>
-    <input appInput [formField]="f.label" id="anamnesis-section-label" type="text" />
+    <input id="anamnesis-section-label" appInput type="text" [formField]="f.label" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="anamnesis-section-display-order">Ordem de exibição</label>
     <input
-      appInput
-      [formField]="f.displayOrder"
       id="anamnesis-section-display-order"
+      appInput
       type="number"
       inputmode="numeric"
+      [formField]="f.displayOrder"
     />
   </app-form-field>
 

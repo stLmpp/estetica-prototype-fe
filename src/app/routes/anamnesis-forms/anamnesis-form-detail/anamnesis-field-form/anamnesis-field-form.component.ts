@@ -218,7 +218,11 @@ export class AnamnesisFieldFormComponent {
             active: anamnesisField.active,
             options: anamnesisField.fieldArgs?.options.map((option) => ({ ...option })) ?? [],
             validations: (anamnesisField.validations ?? []).map((validation) =>
-              toValidationRow(validation.validationType, validation.validationArgs, validation.active),
+              toValidationRow(
+                validation.validationType,
+                validation.validationArgs,
+                validation.active,
+              ),
             ),
           });
         });

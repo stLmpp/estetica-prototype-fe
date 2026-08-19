@@ -9,7 +9,7 @@
       [class.pointer-events-none]="!activeForms().length"
       [class.opacity-50]="!activeForms().length"
     >
-      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      <app-icon size="sm" color="white" [icon]="LucidePlus" />
       Nova anamnese
     </a>
   }
@@ -43,11 +43,11 @@
 <app-paginator
   mode="compact"
   [page]="store.page()"
-  (pageChange)="goToPage($event)"
   [pageSize]="pageSize"
   [length]="store.total()"
   [showPageSizeSelector]="false"
   [disabled]="store.loading()"
+  (pageChange)="goToPage($event)"
 />
 
 <ng-template #formTemplate let-row="row">
@@ -69,25 +69,25 @@
 
 <ng-template #actionsTemplate let-row="row">
   <div class="flex items-center gap-1">
-    <a iconBtn [routerLink]="[row.id]" [icon]="LucideEye" ariaLabel="Ver anamnese" size="sm"></a>
+    <a iconBtn ariaLabel="Ver anamnese" size="sm" [routerLink]="[row.id]" [icon]="LucideEye"></a>
 
     @if (row.status === CustomerAnamnesisStatus.DRAFT) {
       @if (canUpdate()) {
         <a
           iconBtn
-          [routerLink]="[row.id, 'edit']"
-          [icon]="LucidePencil"
           ariaLabel="Editar anamnese"
           size="sm"
+          [routerLink]="[row.id, 'edit']"
+          [icon]="LucidePencil"
         ></a>
       }
       @if (canFinalize()) {
         <button
           iconBtn
           type="button"
-          [icon]="LucideCheck"
           ariaLabel="Finalizar anamnese"
           size="sm"
+          [icon]="LucideCheck"
           [appPreloadLoader]="customerAnamnesisFinalizeDialogLoader"
           (click)="openFinalizeDialog(row)"
         ></button>
@@ -98,9 +98,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucideTrash2"
         ariaLabel="Excluir anamnese"
         size="sm"
+        [icon]="LucideTrash2"
         (click)="openDeleteDialog(row)"
       ></button>
     }

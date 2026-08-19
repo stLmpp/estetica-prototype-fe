@@ -9,10 +9,10 @@ import { ToastService } from './toast.service';
     <div class="flex flex-col items-end gap-2">
       @for (toast of toastService.toasts(); track toast.id) {
         <app-toast
-          [toast]="toast"
-          (dismissed)="toastService.dismiss(toast.id)"
           animate.enter="toast-enter"
           animate.leave="toast-leave"
+          [toast]="toast"
+          (dismissed)="toastService.dismiss(toast.id)"
         />
       }
     </div>

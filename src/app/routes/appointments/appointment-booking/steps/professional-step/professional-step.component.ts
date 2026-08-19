@@ -9,7 +9,13 @@ import { AppointmentBookingStore } from '../../appointment-booking.store';
 
 @Component({
   selector: 'app-appointment-booking-professional-step',
-  imports: [ButtonComponent, ListboxComponent, ListboxOptionComponent, LoadingOverlayDirective, RouterLink],
+  imports: [
+    ButtonComponent,
+    ListboxComponent,
+    ListboxOptionComponent,
+    LoadingOverlayDirective,
+    RouterLink,
+  ],
   templateUrl: './professional-step.component.html',
 })
 export class ProfessionalStepComponent {

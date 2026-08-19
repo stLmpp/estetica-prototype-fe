@@ -4,11 +4,11 @@
   }
   @if (showPageSizeSelector()) {
     <div class="flex items-center gap-2">
-      <label [for]="pageSizeSelectId" class="whitespace-nowrap">Itens por página</label>
+      <label class="whitespace-nowrap" [for]="pageSizeSelectId">Itens por página</label>
       <select
+        class="!px-3 !py-1.5"
         appSelect
         [id]="pageSizeSelectId"
-        class="!px-3 !py-1.5"
         [disabled]="disabled()"
         (change)="onPageSizeChange($event)"
       >
@@ -26,9 +26,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="ChevronLeft"
         ariaLabel="Página anterior"
         size="sm"
+        [icon]="ChevronLeft"
         [disabled]="!canGoPrevious()"
         (click)="previous()"
       ></button>
@@ -36,9 +36,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="ChevronRight"
         ariaLabel="Próxima página"
         size="sm"
+        [icon]="ChevronRight"
         [disabled]="!canGoNext()"
         (click)="next()"
       ></button>
@@ -49,9 +49,9 @@
         <button
           iconBtn
           type="button"
-          [icon]="ChevronLeft"
           ariaLabel="Página anterior"
           size="sm"
+          [icon]="ChevronLeft"
           [disabled]="!canGoPrevious()"
           (click)="previous()"
         ></button>
@@ -64,8 +64,8 @@
             }}</span>
           } @else {
             <button
+              class="focus:ring-primary-400 flex h-9 w-9 items-center justify-center rounded-lg font-medium transition-colors focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               type="button"
-              class="flex h-9 w-9 items-center justify-center rounded-lg font-medium transition-colors focus:ring-2 focus:ring-primary-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               [class.bg-primary-500]="item === page()"
               [class.text-white]="item === page()"
               [class.not-disabled:hover:bg-neutral-100]="item !== page()"
@@ -84,9 +84,9 @@
         <button
           iconBtn
           type="button"
-          [icon]="ChevronRight"
           ariaLabel="Próxima página"
           size="sm"
+          [icon]="ChevronRight"
           [disabled]="!canGoNext()"
           (click)="next()"
         ></button>

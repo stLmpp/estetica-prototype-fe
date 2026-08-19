@@ -62,7 +62,9 @@ function checkBase(options: BaseHasPermission, context: PermissionContext): bool
   }
 
   if (options.permissions) {
-    return !!context.role && adminAccessControl[context.role].authorize(options.permissions).success;
+    return (
+      !!context.role && adminAccessControl[context.role].authorize(options.permissions).success
+    );
   }
 
   if (options.orgPermissions) {

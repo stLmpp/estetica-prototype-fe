@@ -1,20 +1,20 @@
-<h2 id="confirm-dialog-title" class="mb-2 text-lg font-bold text-neutral-800 dark:text-neutral-100">
+<h2 class="mb-2 text-lg font-bold text-neutral-800 dark:text-neutral-100" id="confirm-dialog-title">
   {{ data.title }}
 </h2>
-<p id="confirm-dialog-message" class="mb-6 text-sm text-neutral-600 dark:text-neutral-300">
+<p class="mb-6 text-sm text-neutral-600 dark:text-neutral-300" id="confirm-dialog-message">
   {{ data.message }}
 </p>
 <div class="flex flex-wrap justify-end gap-3">
   @for (action of data.actions; track action) {
     <button
       btn
+      type="button"
       [btnPrimary]="action.btnPrimary"
       [btnSecondary]="action.btnSecondary"
       [btnOutline]="action.btnOutline"
       [class.bg-red-600]="action.danger"
       [class.not-disabled:hover:bg-red-700]="action.danger"
       [class.text-white]="action.danger"
-      type="button"
       [btnLoading]="loadingAction() === action"
       [disabled]="isLoading() && loadingAction() !== action"
       (click)="run(action)"

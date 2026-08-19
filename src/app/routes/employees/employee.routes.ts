@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
-import { hasPermissionGuard, requireAuthenticatedWithOrganizationGuard } from '../../core/auth/auth.guards';
+import {
+  hasPermissionGuard,
+  requireAuthenticatedWithOrganizationGuard,
+} from '../../core/auth/auth.guards';
 
 export const EMPLOYEE_ROUTES: Routes = [
   {
@@ -13,7 +16,9 @@ export const EMPLOYEE_ROUTES: Routes = [
   {
     path: ':employeeId',
     loadComponent: () =>
-      import('./employee-details/employee-details.component').then((m) => m.EmployeeDetailsComponent),
+      import('./employee-details/employee-details.component').then(
+        (m) => m.EmployeeDetailsComponent,
+      ),
     canActivate: [
       requireAuthenticatedWithOrganizationGuard(),
       hasPermissionGuard({ orgPermissions: { employee: ['get'] } }),

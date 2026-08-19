@@ -1,5 +1,7 @@
 @if (label()) {
-  <label [for]="inputId" class="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ label() }}</label>
+  <label class="text-sm font-semibold text-neutral-700 dark:text-neutral-300" [for]="inputId">{{
+    label()
+  }}</label>
 }
 
 @if (selectedItem(); as item) {
@@ -11,8 +13,8 @@
       iconBtn
       type="button"
       size="xs"
-      [icon]="LucideX"
       ariaLabel="Limpar seleção"
+      [icon]="LucideX"
       [disabled]="disabled()"
       (click)="clear()"
     ></button>
@@ -21,11 +23,11 @@
   <input
     #inputEl
     appInput
-    [formField]="searchForm.query"
-    [id]="inputId"
     type="text"
     role="combobox"
     aria-autocomplete="list"
+    [formField]="searchForm.query"
+    [id]="inputId"
     [attr.aria-expanded]="panelOpen()"
     [attr.aria-controls]="panelId"
     [placeholder]="placeholder()"

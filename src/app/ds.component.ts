@@ -17,7 +17,10 @@ import { SwitchComponent } from './components/switch/switch.component';
 import { ColDef } from './components/table/model/col-def';
 import { TableComponent } from './components/table/table.component';
 import { PaginatorComponent } from './components/paginator/paginator.component';
-import { TransferListComponent, TransferListItem } from './components/transfer-list/transfer-list.component';
+import {
+  TransferListComponent,
+  TransferListItem,
+} from './components/transfer-list/transfer-list.component';
 import { CalendarComponent } from './components/calendar/calendar.component';
 
 const formModel = signal({

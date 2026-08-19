@@ -1,4 +1,4 @@
-<form [formRoot]="f" class="flex flex-col gap-4">
+<form class="flex flex-col gap-4" [formRoot]="f">
   <div class="grid grid-cols-1 gap-6 sm:grid-cols-[auto_1fr]">
     <app-calendar [formField]="f.date" [minDate]="minDate" />
 
@@ -19,8 +19,8 @@
             @let isSlotSelected = startTime === slot.time;
             @let isSlotUnavailable = slot.busy || slot.past;
             <button
-              type="button"
               class="rounded-lg py-1.5 text-sm transition-colors"
+              type="button"
               [disabled]="isSlotUnavailable"
               [class.bg-primary-500]="!isSlotUnavailable && isSlotSelected"
               [class.text-white]="!isSlotUnavailable && isSlotSelected"
@@ -44,11 +44,11 @@
   <app-form-field>
     <label appLabel for="appointment-duration">Duração (minutos)</label>
     <input
-      appInput
-      [formField]="f.durationMinutes"
       id="appointment-duration"
+      appInput
       type="number"
       inputmode="numeric"
+      [formField]="f.durationMinutes"
     />
   </app-form-field>
 
@@ -59,24 +59,24 @@
   <app-form-field>
     <label appLabel for="appointment-price">Preço aplicado</label>
     <input
-      appInput
-      [formField]="f.priceApplied"
       id="appointment-price"
+      appInput
       type="text"
       inputmode="decimal"
       placeholder="Deixe em branco para usar o preço padrão do serviço"
       mask="separator.2"
       prefix="R$ "
+      [formField]="f.priceApplied"
     />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="appointment-notes">Observações</label>
-    <input appInput [formField]="f.notes" id="appointment-notes" type="text" />
+    <input id="appointment-notes" appInput type="text" [formField]="f.notes" />
   </app-form-field>
 </form>
 
 <div class="mt-6 flex justify-between">
   <a btn btnOutline routerLink="../professional" (click)="back()">Voltar</a>
-  <a btn btnPrimary [disabled]="f().invalid()" routerLink="../review" (click)="next()">Avançar</a>
+  <a btn btnPrimary routerLink="../review" [disabled]="f().invalid()" (click)="next()">Avançar</a>
 </div>

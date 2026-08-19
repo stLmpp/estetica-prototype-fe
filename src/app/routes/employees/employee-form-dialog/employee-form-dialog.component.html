@@ -1,34 +1,40 @@
 <h2
-  id="employee-form-dialog-title"
   class="mb-6 text-lg font-bold text-neutral-800 dark:text-neutral-100"
+  id="employee-form-dialog-title"
 >
   {{ isEditing ? 'Editar funcionário' : 'Novo funcionário' }}
 </h2>
 
-<div [loadingOverlay]="loading()" class="max-h-[70vh] overflow-y-auto pr-1">
+<div class="max-h-[70vh] overflow-y-auto pr-1" [loadingOverlay]="loading()">
   @if (loadErrorMessage(); as message) {
     <p class="text-sm text-red-600 dark:text-red-400" role="alert">{{ message }}</p>
   } @else if (!loading()) {
-    <form [formRoot]="f" class="flex flex-col gap-4">
+    <form class="flex flex-col gap-4" [formRoot]="f">
       <app-form-field>
         <label appLabel for="employee-name">Nome</label>
-        <input appInput [formField]="f.name" id="employee-name" type="text" />
+        <input id="employee-name" appInput type="text" [formField]="f.name" />
       </app-form-field>
 
       <app-form-field>
         <label appLabel for="employee-role">Cargo</label>
-        <input appInput [formField]="f.role" id="employee-role" type="text" placeholder="Ex: Esteticista" />
+        <input
+          id="employee-role"
+          appInput
+          type="text"
+          placeholder="Ex: Esteticista"
+          [formField]="f.role"
+        />
       </app-form-field>
 
       <div class="grid grid-cols-2 gap-4">
         <app-form-field>
           <label appLabel for="employee-birth-date">Data de nascimento</label>
-          <input appInput [formField]="f.birthDate" id="employee-birth-date" type="date" />
+          <input id="employee-birth-date" appInput type="date" [formField]="f.birthDate" />
         </app-form-field>
 
         <app-form-field>
           <label appLabel for="employee-marital-status">Estado civil</label>
-          <select appSelect [formField]="f.maritalStatus" id="employee-marital-status">
+          <select id="employee-marital-status" appSelect [formField]="f.maritalStatus">
             <option value="">Selecione</option>
             <option [value]="MaritalStatus.Single">{{ MaritalStatus.Single }}</option>
             <option [value]="MaritalStatus.Married">{{ MaritalStatus.Married }}</option>
@@ -40,43 +46,43 @@
 
       <app-form-field>
         <label appLabel for="employee-email">E-mail</label>
-        <input appInput [formField]="f.email" id="employee-email" type="email" />
+        <input id="employee-email" appInput type="email" [formField]="f.email" />
       </app-form-field>
 
       <app-form-field>
         <label appLabel for="employee-address">Endereço</label>
-        <input appInput [formField]="f.address" id="employee-address" type="text" />
+        <input id="employee-address" appInput type="text" [formField]="f.address" />
       </app-form-field>
 
       <div class="grid grid-cols-2 gap-4">
         <app-form-field>
           <label appLabel for="employee-zip-code">CEP</label>
           <input
-            appInput
-            [formField]="f.zipCode"
             id="employee-zip-code"
+            appInput
             type="text"
             inputmode="numeric"
             mask="00000-000"
             placeholder="00000-000"
+            [formField]="f.zipCode"
           />
         </app-form-field>
 
         <app-form-field>
           <label appLabel for="employee-neighborhood">Bairro</label>
-          <input appInput [formField]="f.neighborhood" id="employee-neighborhood" type="text" />
+          <input id="employee-neighborhood" appInput type="text" [formField]="f.neighborhood" />
         </app-form-field>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <app-form-field>
           <label appLabel for="employee-city">Cidade</label>
-          <input appInput [formField]="f.city" id="employee-city" type="text" />
+          <input id="employee-city" appInput type="text" [formField]="f.city" />
         </app-form-field>
 
         <app-form-field>
           <label appLabel for="employee-state">Estado</label>
-          <input appInput [formField]="f.state" id="employee-state" type="text" />
+          <input id="employee-state" appInput type="text" [formField]="f.state" />
         </app-form-field>
       </div>
 
@@ -109,12 +115,12 @@
                   <label appLabel [for]="'employee-phone-number-' + i">Número</label>
                   <input
                     appInput
-                    [formField]="phone.number"
-                    [id]="'employee-phone-number-' + i"
                     type="text"
                     inputmode="numeric"
                     mask="(00) 00000-0000"
                     placeholder="(00) 00000-0000"
+                    [formField]="phone.number"
+                    [id]="'employee-phone-number-' + i"
                   />
                 </app-form-field>
 

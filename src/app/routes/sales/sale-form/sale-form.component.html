@@ -1,5 +1,5 @@
 <div>
-  <a routerLink="/sales" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+  <a class="text-primary-600 dark:text-primary-300 text-sm hover:underline" routerLink="/sales">
     ← Voltar para vendas
   </a>
 </div>
@@ -9,28 +9,29 @@
     <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Nova venda</h1>
     @if (appointment(); as appointment) {
       <p class="text-sm text-neutral-500 dark:text-neutral-400">
-        A partir do agendamento de {{ appointment.customerName }} — {{ appointment.catalogItemName }}
+        A partir do agendamento de {{ appointment.customerName }} —
+        {{ appointment.catalogItemName }}
       </p>
     }
   </div>
 
-  <form [formRoot]="f" class="flex flex-col gap-8">
+  <form class="flex flex-col gap-8" [formRoot]="f">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <app-typeahead
-        [formField]="f.customerId"
-        [searchFn]="customerSearchFn"
-        [initialItem]="customerInitialItem()"
         label="Cliente"
         placeholder="Buscar cliente por nome"
         emptyMessage="Nenhum cliente encontrado."
+        [formField]="f.customerId"
+        [searchFn]="customerSearchFn"
+        [initialItem]="customerInitialItem()"
       />
       <app-typeahead
-        [formField]="f.employeeId"
-        [searchFn]="employeeSearchFn"
-        [initialItem]="employeeInitialItem()"
         label="Funcionário"
         placeholder="Buscar funcionário por nome"
         emptyMessage="Nenhum funcionário encontrado."
+        [formField]="f.employeeId"
+        [searchFn]="employeeSearchFn"
+        [initialItem]="employeeInitialItem()"
       />
     </div>
 
@@ -44,23 +45,23 @@
         @for (item of f.items; track $index; let i = $index) {
           <div class="grid grid-cols-1 items-start gap-2 sm:grid-cols-[2fr_1fr_1fr_auto]">
             <app-typeahead
+              label="Item"
+              placeholder="Buscar produto ou serviço"
+              emptyMessage="Nenhum item encontrado."
               [formField]="item.catalogItemId"
               [searchFn]="catalogItemSearchFn"
               [initialItem]="itemInitialItems()[i] ?? null"
               (itemSelected)="onCatalogItemSelected(i, $event)"
-              label="Item"
-              placeholder="Buscar produto ou serviço"
-              emptyMessage="Nenhum item encontrado."
             />
 
             <app-form-field>
               <label appLabel [for]="'sale-item-quantity-' + i">Quantidade</label>
               <input
                 appInput
-                [formField]="item.quantity"
-                [id]="'sale-item-quantity-' + i"
                 type="number"
                 inputmode="numeric"
+                [formField]="item.quantity"
+                [id]="'sale-item-quantity-' + i"
               />
             </app-form-field>
 
@@ -68,23 +69,23 @@
               <label appLabel [for]="'sale-item-price-' + i">Preço aplicado</label>
               <input
                 appInput
-                [formField]="item.priceApplied"
-                [id]="'sale-item-price-' + i"
                 type="text"
                 inputmode="decimal"
                 mask="separator.2"
                 prefix="R$ "
                 placeholder="Preço padrão do item"
+                [formField]="item.priceApplied"
+                [id]="'sale-item-price-' + i"
               />
             </app-form-field>
 
             <button
+              class="self-center"
               iconBtn
               type="button"
-              class="self-center"
-              [icon]="LucideTrash2"
               ariaLabel="Remover item"
               size="sm"
+              [icon]="LucideTrash2"
               (click)="removeItem(i)"
             ></button>
           </div>
@@ -110,13 +111,15 @@
         @for (transaction of f.transactions; track $index; let i = $index) {
           <div class="rounded-xl border border-neutral-200 p-4 dark:border-neutral-700">
             <div class="mb-3 flex items-center justify-between">
-              <app-switch [formField]="transaction.installments">Parcelado (cartão de crédito)</app-switch>
+              <app-switch [formField]="transaction.installments"
+                >Parcelado (cartão de crédito)</app-switch
+              >
               <button
                 iconBtn
                 type="button"
-                [icon]="LucideTrash2"
                 ariaLabel="Remover pagamento"
                 size="sm"
+                [icon]="LucideTrash2"
                 (click)="removeTransaction(i)"
               ></button>
             </div>
@@ -127,7 +130,11 @@
               @if (!isInstallments) {
                 <app-form-field>
                   <label appLabel [for]="'sale-transaction-method-' + i">Forma de pagamento</label>
-                  <select appSelect [formField]="transaction.paymentMethod" [id]="'sale-transaction-method-' + i">
+                  <select
+                    appSelect
+                    [formField]="transaction.paymentMethod"
+                    [id]="'sale-transaction-method-' + i"
+                  >
                     <option value="">Selecione</option>
                     @for (method of paymentMethodOptions; track method) {
                       <option [value]="method">{{ method }}</option>
@@ -151,12 +158,12 @@
                 </label>
                 <input
                   appInput
-                  [formField]="transaction.amount"
-                  [id]="'sale-transaction-amount-' + i"
                   type="text"
                   inputmode="decimal"
                   mask="separator.2"
                   prefix="R$ "
+                  [formField]="transaction.amount"
+                  [id]="'sale-transaction-amount-' + i"
                 />
               </app-form-field>
 
@@ -165,42 +172,54 @@
                   <label appLabel [for]="'sale-transaction-count-' + i">Número de parcelas</label>
                   <input
                     appInput
-                    [formField]="transaction.installmentCount"
-                    [id]="'sale-transaction-count-' + i"
                     type="number"
                     inputmode="numeric"
+                    [formField]="transaction.installmentCount"
+                    [id]="'sale-transaction-count-' + i"
                   />
                 </app-form-field>
 
                 <app-form-field>
-                  <label appLabel [for]="'sale-transaction-due-date-' + i">Data da 1ª parcela</label>
+                  <label appLabel [for]="'sale-transaction-due-date-' + i"
+                    >Data da 1ª parcela</label
+                  >
                   <input
                     appInput
+                    type="date"
                     [formField]="transaction.dueDate"
                     [id]="'sale-transaction-due-date-' + i"
-                    type="date"
                   />
                 </app-form-field>
 
                 <div class="flex flex-col gap-2">
-                  <span class="text-sm font-semibold text-transparent select-none" aria-hidden="true">&nbsp;</span>
+                  <span
+                    class="text-sm font-semibold text-transparent select-none"
+                    aria-hidden="true"
+                    >&nbsp;</span
+                  >
                   <app-switch [formField]="transaction.markFirstInstallmentAsReceived">
                     Primeira parcela já recebida
                   </app-switch>
                 </div>
               } @else {
                 <app-form-field>
-                  <label appLabel [for]="'sale-transaction-due-date-' + i">Data de vencimento</label>
+                  <label appLabel [for]="'sale-transaction-due-date-' + i"
+                    >Data de vencimento</label
+                  >
                   <input
                     appInput
+                    type="date"
                     [formField]="transaction.dueDate"
                     [id]="'sale-transaction-due-date-' + i"
-                    type="date"
                   />
                 </app-form-field>
 
                 <div class="flex flex-col gap-2">
-                  <span class="text-sm font-semibold text-transparent select-none" aria-hidden="true">&nbsp;</span>
+                  <span
+                    class="text-sm font-semibold text-transparent select-none"
+                    aria-hidden="true"
+                    >&nbsp;</span
+                  >
                   <app-switch [formField]="transaction.receivedNow">Recebido agora</app-switch>
                 </div>
               }

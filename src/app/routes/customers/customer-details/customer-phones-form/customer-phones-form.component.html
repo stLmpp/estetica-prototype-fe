@@ -1,6 +1,6 @@
 <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Telefones</h2>
 
-<form [formRoot]="phonesForm" class="flex flex-col gap-3">
+<form class="flex flex-col gap-3" [formRoot]="phonesForm">
   @if (!phonesForm.phones().value().length) {
     <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum telefone cadastrado.</p>
   }
@@ -11,12 +11,12 @@
         <label appLabel [for]="'customer-phone-number-' + i">Número</label>
         <input
           appInput
-          [formField]="phone.number"
-          [id]="'customer-phone-number-' + i"
           type="text"
           inputmode="numeric"
           mask="(00) 00000-0000"
           placeholder="(00) 00000-0000"
+          [formField]="phone.number"
+          [id]="'customer-phone-number-' + i"
         />
       </app-form-field>
 
@@ -33,9 +33,9 @@
         <button
           iconBtn
           type="button"
-          [icon]="LucideTrash2"
           ariaLabel="Remover telefone"
           size="sm"
+          [icon]="LucideTrash2"
           (click)="removePhone(i)"
         ></button>
       }

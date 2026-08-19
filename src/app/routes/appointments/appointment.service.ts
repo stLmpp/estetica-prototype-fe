@@ -52,12 +52,10 @@ export class AppointmentService {
       to: filter.to,
     });
     return this.http.get<ListAppointmentResponse>(this.baseUrl, { params }).pipe(
-      map(
-        (response): ListAppointmentResult => ({
-          items: response.data.items,
-          meta: response.meta,
-        }),
-      ),
+      map((response): ListAppointmentResult => ({
+        items: response.data.items,
+        meta: response.meta,
+      })),
     );
   }
 

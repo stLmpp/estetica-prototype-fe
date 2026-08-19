@@ -1,5 +1,5 @@
 <div>
-  <a routerLink="/customers" class="text-primary-600 dark:text-primary-300 text-sm hover:underline">
+  <a class="text-primary-600 dark:text-primary-300 text-sm hover:underline" routerLink="/customers">
     ← Voltar para clientes
   </a>
 </div>
@@ -19,7 +19,7 @@
       }
     </div>
 
-    <app-tabs [tabs]="tabs()" label="Seções do cliente" />
+    <app-tabs label="Seções do cliente" [tabs]="tabs()" />
 
     <router-outlet />
   </div>

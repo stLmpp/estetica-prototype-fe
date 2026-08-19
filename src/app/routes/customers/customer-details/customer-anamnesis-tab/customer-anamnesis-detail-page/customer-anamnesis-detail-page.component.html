@@ -1,7 +1,7 @@
 <div>
   <a
-    [routerLink]="['/customers', customerId(), 'anamnesis']"
     class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+    [routerLink]="['/customers', customerId(), 'anamnesis']"
   >
     ← Voltar para anamneses
   </a>
@@ -38,7 +38,7 @@
           btnOutline
           [routerLink]="['/customers', customerId(), 'anamnesis', record().id, 'edit']"
         >
-          <app-icon [icon]="LucidePencil" size="sm" />
+          <app-icon size="sm" [icon]="LucidePencil" />
           Editar
         </a>
       }
@@ -50,7 +50,7 @@
           [appPreloadLoader]="customerAnamnesisFinalizeDialogLoader"
           (click)="openFinalizeDialog()"
         >
-          <app-icon [icon]="LucideCheck" size="sm" />
+          <app-icon size="sm" [icon]="LucideCheck" />
           Finalizar
         </button>
       }
@@ -59,9 +59,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucideTrash2"
         ariaLabel="Excluir anamnese"
         size="sm"
+        [icon]="LucideTrash2"
         (click)="openDeleteDialog()"
       ></button>
     }

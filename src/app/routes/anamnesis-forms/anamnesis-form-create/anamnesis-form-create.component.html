@@ -1,7 +1,7 @@
 <div>
   <a
-    routerLink="/anamnesis-forms"
     class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+    routerLink="/anamnesis-forms"
   >
     ← Voltar para anamneses
   </a>
@@ -9,25 +9,25 @@
 
 <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">Novo formulário</h1>
 
-<form [formRoot]="f" class="mt-4 flex max-w-lg flex-col gap-4">
+<form class="mt-4 flex max-w-lg flex-col gap-4" [formRoot]="f">
   <app-form-field>
     <label appLabel for="anamnesis-form-name">Nome</label>
-    <input appInput [formField]="f.name" id="anamnesis-form-name" type="text" />
+    <input id="anamnesis-form-name" appInput type="text" [formField]="f.name" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="anamnesis-form-description">Descrição</label>
-    <input appInput [formField]="f.description" id="anamnesis-form-description" type="text" />
+    <input id="anamnesis-form-description" appInput type="text" [formField]="f.description" />
   </app-form-field>
 
   <app-form-field>
     <label appLabel for="anamnesis-form-display-order">Ordem de exibição</label>
     <input
-      appInput
-      [formField]="f.displayOrder"
       id="anamnesis-form-display-order"
+      appInput
       type="number"
       inputmode="numeric"
+      [formField]="f.displayOrder"
     />
   </app-form-field>
 

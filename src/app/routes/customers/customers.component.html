@@ -11,7 +11,7 @@
       [appPreloadLoader]="customerFormDialogLoader"
       (click)="openCreateDialog()"
     >
-      <app-icon [icon]="LucidePlus" size="sm" color="white" />
+      <app-icon size="sm" color="white" [icon]="LucidePlus" />
       Novo cliente
     </button>
   }
@@ -20,11 +20,11 @@
 <app-form-field>
   <label appLabel for="customer-search">Buscar por nome</label>
   <input
-    appInput
-    [formField]="searchForm.name"
     id="customer-search"
+    appInput
     type="search"
     placeholder="Ex: Maria Silva"
+    [formField]="searchForm.name"
   />
 </app-form-field>
 
@@ -50,11 +50,11 @@
 <app-paginator
   mode="compact"
   [page]="store.page()"
-  (pageChange)="goToPage($event)"
   [pageSize]="pageSize"
   [length]="store.total()"
   [showPageSizeSelector]="false"
   [disabled]="store.loading()"
+  (pageChange)="goToPage($event)"
 />
 
 <ng-template #actionsTemplate let-row="row">
@@ -62,9 +62,9 @@
     <a
       iconBtn
       type="button"
-      [icon]="LucideEye"
       ariaLabel="Ver cliente"
       size="sm"
+      [icon]="LucideEye"
       [routerLink]="['/customers', row.id]"
     ></a>
 
@@ -73,9 +73,9 @@
       <button
         iconBtn
         type="button"
-        [icon]="LucideTrash2"
         ariaLabel="Excluir cliente"
         size="sm"
+        [icon]="LucideTrash2"
         (click)="openDeleteDialog(row)"
       ></button>
     }

@@ -6,8 +6,8 @@
     type="button"
     iconBtn
     btnSecondary
-    [icon]="LucideX"
     ariaLabel="Close menu"
+    [icon]="LucideX"
     (click)="close()"
   ></button>
 </div>
@@ -53,9 +53,9 @@
 </nav>
 
 <div
-  id="backdrop"
   class="fixed top-0 right-0 bottom-0 left-64 bg-transparent"
-  (click)="close()"
+  id="backdrop"
   tabindex="-1"
   backdrop
+  (click)="close()"
 ></div>

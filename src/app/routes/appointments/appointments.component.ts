@@ -87,7 +87,10 @@ function toRangeEndIso(date: string): string | undefined {
   providers: [AppointmentsStore],
 })
 export class AppointmentsComponent {
-  readonly pageParam = input(1, { alias: 'page', transform: (value: string) => numberAttribute(value, 1) });
+  readonly pageParam = input(1, {
+    alias: 'page',
+    transform: (value: string) => numberAttribute(value, 1),
+  });
   readonly services = input.required<CatalogItem[]>();
   readonly employees = input.required<Employee[]>();
 
@@ -151,7 +154,11 @@ export class AppointmentsComponent {
   protected readonly customerSearchFn = (query: string) =>
     this.customerService
       .list({ name: query, limit: 10 })
-      .pipe(map((result) => result.items.map((customer) => ({ id: customer.id, label: customer.name }))));
+      .pipe(
+        map((result) =>
+          result.items.map((customer) => ({ id: customer.id, label: customer.name })),
+        ),
+      );
 
   constructor() {
     const initialPage = this.pageParam();

@@ -35,12 +35,10 @@ export class EmployeeService {
       catalogItemId: filter.catalogItemId,
     });
     return this.http.get<ListEmployeeResponse>(this.baseUrl, { params }).pipe(
-      map(
-        (response): ListEmployeeResult => ({
-          items: response.data.items,
-          meta: response.meta,
-        }),
-      ),
+      map((response): ListEmployeeResult => ({
+        items: response.data.items,
+        meta: response.meta,
+      })),
     );
   }
 

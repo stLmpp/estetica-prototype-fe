@@ -135,22 +135,29 @@ export class AddSaleTransactionDialogComponent {
   private save(value: FormModel): Promise<SaveResult> {
     const payload: SaleTransactionPayload = {
       type: this.data.type,
-      paymentMethod: value.installments ? PaymentMethod.CreditCard : (value.paymentMethod as PaymentMethod),
+      paymentMethod: value.installments
+        ? PaymentMethod.CreditCard
+        : (value.paymentMethod as PaymentMethod),
       amount: value.amount,
       installmentCount: value.installments ? value.installmentCount! : undefined,
       dueDate: value.dueDate || undefined,
       receivedAt: !value.installments && value.receivedNow ? new Date().toISOString() : undefined,
-      markFirstInstallmentAsReceived: value.installments ? value.markFirstInstallmentAsReceived : undefined,
+      markFirstInstallmentAsReceived: value.installments
+        ? value.markFirstInstallmentAsReceived
+        : undefined,
     };
 
-    const request$: Observable<SaveResult> = this.saleService.addTransaction(this.data.saleId, payload).pipe(
-      map((result): SaveResult => ({ ok: true, result })),
-    );
+    const request$: Observable<SaveResult> = this.saleService
+      .addTransaction(this.data.saleId, payload)
+      .pipe(map((result): SaveResult => ({ ok: true, result })));
 
     return firstValueFrom(
       request$.pipe(
         catchError((error: unknown) =>
-          of<SaveResult>({ ok: false, message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE) }),
+          of<SaveResult>({
+            ok: false,
+            message: extractApiErrorMessage(error, DEFAULT_ERROR_MESSAGE),
+          }),
         ),
       ),
     );
