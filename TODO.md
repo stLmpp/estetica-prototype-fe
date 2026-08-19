@@ -46,13 +46,58 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
         endpoint (`fetch`/`HttpClient`, only when `isPlatformBrowser`), and
         the Express handler feeds them into the same Node logger used for
         SSR-side logs above — one sink, two origins.
-      Open questions to settle before building this: what's actually worth
-      shipping over the wire from the browser (probably not every
-      cache-hit/miss line at current verbosity — needs a level/threshold),
-      whether client-side sends need batching/throttling so a burst of
-      requests doesn't spam the endpoint one POST at a time, and whether
-      the endpoint needs any auth/rate-limiting so it isn't an open
-      unauthenticated log sink reachable by anyone who finds the URL.
+      This is a self-hosted implementation, deliberately not a third-party
+      error tracker (e.g. Sentry) — this app handles medical/aesthetic
+      customer data, and owning the pipe end to end means error payloads
+      never leave this app's own infrastructure in the first place.
+
+      Open questions to settle before building this:
+      - **User identification.** Every log entry (both origins) should
+        carry the current user id when one exists, so an error can be
+        traced back to who hit it — `AuthStore.session()?.user.id`
+        (`src/app/core/auth/auth.store.ts`) is populated on both platforms
+        (the session is resolved from the better-auth cookie during SSR
+        bootstrap too, not just client-side), so it's available wherever
+        the logger is called from. User id is enough — no need to also
+        carry name/email/other session fields in the log payload itself.
+        Omit the field entirely when logged out (public pages, failed
+        login attempts) rather than logging a placeholder value.
+      1. **Logging level conventions.** Decide the level set (e.g.
+         `TRACE`/`DEBUG`/`INFO`/`WARN`/`ERROR`) and, more importantly, what
+         actually gets logged at each one and which levels are worth their
+         cost — not just naming them. The interceptor's current
+         cache-hit/miss/inflight/transfer-state chatter is debug-level
+         noise on every single request; only `WARN`/`ERROR` (real HTTP
+         failures, uncaught exceptions via a global `ErrorHandler`) should
+         ever leave the browser — `DEBUG`/`TRACE` stay local-console-only
+         there. SSR-side can afford to log more since it's writing
+         straight to its own process's stdout, no network cost per line.
+         Document the final convention once decided
+         (`docs/CONVENTIONS.md`).
+      2. **Rate limiting** on the new endpoint — scoped to protecting the
+         log pipe itself (disk, log-aggregator ingestion volume/cost), not
+         business data, so it doesn't need to match the backend's
+         per-tenant throttler design (still undecided anyway, see BE-3 in
+         `estetica-prototype-api`'s `TODO.md`). A flat per-IP cap
+         (`express-rate-limit` — this is a plain Express app, no NestJS
+         throttler here) is enough.
+      3. **Batch + `sendBeacon`.** Buffer client-side entries and flush
+         every few seconds or N entries instead of one POST per log line —
+         cheaper on the wire and smooths out bursts. Use
+         `navigator.sendBeacon`/`fetch(url, { keepalive: true })` for the
+         final flush on page unload specifically, since a plain in-flight
+         `fetch` gets cancelled when the tab closes mid-request.
+      4. **Payload size caps.** Cap message/stack length and batch size
+         server-side, reject or truncate oversized ones — mostly to stop
+         one bad error object (e.g. something that stringifies a huge
+         object) from writing a multi-MB log line.
+      5. **PII, given what this app stores.** This is a medical/aesthetic
+         customer app — an uncaught exception's context can easily carry a
+         request body or response with a customer's name/health info in
+         it. Log an explicit allowlist (message, stack, URL, status code)
+         rather than freely serializing whatever the error object happens
+         to contain — raw request/response bodies and full error-object
+         dumps don't get logged, regardless of level.
 - [ ] **FE-4** `src/environments/environment.ts` hardcodes `api:
       'http://localhost:3000'` with no per-environment override. Needs real
       `environment.*.ts` files (or however this project wants to handle it)
