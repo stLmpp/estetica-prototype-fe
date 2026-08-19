@@ -23,14 +23,36 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
 - [ ] **FE-2** `src/app/core/interceptors/small-ttl-cache.interceptor.ts` uses raw
       `console.log` in two places — the module-level legend printed once at
       load (the `symbolMap` entries logged on import) and every request
-      inside `logRequest`. Route both through a real logger once one exists
-      on this side (mirroring the backend's `LoggerService`), rather than
-      leaving debug output on `console` in production builds.
-- [ ] **FE-3** `src/app/components/form-field/form-field.component.ts`'s
-      `ngAfterContentInit` throws a plain `new Error('InputDirective is
-      required')` when no `FormFieldInput` is projected. Improve this —
-      at minimum a clearer message (which component/template it's missing
-      from), possibly a dev-mode-only warning instead of a hard throw.
+      inside `logRequest`. This interceptor runs on both platforms
+      (`isPlatformServer(platformId)` is already checked elsewhere in the
+      same file), so "a real logger" actually means two different delivery
+      paths, not one drop-in replacement:
+      - **Server-side (SSR) logs** are already running in this app's own
+        Node process (`src/server.ts`, the Express app wrapping
+        `AngularNodeAppEngine`) — no network hop needed, just swap
+        `console.log` for a real Node logger there (e.g. `pino`, mirroring
+        the shape of the backend's `LoggerService` in
+        `estetica-prototype-api`) writing to that process's stdout.
+      - **Client-side (browser) logs** have nowhere to land today beyond
+        the user's own devtools console, invisible to anyone operating the
+        app. Direct feedback (2026-08-19): send these to a new endpoint on
+        *this app's own* SSR server (`src/server.ts` already has a
+        commented-out slot for custom Express routes, registered before
+        the catch-all Angular SSR handler) — **not** through
+        `estetica-prototype-api`. Logging/observability is this app's own
+        operational concern, not something the business API should have
+        to own, authenticate against, or version alongside its actual
+        domain routes. The browser-side logger posts entries to that
+        endpoint (`fetch`/`HttpClient`, only when `isPlatformBrowser`), and
+        the Express handler feeds them into the same Node logger used for
+        SSR-side logs above — one sink, two origins.
+      Open questions to settle before building this: what's actually worth
+      shipping over the wire from the browser (probably not every
+      cache-hit/miss line at current verbosity — needs a level/threshold),
+      whether client-side sends need batching/throttling so a burst of
+      requests doesn't spam the endpoint one POST at a time, and whether
+      the endpoint needs any auth/rate-limiting so it isn't an open
+      unauthenticated log sink reachable by anyone who finds the URL.
 - [ ] **FE-4** `src/environments/environment.ts` hardcodes `api:
       'http://localhost:3000'` with no per-environment override. Needs real
       `environment.*.ts` files (or however this project wants to handle it)

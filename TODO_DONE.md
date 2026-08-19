@@ -71,3 +71,17 @@ outright.
       (`AnamnesisFormDetailStore.reload`,
       `CustomerAnamnesisFormPageComponent.loadFieldsForForm$`) — no more
       `.pipe(map((result) => result.items))`, no more `FIELDS_LIMIT`.
+- [x] **FE-3** (2026-08-19) `FormFieldComponent.ngAfterContentInit` threw a plain
+      `new Error('InputDirective is required')` with no way to tell which
+      `<app-form-field>` instance was missing its projected input — a hard
+      throw during change detection gives a stack trace that bottoms out
+      inside the component itself, not at the offending template. Kept the
+      hard throw (this is a genuine template-wiring bug, not a runtime
+      condition worth swallowing behind a dev-mode-only warning — no
+      existing precedent in this codebase for that pattern either) but
+      widened the message to list the expected selectors
+      (`input[appInput]`, `select[appSelect]`, `app-checkbox`,
+      `app-switch`) and, via an injected `ElementRef`, the host element's
+      `outerHTML` — so the projected (or missing) light-DOM content is
+      visible directly in the thrown error instead of requiring a
+      breakpoint to inspect.

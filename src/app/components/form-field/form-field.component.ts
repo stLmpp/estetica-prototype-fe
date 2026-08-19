@@ -5,6 +5,8 @@ import {
   computed,
   contentChild,
   effect,
+  ElementRef,
+  inject,
 } from '@angular/core';
 import { FormFieldInput } from './form-field-input';
 import { LabelComponent } from '../label/label.component';
@@ -20,6 +22,8 @@ import { LabelComponent } from '../label/label.component';
   },
 })
 export class FormFieldComponent implements AfterContentInit {
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+
   constructor() {
     effect(() => {
       this.label()?.required.set(!!this.input()?.formField?.state().required());
@@ -33,7 +37,9 @@ export class FormFieldComponent implements AfterContentInit {
 
   ngAfterContentInit() {
     if (!this.input()) {
-      throw new Error('InputDirective is required');
+      throw new Error(
+        `<app-form-field> requires a projected FormFieldInput (input[appInput], select[appSelect], app-checkbox or app-switch), found none in: ${this.elementRef.nativeElement.outerHTML}`,
+      );
     }
   }
 }
