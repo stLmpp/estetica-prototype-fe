@@ -1,7 +1,21 @@
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { applyEach, form, FormField, FormRoot, validate } from '@angular/forms/signals';
+import {
+  applyEach,
+  form,
+  FormField,
+  FormRoot,
+  max,
+  maxLength,
+  min,
+  minLength,
+  pattern,
+  required,
+  requiredError,
+  validate,
+  ValidationError,
+} from '@angular/forms/signals';
 import dayjs from 'dayjs/esm';
 import {
   catchError,
@@ -17,6 +31,7 @@ import {
 import { ButtonComponent } from '../../../../../components/button/button.component';
 import { ButtonToggleGroupComponent } from '../../../../../components/button-toggle-group/button-toggle-group.component';
 import { ButtonToggleDirective } from '../../../../../components/button-toggle-group/button-toggle.directive';
+import { CheckboxGroupComponent } from '../../../../../components/checkbox-group/checkbox-group.component';
 import { CheckboxComponent } from '../../../../../components/checkbox/checkbox.component';
 import { FormFieldComponent } from '../../../../../components/form-field/form-field.component';
 import { HintComponent } from '../../../../../components/hint/hint.component';
@@ -33,7 +48,10 @@ import {
 } from '../../../../../model/api-error';
 import { AnamnesisFieldType } from '../../../../anamnesis-forms/anamnesis-field-type.enum';
 import { AnamnesisFieldValidationType } from '../../../../anamnesis-forms/anamnesis-field-validation-type.enum';
-import { AnamnesisField } from '../../../../anamnesis-forms/anamnesis-field.model';
+import {
+  AnamnesisField,
+  AnamnesisFieldValidationOfType,
+} from '../../../../anamnesis-forms/anamnesis-field.model';
 import { AnamnesisFieldService } from '../../../../anamnesis-forms/anamnesis-field.service';
 import { AnamnesisFormService } from '../../../../anamnesis-forms/anamnesis-form.service';
 import { AnamnesisSection } from '../../../../anamnesis-forms/anamnesis-section.model';
@@ -51,6 +69,7 @@ interface CheckboxOptionValue {
 interface AnswerRowValue {
   anamnesisFieldId: string;
   value: string;
+  numberValue: number | null;
   booleanValue: boolean;
   checkboxOptions: CheckboxOptionValue[];
 }
@@ -97,12 +116,17 @@ function buildAnswerRows(
   );
   return fields.map((field) => {
     const existing = existingByFieldId.get(field.id);
-    const isTextLike =
+    const isStringValue =
       field.fieldType !== AnamnesisFieldType.BOOLEAN &&
-      field.fieldType !== AnamnesisFieldType.CHECKBOX;
+      field.fieldType !== AnamnesisFieldType.CHECKBOX &&
+      field.fieldType !== AnamnesisFieldType.NUMBER;
     return {
       anamnesisFieldId: field.id,
-      value: isTextLike ? (existing?.value ?? '') : '',
+      value: isStringValue ? (existing?.value ?? '') : '',
+      numberValue:
+        field.fieldType === AnamnesisFieldType.NUMBER && existing?.value
+          ? Number(existing.value)
+          : null,
       booleanValue: existing?.value === 'true',
       checkboxOptions: (field.fieldArgs?.options ?? []).map((option) => ({
         value: option.value,
@@ -112,97 +136,26 @@ function buildAnswerRows(
   });
 }
 
-interface AnswerValidationError {
-  kind: string;
-  message: string;
-}
-
-function textAnswerValidationError(
-  field: AnamnesisField,
-  rawValue: string,
-): AnswerValidationError | null {
-  const trimmed = rawValue.trim();
-  for (const validation of field.validations ?? []) {
-    if (!validation.active) {
-      continue;
-    }
-    switch (validation.validationType) {
-      case AnamnesisFieldValidationType.REQUIRED:
-        if (!trimmed) {
-          return { kind: 'required', message: 'Campo obrigatório' };
-        }
-        break;
-      case AnamnesisFieldValidationType.MIN_LENGTH: {
-        const min = (validation.validationArgs as { length: number } | undefined)?.length ?? 0;
-        if (trimmed.length < min) {
-          return { kind: 'minLength', message: `Tamanho mínimo de ${min} caracteres` };
-        }
-        break;
-      }
-      case AnamnesisFieldValidationType.MAX_LENGTH: {
-        const max =
-          (validation.validationArgs as { length: number } | undefined)?.length ?? Infinity;
-        if (trimmed.length > max) {
-          return { kind: 'maxLength', message: `Tamanho máximo de ${max} caracteres` };
-        }
-        break;
-      }
-      case AnamnesisFieldValidationType.MIN_VALUE: {
-        if (!trimmed) {
-          break;
-        }
-        const num = Number(trimmed);
-        const min =
-          (validation.validationArgs as { value: number } | undefined)?.value ?? -Infinity;
-        if (!Number.isNaN(num) && num < min) {
-          return { kind: 'minValue', message: `Valor mínimo de ${min}` };
-        }
-        break;
-      }
-      case AnamnesisFieldValidationType.MAX_VALUE: {
-        if (!trimmed) {
-          break;
-        }
-        const num = Number(trimmed);
-        const max = (validation.validationArgs as { value: number } | undefined)?.value ?? Infinity;
-        if (!Number.isNaN(num) && num > max) {
-          return { kind: 'maxValue', message: `Valor máximo de ${max}` };
-        }
-        break;
-      }
-      case AnamnesisFieldValidationType.PATTERN: {
-        if (!trimmed) {
-          break;
-        }
-        const pattern = (validation.validationArgs as { pattern: string } | undefined)?.pattern;
-        if (pattern) {
-          let matches: boolean;
-          try {
-            matches = new RegExp(pattern).test(trimmed);
-          } catch {
-            matches = true;
-          }
-          if (!matches) {
-            return { kind: 'pattern', message: 'Formato inválido' };
-          }
-        }
-        break;
-      }
-    }
-  }
-  return null;
+function findValidation<T extends AnamnesisFieldValidationType>(
+  field: AnamnesisField | undefined,
+  type: T,
+): AnamnesisFieldValidationOfType<T> | undefined {
+  return field?.validations?.find(
+    (validation): validation is AnamnesisFieldValidationOfType<T> =>
+      validation.active && validation.validationType === type,
+  );
 }
 
 function checkboxAnswerValidationError(
   field: AnamnesisField,
   options: CheckboxOptionValue[],
-): AnswerValidationError | null {
+): ValidationError | null {
   const requiresAtLeastOne = (field.validations ?? []).some(
     (validation) =>
       validation.active && validation.validationType === AnamnesisFieldValidationType.REQUIRED,
   );
   if (requiresAtLeastOne && !options.some((option) => option.checked)) {
-    return { kind: 'required', message: 'Selecione ao menos uma opção' };
+    return requiredError({ message: 'Selecione ao menos uma opção' });
   }
   return null;
 }
@@ -214,6 +167,7 @@ function checkboxAnswerValidationError(
     ButtonToggleGroupComponent,
     ButtonToggleDirective,
     CheckboxComponent,
+    CheckboxGroupComponent,
     FormField,
     FormFieldComponent,
     FormRoot,
@@ -278,14 +232,19 @@ export class CustomerAnamnesisFormPageComponent {
     });
   });
 
-  protected readonly orphanedAnswerLabels = computed(() => {
+  protected readonly serverErrorsByFieldIndex = computed(() =>
+    this.fieldMeta().map((meta) => this.fieldErrorsByFieldId().get(meta.field.id)?.join(', ')),
+  );
+
+  protected readonly orphanedAnswerLabelsText = computed(() => {
     if (!this.isEditing() || this.loadingFields()) {
-      return [];
+      return '';
     }
     const activeFieldIds = new Set(this.fieldsSignal().map((field) => field.id));
     return (this.customerAnamnesis()?.answers ?? [])
       .filter((answer) => !activeFieldIds.has(answer.anamnesisFieldId))
-      .map((answer) => answer.anamnesisFieldLabel);
+      .map((answer) => answer.anamnesisFieldLabel)
+      .join(', ');
   });
 
   protected readonly model = signal<FormModel>({
@@ -298,17 +257,92 @@ export class CustomerAnamnesisFormPageComponent {
     this.model,
     (schema) => {
       applyEach(schema.answers, (row) => {
-        validate(row.value, ({ value, valueOf }) => {
-          const field = this.fieldById().get(valueOf(row.anamnesisFieldId));
-          if (
-            !field ||
-            field.fieldType === AnamnesisFieldType.BOOLEAN ||
-            field.fieldType === AnamnesisFieldType.CHECKBOX
-          ) {
-            return null;
-          }
-          return textAnswerValidationError(field, value());
+        const fieldOf = (ctx: { valueOf: (path: typeof row.anamnesisFieldId) => string }) =>
+          this.fieldById().get(ctx.valueOf(row.anamnesisFieldId));
+
+        required(row.value, {
+          when: (ctx) => {
+            const field = fieldOf(ctx);
+            return (
+              !!field &&
+              field.fieldType !== AnamnesisFieldType.BOOLEAN &&
+              field.fieldType !== AnamnesisFieldType.CHECKBOX &&
+              field.fieldType !== AnamnesisFieldType.NUMBER &&
+              !!findValidation(field, AnamnesisFieldValidationType.REQUIRED)
+            );
+          },
+          message: 'Campo obrigatório',
         });
+        minLength(
+          row.value,
+          (ctx) =>
+            findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MIN_LENGTH)?.validationArgs
+              .length ?? 0,
+          {
+            when: (ctx) => !!findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MIN_LENGTH),
+            message: (ctx) =>
+              `Tamanho mínimo de ${findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MIN_LENGTH)?.validationArgs.length} caracteres`,
+          },
+        );
+        maxLength(
+          row.value,
+          (ctx) =>
+            findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MAX_LENGTH)?.validationArgs
+              .length ?? Infinity,
+          {
+            when: (ctx) => !!findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MAX_LENGTH),
+            message: (ctx) =>
+              `Tamanho máximo de ${findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MAX_LENGTH)?.validationArgs.length} caracteres`,
+          },
+        );
+        pattern(
+          row.value,
+          (ctx) => {
+            const configured = findValidation(
+              fieldOf(ctx),
+              AnamnesisFieldValidationType.PATTERN,
+            )?.validationArgs.pattern;
+            return configured ? new RegExp(configured) : /(?:)/;
+          },
+          {
+            when: (ctx) => !!findValidation(fieldOf(ctx), AnamnesisFieldValidationType.PATTERN),
+            message: 'Formato inválido',
+          },
+        );
+
+        required(row.numberValue, {
+          when: (ctx) => {
+            const field = fieldOf(ctx);
+            return (
+              field?.fieldType === AnamnesisFieldType.NUMBER &&
+              !!findValidation(field, AnamnesisFieldValidationType.REQUIRED)
+            );
+          },
+          message: 'Campo obrigatório',
+        });
+        min(
+          row.numberValue,
+          (ctx) =>
+            findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MIN_VALUE)?.validationArgs
+              .value ?? -Infinity,
+          {
+            when: (ctx) => !!findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MIN_VALUE),
+            message: (ctx) =>
+              `Valor mínimo de ${findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MIN_VALUE)?.validationArgs.value}`,
+          },
+        );
+        max(
+          row.numberValue,
+          (ctx) =>
+            findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MAX_VALUE)?.validationArgs
+              .value ?? Infinity,
+          {
+            when: (ctx) => !!findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MAX_VALUE),
+            message: (ctx) =>
+              `Valor máximo de ${findValidation(fieldOf(ctx), AnamnesisFieldValidationType.MAX_VALUE)?.validationArgs.value}`,
+          },
+        );
+
         validate(row.checkboxOptions, ({ value, valueOf }) => {
           const field = this.fieldById().get(valueOf(row.anamnesisFieldId));
           if (!field || field.fieldType !== AnamnesisFieldType.CHECKBOX) {
@@ -437,6 +471,14 @@ export class CustomerAnamnesisFormPageComponent {
           anamnesisFieldId: row.anamnesisFieldId,
           value: '',
           extraValues: { values },
+        });
+        continue;
+      }
+
+      if (field.fieldType === AnamnesisFieldType.NUMBER) {
+        payloads.push({
+          anamnesisFieldId: row.anamnesisFieldId,
+          value: row.numberValue !== null ? String(row.numberValue) : '',
         });
         continue;
       }

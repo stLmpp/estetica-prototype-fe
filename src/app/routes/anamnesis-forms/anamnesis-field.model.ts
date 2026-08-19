@@ -31,12 +31,47 @@ export type AnamnesisFieldValidationArgs =
   | AnamnesisFieldValidationArgsValue
   | AnamnesisFieldValidationArgsPattern;
 
-export interface AnamnesisFieldValidation {
+export interface AnamnesisFieldValidationBase {
   id: string;
-  validationType: AnamnesisFieldValidationType;
-  validationArgs?: AnamnesisFieldValidationArgs;
   active: boolean;
 }
+
+export type AnamnesisFieldValidation = AnamnesisFieldValidationBase &
+  (
+    | {
+        validationType: AnamnesisFieldValidationType.REQUIRED;
+        validationArgs: undefined;
+      }
+    | {
+        validationType:
+          AnamnesisFieldValidationType.MAX_LENGTH | AnamnesisFieldValidationType.MIN_LENGTH;
+        validationArgs: AnamnesisFieldValidationArgsLength;
+      }
+    | {
+        validationType:
+          AnamnesisFieldValidationType.MIN_VALUE | AnamnesisFieldValidationType.MAX_VALUE;
+        validationArgs: AnamnesisFieldValidationArgsValue;
+      }
+    | {
+        validationType: AnamnesisFieldValidationType.PATTERN;
+        validationArgs: AnamnesisFieldValidationArgsPattern;
+      }
+  );
+
+/**
+ * `Extract<AnamnesisFieldValidation, { validationType: T }>` doesn't work here: the
+ * MIN_LENGTH/MAX_LENGTH (and MIN_VALUE/MAX_VALUE) variants share one member whose
+ * `validationType` is itself a union of two types, which `Extract` only matches when
+ * `T` covers the whole union, not a single one of the two literals.
+ */
+export type AnamnesisFieldValidationOfType<T extends AnamnesisFieldValidationType> =
+  AnamnesisFieldValidation extends infer Validation
+    ? Validation extends { validationType: infer ValidationType }
+      ? T extends ValidationType
+        ? Validation
+        : never
+      : never
+    : never;
 
 export interface AnamnesisField {
   id: string;

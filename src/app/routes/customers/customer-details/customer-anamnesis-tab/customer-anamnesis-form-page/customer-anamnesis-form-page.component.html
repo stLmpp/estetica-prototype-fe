@@ -29,10 +29,11 @@
     <input appInput [formField]="f.date" id="customer-anamnesis-date" type="date" />
   </app-form-field>
 
-  @if (orphanedAnswerLabels().length) {
+  @let orphanedAnswerLabels = orphanedAnswerLabelsText();
+  @if (orphanedAnswerLabels) {
     <p class="text-sm text-amber-600 dark:text-amber-400" role="alert">
       Os campos a seguir foram desativados e não podem mais ser editados aqui, mas suas respostas
-      anteriores continuam registradas: {{ orphanedAnswerLabels().join(', ') }}.
+      anteriores continuam registradas: {{ orphanedAnswerLabels }}.
     </p>
   }
 
@@ -57,108 +58,114 @@
             </h3>
           }
 
-          <div class="flex flex-col gap-1">
-            @switch (meta.field.fieldType) {
-              @case (AnamnesisFieldType.TEXT) {
-                <app-form-field>
-                  <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
-                    meta.field.label
-                  }}</label>
-                  <input
-                    appInput
-                    [formField]="row.value"
-                    [id]="'customer-anamnesis-answer-' + i"
-                    type="text"
-                  />
-                </app-form-field>
-              }
-              @case (AnamnesisFieldType.NUMBER) {
-                <app-form-field>
-                  <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
-                    meta.field.label
-                  }}</label>
-                  <input
-                    appInput
-                    [formField]="row.value"
-                    [id]="'customer-anamnesis-answer-' + i"
-                    type="number"
-                    inputmode="decimal"
-                  />
-                </app-form-field>
-              }
-              @case (AnamnesisFieldType.DATE) {
-                <app-form-field>
-                  <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
-                    meta.field.label
-                  }}</label>
-                  <input
-                    appInput
-                    [formField]="row.value"
-                    [id]="'customer-anamnesis-answer-' + i"
-                    type="date"
-                  />
-                </app-form-field>
-              }
-              @case (AnamnesisFieldType.BOOLEAN) {
+          @switch (meta.field.fieldType) {
+            @case (AnamnesisFieldType.TEXT) {
+              <app-form-field>
+                <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
+                  meta.field.label
+                }}</label>
+                <input
+                  appInput
+                  [formField]="row.value"
+                  [id]="'customer-anamnesis-answer-' + i"
+                  type="text"
+                />
+                @if (meta.field.extraLabels?.description) {
+                  <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
+                }
+              </app-form-field>
+            }
+            @case (AnamnesisFieldType.NUMBER) {
+              <app-form-field>
+                <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
+                  meta.field.label
+                }}</label>
+                <input
+                  appInput
+                  [formField]="row.numberValue"
+                  [id]="'customer-anamnesis-answer-' + i"
+                  type="number"
+                  inputmode="decimal"
+                />
+                @if (meta.field.extraLabels?.description) {
+                  <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
+                }
+              </app-form-field>
+            }
+            @case (AnamnesisFieldType.DATE) {
+              <app-form-field>
+                <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
+                  meta.field.label
+                }}</label>
+                <input
+                  appInput
+                  [formField]="row.value"
+                  [id]="'customer-anamnesis-answer-' + i"
+                  type="date"
+                />
+                @if (meta.field.extraLabels?.description) {
+                  <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
+                }
+              </app-form-field>
+            }
+            @case (AnamnesisFieldType.BOOLEAN) {
+              <app-form-field>
                 <app-switch [formField]="row.booleanValue">{{ meta.field.label }}</app-switch>
-              }
-              @case (AnamnesisFieldType.RADIO) {
+                @if (meta.field.extraLabels?.description) {
+                  <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
+                }
+              </app-form-field>
+            }
+            @case (AnamnesisFieldType.RADIO) {
+              <app-form-field>
                 <app-button-toggle-group [formField]="row.value" [label]="meta.field.label">
                   @for (option of meta.field.fieldArgs?.options ?? []; track option.value) {
                     <button btnToggle [value]="option.value">{{ option.label }}</button>
                   }
                 </app-button-toggle-group>
-              }
-              @case (AnamnesisFieldType.SELECT) {
-                <app-form-field>
-                  <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
-                    meta.field.label
-                  }}</label>
-                  <select appSelect [formField]="row.value" [id]="'customer-anamnesis-answer-' + i">
-                    <option value="">Selecione</option>
-                    @for (option of meta.field.fieldArgs?.options ?? []; track option.value) {
-                      <option [value]="option.value">{{ option.label }}</option>
-                    }
-                  </select>
-                </app-form-field>
-              }
-              @case (AnamnesisFieldType.CHECKBOX) {
-                <span class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                  {{ meta.field.label }}
-                </span>
-                @for (checkboxOption of row.checkboxOptions; track $index; let j = $index) {
-                  <app-checkbox [formField]="checkboxOption.checked">
-                    {{ meta.field.fieldArgs?.options?.[j]?.label }}
-                  </app-checkbox>
+                @if (meta.field.extraLabels?.description) {
+                  <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
                 }
-              }
+              </app-form-field>
             }
+            @case (AnamnesisFieldType.SELECT) {
+              <app-form-field>
+                <label appLabel [for]="'customer-anamnesis-answer-' + i">{{
+                  meta.field.label
+                }}</label>
+                <select appSelect [formField]="row.value" [id]="'customer-anamnesis-answer-' + i">
+                  <option value="">Selecione</option>
+                  @for (option of meta.field.fieldArgs?.options ?? []; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                @if (meta.field.extraLabels?.description) {
+                  <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
+                }
+              </app-form-field>
+            }
+            @case (AnamnesisFieldType.CHECKBOX) {
+              <app-form-field>
+                <app-checkbox-group [formField]="row.checkboxOptions" [label]="meta.field.label">
+                  @for (checkboxOption of row.checkboxOptions; track $index; let j = $index) {
+                    <app-checkbox [formField]="checkboxOption.checked">
+                      {{ meta.field.fieldArgs?.options?.[j]?.label }}
+                    </app-checkbox>
+                  }
+                </app-checkbox-group>
+                @if (meta.field.extraLabels?.description) {
+                  <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
+                }
+              </app-form-field>
+            }
+          }
 
-            @if (meta.field.extraLabels?.description) {
-              <app-hint start>{{ meta.field.extraLabels!.description }}</app-hint>
-            }
-
-            @if (
-              meta.field.fieldType === AnamnesisFieldType.RADIO &&
-              row.value().invalid() &&
-              row.value().touched()
-            ) {
-              <p class="text-sm text-red-600 dark:text-red-400" role="alert">
-                {{ row.value().errors()[0]?.message }}
-              </p>
-            }
-            @if (row.checkboxOptions().invalid() && row.checkboxOptions().touched()) {
-              <p class="text-sm text-red-600 dark:text-red-400" role="alert">
-                {{ row.checkboxOptions().errors()[0]?.message }}
-              </p>
-            }
-
-            @if (fieldErrorsByFieldId().get(meta.field.id); as messages) {
-              <p class="text-sm text-red-600 dark:text-red-400" role="alert">
-                {{ messages.join(', ') }}
-              </p>
-            }
-          </div>
+          @let serverErrorMessage = serverErrorsByFieldIndex()[i];
+          @if (serverErrorMessage) {
+            <p class="text-sm text-red-600 dark:text-red-400" role="alert">
+              {{ serverErrorMessage }}
+            </p>
+          }
         }
       }
     </div>

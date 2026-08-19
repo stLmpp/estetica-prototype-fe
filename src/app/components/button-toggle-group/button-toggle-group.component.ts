@@ -2,11 +2,14 @@ import {
   AfterContentInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   contentChildren,
+  inject,
   input,
   model,
 } from '@angular/core';
-import { FormValueControl } from '@angular/forms/signals';
+import { FormField, FormValueControl } from '@angular/forms/signals';
+import { FormFieldInput } from '../form-field/form-field-input';
 import { ButtonToggleDirective } from './button-toggle.directive';
 
 @Component({
@@ -30,11 +33,20 @@ import { ButtonToggleDirective } from './button-toggle.directive';
   host: {
     class: 'flex flex-col items-start gap-2 self-start',
   },
+  providers: [{ provide: FormFieldInput, useExisting: ButtonToggleGroupComponent }],
 })
-export class ButtonToggleGroupComponent implements FormValueControl<any>, AfterContentInit {
+export class ButtonToggleGroupComponent
+  extends FormFieldInput
+  implements FormValueControl<any>, AfterContentInit
+{
   readonly value = model<any>();
   readonly label = input<string>();
   readonly disabled = input(false);
+
+  override readonly formField = inject(FormField, { optional: true, self: true });
+  override readonly isInvalid = computed(
+    () => this.formField?.state()?.invalid() && this.formField.state().touched(),
+  );
 
   readonly toggles = contentChildren(ButtonToggleDirective);
 

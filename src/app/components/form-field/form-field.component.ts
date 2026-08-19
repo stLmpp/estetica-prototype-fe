@@ -38,7 +38,9 @@ export class FormFieldComponent implements AfterContentInit {
   ngAfterContentInit() {
     if (!this.input()) {
       throw new Error(
-        `<app-form-field> requires a projected FormFieldInput (input[appInput], select[appSelect], app-checkbox or app-switch), found none in: ${this.elementRef.nativeElement.outerHTML}`,
+        `<app-form-field> requires a projected FormFieldInput ` +
+          `(input[appInput], select[appSelect], app-checkbox or app-switch), ` +
+          `found none in: ${this.elementRef.nativeElement.outerHTML}`,
       );
     }
   }

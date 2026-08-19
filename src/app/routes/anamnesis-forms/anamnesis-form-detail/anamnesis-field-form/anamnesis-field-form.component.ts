@@ -48,6 +48,9 @@ import {
   AnamnesisFieldOption,
   AnamnesisFieldValidation,
   AnamnesisFieldValidationArgs,
+  AnamnesisFieldValidationArgsLength,
+  AnamnesisFieldValidationArgsPattern,
+  AnamnesisFieldValidationArgsValue,
 } from '../../anamnesis-field.model';
 import { AnamnesisFieldService } from '../../anamnesis-field.service';
 import { AnamnesisSection } from '../../anamnesis-section.model';
@@ -78,6 +81,41 @@ function toValidationRow(
   };
 }
 
+function toAnamnesisFieldValidation(
+  id: string,
+  validationType: AnamnesisFieldValidationType,
+  validationArgs: AnamnesisFieldValidationArgs | undefined,
+  active: boolean,
+): AnamnesisFieldValidation {
+  switch (validationType) {
+    case AnamnesisFieldValidationType.REQUIRED:
+      return { id, validationType, validationArgs: undefined, active };
+    case AnamnesisFieldValidationType.MIN_LENGTH:
+    case AnamnesisFieldValidationType.MAX_LENGTH:
+      return {
+        id,
+        validationType,
+        validationArgs: validationArgs as AnamnesisFieldValidationArgsLength,
+        active,
+      };
+    case AnamnesisFieldValidationType.MIN_VALUE:
+    case AnamnesisFieldValidationType.MAX_VALUE:
+      return {
+        id,
+        validationType,
+        validationArgs: validationArgs as AnamnesisFieldValidationArgsValue,
+        active,
+      };
+    case AnamnesisFieldValidationType.PATTERN:
+      return {
+        id,
+        validationType,
+        validationArgs: validationArgs as AnamnesisFieldValidationArgsPattern,
+        active,
+      };
+  }
+}
+
 function mergeValidations(
   payloadValidations: AnamnesisFieldValidationPayload[],
   previousValidations: AnamnesisFieldValidation[] | undefined,
@@ -85,12 +123,14 @@ function mergeValidations(
   const previousByType = new Map(
     (previousValidations ?? []).map((validation) => [validation.validationType, validation]),
   );
-  return payloadValidations.map((validationPayload) => ({
-    id: previousByType.get(validationPayload.validationType)?.id ?? crypto.randomUUID(),
-    validationType: validationPayload.validationType,
-    validationArgs: validationPayload.validationArgs ?? undefined,
-    active: validationPayload.active,
-  }));
+  return payloadValidations.map((validationPayload) =>
+    toAnamnesisFieldValidation(
+      previousByType.get(validationPayload.validationType)?.id ?? crypto.randomUUID(),
+      validationPayload.validationType,
+      validationPayload.validationArgs ?? undefined,
+      validationPayload.active,
+    ),
+  );
 }
 
 function buildValidationArgs(row: ValidationRowValue): AnamnesisFieldValidationArgs | null {
@@ -178,11 +218,7 @@ export class AnamnesisFieldFormComponent {
             active: anamnesisField.active,
             options: anamnesisField.fieldArgs?.options.map((option) => ({ ...option })) ?? [],
             validations: (anamnesisField.validations ?? []).map((validation) =>
-              toValidationRow(
-                validation.validationType,
-                validation.validationArgs,
-                validation.active,
-              ),
+              toValidationRow(validation.validationType, validation.validationArgs, validation.active),
             ),
           });
         });
