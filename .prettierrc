@@ -10,8 +10,10 @@
     }
   ],
   "plugins": [
+    "prettier-plugin-organize-attributes",
     "prettier-plugin-tailwindcss",
-    "prettier-plugin-organize-attributes"
+    "prettier-plugin-classnames",
+    "prettier-plugin-merge"
   ],
   "attributeGroups": [
     "$DEFAULT",

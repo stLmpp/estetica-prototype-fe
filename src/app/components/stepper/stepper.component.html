@@ -2,7 +2,8 @@
   @for (step of stepsInternal(); track step; let index = $index; let last = $last) {
     <li class="flex flex-1 items-center gap-2">
       <button
-        class="flex cursor-pointer items-center gap-2 focus:outline-none disabled:cursor-not-allowed"
+        class="flex cursor-pointer items-center gap-2 focus:outline-none
+          disabled:cursor-not-allowed"
         type="button"
         cdkStepHeader
         [id]="step.stepLabelId"
@@ -13,7 +14,8 @@
         (keydown)="_onKeydown($event)"
       >
         <span
-          class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+          class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs
+            font-semibold"
           [class]="{
             'bg-primary-500': index <= selectedIndex,
             'text-white': index <= selectedIndex,

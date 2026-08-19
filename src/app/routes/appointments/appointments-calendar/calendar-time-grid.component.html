@@ -1,5 +1,6 @@
 <div
-  class="overflow-x-auto overflow-y-hidden rounded-xl border border-neutral-200 dark:border-neutral-700"
+  class="overflow-x-auto overflow-y-hidden rounded-xl border border-neutral-200
+    dark:border-neutral-700"
 >
   <div class="flex">
     <div class="flex flex-col pt-6" style="width: 52px">
@@ -16,7 +17,8 @@
       @for (column of columns(); track column.day.date) {
         <div class="min-w-[90px] flex-1 border-l border-neutral-200 dark:border-neutral-700">
           <div
-            class="flex h-6 items-center justify-center text-xs font-medium text-neutral-500 dark:text-neutral-400"
+            class="flex h-6 items-center justify-center text-xs font-medium text-neutral-500
+              dark:text-neutral-400"
             [class]="{
               'text-primary-600': column.day.isToday,
               'dark:text-primary-400': column.day.isToday,
@@ -37,7 +39,8 @@
             <div class="absolute inset-0 px-0.5">
               @for (block of column.blocks; track block.appointment.id) {
                 <a
-                  class="absolute overflow-hidden rounded px-1 py-0.5 text-[11px] leading-tight hover:opacity-80"
+                  class="absolute overflow-hidden rounded px-1 py-0.5 text-[11px] leading-tight
+                    hover:opacity-80"
                   [routerLink]="['/appointments', block.appointment.id]"
                   [class]="block.colorClass"
                   [class.line-through]="block.appointment.status === AppointmentStatus.Cancelled"

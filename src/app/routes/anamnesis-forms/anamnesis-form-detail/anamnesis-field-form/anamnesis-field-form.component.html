@@ -110,7 +110,8 @@
     @for (validationRow of f.validations; track $index; let i = $index) {
       @let argsKey = VALIDATION_ARGS_KEY[validationRow.validationType().value()];
       <div
-        class="flex flex-col gap-2 border-b border-neutral-200 pb-3 last:border-0 last:pb-0 dark:border-neutral-700"
+        class="flex flex-col gap-2 border-b border-neutral-200 pb-3 last:border-0 last:pb-0
+          dark:border-neutral-700"
       >
         <div class="flex items-center gap-2">
           <app-form-field class="flex-1">
