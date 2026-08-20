@@ -303,3 +303,35 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
       unwieldy as a single file — noted inline in `docs/DS.md` itself too.
       Keep each one scoped to that component's actual inputs/outputs/usage,
       linked from an index in `docs/DS.md` rather than duplicating content.
+- [ ] **FE-23** ESLint config (`eslint.config.js`) currently has no stricter
+      code-style/consistency rules beyond `@eslint/js` recommended,
+      `typescript-eslint` recommended+stylistic, and Angular's recommended
+      sets — no import ordering, member ordering, or naming-convention
+      enforcement. Decide and adopt a stricter rule set — exact scope TBD.
+      Paired with the backend TODO of the same name
+      (`estetica-prototype-api`'s `TODO.md`, BE-28) since some of it (import
+      ordering, naming conventions) is language-agnostic and worth deciding
+      once for both repos, though each stack (Angular vs NestJS) will also
+      need some rules of its own.
+
+      One candidate already explored and reverted this session (2026-08-19):
+      `eslint-plugin-perfectionist`'s `sort-classes` rule (enforces
+      property/method visibility+kind ordering via a `groups` list). It
+      works, but has a sharp edge worth knowing before re-adopting: the rule
+      runs an always-on dependency-detection pass that is *not* gated by its
+      `useExperimentalDependencyDetection` option — whenever a member's
+      initializer references another member via `this.xxx(...)`, the rule
+      treats that as a dependency and accepts the existing order as long as
+      the dependency appears earlier, silently bypassing the configured
+      `groups` order for that member. This collides directly with Angular's
+      `computed()`/`effect()`/`linkedSignal()` idiom (166/19/6 usages as of
+      this date), whose callbacks routinely reference `this.someSignal()` —
+      e.g. `alert.component.ts`'s `protected readonly isDefault =
+      computed(() => !this.success() && ...)` sat between two `public`
+      properties with zero lint error. Fix: set
+      `ignoreCallbackDependenciesPatterns: ['^computed$', '^effect$',
+      '^linkedSignal$']` in the rule options — this excludes `this.`
+      references found inside those specific callbacks from dependency
+      detection, restoring normal group-based sorting (confirmed: surfaces
+      61 real violations across `src`, all `eslint --fix`-able, once
+      added). Re-apply that option if `sort-classes` gets picked back up.
