@@ -46,6 +46,9 @@ export class CustomerDetailsComponent {
   protected readonly canViewAnamnesis = computed(() =>
     this.authStore.hasPermission({ orgPermissions: { customerAnamnesis: ['get'] } }),
   );
+  protected readonly canViewCustomerFollowup = computed(() =>
+    this.authStore.hasPermission({ orgPermissions: { customerFollowup: ['get'] } }),
+  );
 
   protected readonly tabs = computed<TabItem[]>(() => [
     { label: 'Info', link: 'info' },
@@ -55,6 +58,7 @@ export class CustomerDetailsComponent {
       : []),
     ...(this.canViewSales() ? [{ label: 'Vendas recentes', link: 'sales' }] : []),
     ...(this.canViewAnamnesis() ? [{ label: 'Anamnese', link: 'anamnesis' }] : []),
+    ...(this.canViewCustomerFollowup() ? [{ label: 'Follow-up', link: 'follow-up' }] : []),
   ]);
 
   constructor() {
