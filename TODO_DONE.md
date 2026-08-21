@@ -132,3 +132,8 @@ outright.
       build` (catches template-compile-time mismatches on the
       boolean-vs-signal `isEditing` split and the two non-`f` root field
       variable names, `settingsForm`/`loginForm`).
+- [x] **FE-7** (2026-08-21) Customer follow-up UI built: `customer-followup-tab`
+      (list, create/edit form, detail view) alongside the existing
+      `customer-details` tabs, mirroring `customer-anamnesis-tab`'s full-CRUD
+      structure. See
+      `docs/superpowers/specs/2026-08-21-customer-followup-frontend-design.md`.
