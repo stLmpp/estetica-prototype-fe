@@ -85,6 +85,7 @@
               emptyMessage="Nenhum item encontrado."
               [formField]="item.catalogItemId"
               [searchFn]="catalogItemSearchFn"
+              [initialItem]="itemInitialItems()[i] ?? null"
               (itemSelected)="onCatalogItemSelected(i, $event)"
             />
 

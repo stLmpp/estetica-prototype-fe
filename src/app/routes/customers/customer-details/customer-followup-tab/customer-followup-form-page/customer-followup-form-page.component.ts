@@ -220,6 +220,12 @@ export class CustomerFollowupFormPageComponent {
     },
   );
 
+  protected readonly itemInitialItems = computed<(TypeaheadItem | null)[]>(() =>
+    this.model().items.map((item) =>
+      item.catalogItemId ? { id: item.catalogItemId, label: item.catalogItemName } : null,
+    ),
+  );
+
   protected readonly catalogItemSearchFn = (query: string): Observable<TypeaheadItem[]> =>
     this.catalogItemService.list({ name: query, active: true, limit: 10 }).pipe(
       map((result) => {
@@ -263,10 +269,12 @@ export class CustomerFollowupFormPageComponent {
 
   protected addItem() {
     this.model.update((value) => ({ ...value, items: [...value.items, emptyItem()] }));
+    this.f.items().markAsDirty();
   }
 
   protected removeItem(index: number) {
     this.model.update((value) => ({ ...value, items: value.items.filter((_, i) => i !== index) }));
+    this.f.items().markAsDirty();
   }
 
   private buildItemsPayload(items: CustomerFollowupItemFormValue[]): CustomerFollowupItemPayload[] {
