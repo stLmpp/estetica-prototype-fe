@@ -84,6 +84,8 @@ interface FieldMeta {
   field: AnamnesisField;
   sectionLabel?: string;
   showSectionHeader: boolean;
+  dateMin?: string;
+  dateMax?: string;
 }
 
 type SaveResult =
@@ -144,6 +146,79 @@ function findValidation<T extends AnamnesisFieldValidationType>(
     (validation): validation is AnamnesisFieldValidationOfType<T> =>
       validation.active && validation.validationType === type,
   );
+}
+
+function dateAnswerValidationError(
+  field: AnamnesisField | undefined,
+  value: string,
+): ValidationError | null {
+  if (field?.fieldType !== AnamnesisFieldType.DATE || !value) {
+    return null;
+  }
+  const minDate = findValidation(field, AnamnesisFieldValidationType.MIN_DATE)?.validationArgs.date;
+  if (minDate && value < minDate) {
+    return { kind: 'minDate', message: `Deve ser em ou após ${minDate}` };
+  }
+  const maxDate = findValidation(field, AnamnesisFieldValidationType.MAX_DATE)?.validationArgs.date;
+  if (maxDate && value > maxDate) {
+    return { kind: 'maxDate', message: `Deve ser em ou antes de ${maxDate}` };
+  }
+  const today = dayjs().format('YYYY-MM-DD');
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_IN_FUTURE) && value <= today) {
+    return { kind: 'dateInFuture', message: 'Deve ser uma data futura' };
+  }
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_IN_PAST) && value >= today) {
+    return { kind: 'dateInPast', message: 'Deve ser uma data passada' };
+  }
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_TODAY_OR_LATER) && value < today) {
+    return { kind: 'dateTodayOrLater', message: 'Deve ser hoje ou uma data futura' };
+  }
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_TODAY_OR_EARLIER) && value > today) {
+    return { kind: 'dateTodayOrEarlier', message: 'Deve ser hoje ou uma data passada' };
+  }
+  return null;
+}
+
+function getDateInputMin(field: AnamnesisField): string | undefined {
+  if (field.fieldType !== AnamnesisFieldType.DATE) {
+    return undefined;
+  }
+  const bounds: string[] = [];
+  const minDate = findValidation(field, AnamnesisFieldValidationType.MIN_DATE)?.validationArgs.date;
+  if (minDate) {
+    bounds.push(minDate);
+  }
+  const today = dayjs().format('YYYY-MM-DD');
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_IN_FUTURE)) {
+    bounds.push(dayjs(today).add(1, 'day').format('YYYY-MM-DD'));
+  }
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_TODAY_OR_LATER)) {
+    bounds.push(today);
+  }
+  return bounds.length
+    ? bounds.reduce((latestBound, bound) => (bound > latestBound ? bound : latestBound))
+    : undefined;
+}
+
+function getDateInputMax(field: AnamnesisField): string | undefined {
+  if (field.fieldType !== AnamnesisFieldType.DATE) {
+    return undefined;
+  }
+  const bounds: string[] = [];
+  const maxDate = findValidation(field, AnamnesisFieldValidationType.MAX_DATE)?.validationArgs.date;
+  if (maxDate) {
+    bounds.push(maxDate);
+  }
+  const today = dayjs().format('YYYY-MM-DD');
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_IN_PAST)) {
+    bounds.push(dayjs(today).subtract(1, 'day').format('YYYY-MM-DD'));
+  }
+  if (findValidation(field, AnamnesisFieldValidationType.DATE_TODAY_OR_EARLIER)) {
+    bounds.push(today);
+  }
+  return bounds.length
+    ? bounds.reduce((earliestBound, bound) => (bound < earliestBound ? bound : earliestBound))
+    : undefined;
 }
 
 function checkboxAnswerValidationError(
@@ -228,7 +303,13 @@ export class CustomerAnamnesisFormPageComponent {
         : undefined;
       const showSectionHeader = sectionLabel !== lastSectionLabel;
       lastSectionLabel = sectionLabel;
-      return { field, sectionLabel, showSectionHeader };
+      return {
+        field,
+        sectionLabel,
+        showSectionHeader,
+        dateMin: getDateInputMin(field),
+        dateMax: getDateInputMax(field),
+      };
     });
   });
 
@@ -307,6 +388,7 @@ export class CustomerAnamnesisFormPageComponent {
             message: 'Formato inválido',
           },
         );
+        validate(row.value, (ctx) => dateAnswerValidationError(fieldOf(ctx), ctx.value()));
 
         required(row.numberValue, {
           when: (ctx) => {

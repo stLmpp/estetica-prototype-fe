@@ -166,6 +166,17 @@
               />
             </app-form-field>
           }
+          @if (argsKey === 'date') {
+            <app-form-field class="flex-1">
+              <label appLabel [for]="'anamnesis-field-validation-date-' + i">Data</label>
+              <input
+                appInput
+                type="date"
+                [formField]="validationRow.date"
+                [id]="'anamnesis-field-validation-date-' + i"
+              />
+            </app-form-field>
+          }
 
           <button
             iconBtn

@@ -48,6 +48,7 @@ import {
   AnamnesisFieldOption,
   AnamnesisFieldValidation,
   AnamnesisFieldValidationArgs,
+  AnamnesisFieldValidationArgsDate,
   AnamnesisFieldValidationArgsLength,
   AnamnesisFieldValidationArgsPattern,
   AnamnesisFieldValidationArgsValue,
@@ -60,6 +61,7 @@ interface ValidationRowValue {
   length: string;
   value: string;
   pattern: string;
+  date: string;
   active: boolean;
 }
 
@@ -77,6 +79,7 @@ function toValidationRow(
     length: validationArgs && 'length' in validationArgs ? String(validationArgs.length) : '',
     value: validationArgs && 'value' in validationArgs ? String(validationArgs.value) : '',
     pattern: validationArgs && 'pattern' in validationArgs ? validationArgs.pattern : '',
+    date: validationArgs && 'date' in validationArgs ? validationArgs.date : '',
     active,
   };
 }
@@ -113,6 +116,19 @@ function toAnamnesisFieldValidation(
         validationArgs: validationArgs as AnamnesisFieldValidationArgsPattern,
         active,
       };
+    case AnamnesisFieldValidationType.MIN_DATE:
+    case AnamnesisFieldValidationType.MAX_DATE:
+      return {
+        id,
+        validationType,
+        validationArgs: validationArgs as AnamnesisFieldValidationArgsDate,
+        active,
+      };
+    case AnamnesisFieldValidationType.DATE_IN_FUTURE:
+    case AnamnesisFieldValidationType.DATE_IN_PAST:
+    case AnamnesisFieldValidationType.DATE_TODAY_OR_LATER:
+    case AnamnesisFieldValidationType.DATE_TODAY_OR_EARLIER:
+      return { id, validationType, validationArgs: undefined, active };
   }
 }
 
@@ -143,6 +159,9 @@ function buildValidationArgs(row: ValidationRowValue): AnamnesisFieldValidationA
   }
   if (key === 'pattern') {
     return { pattern: row.pattern.trim() };
+  }
+  if (key === 'date') {
+    return { date: row.date.trim() };
   }
   return null;
 }
@@ -295,6 +314,12 @@ export class AnamnesisFieldFormComponent {
             return null;
           }
           return value().trim() ? null : { kind: 'required', message: 'Padrão é obrigatório' };
+        });
+        validate(validationRow.date, ({ value, valueOf }) => {
+          if (VALIDATION_ARGS_KEY[valueOf(validationRow.validationType)] !== 'date') {
+            return null;
+          }
+          return value().trim() ? null : { kind: 'required', message: 'Data é obrigatória' };
         });
       });
     },

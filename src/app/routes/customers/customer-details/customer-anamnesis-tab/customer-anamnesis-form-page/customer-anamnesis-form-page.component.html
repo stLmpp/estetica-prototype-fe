@@ -101,6 +101,8 @@
                   appInput
                   type="date"
                   [formField]="row.value"
+                  [attr.min]="meta.dateMin"
+                  [attr.max]="meta.dateMax"
                   [id]="'customer-anamnesis-answer-' + i"
                 />
                 @if (meta.field.extraLabels?.description) {

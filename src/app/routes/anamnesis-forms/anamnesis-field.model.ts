@@ -26,10 +26,15 @@ export interface AnamnesisFieldValidationArgsPattern {
   pattern: string;
 }
 
+export interface AnamnesisFieldValidationArgsDate {
+  date: string;
+}
+
 export type AnamnesisFieldValidationArgs =
   | AnamnesisFieldValidationArgsLength
   | AnamnesisFieldValidationArgsValue
-  | AnamnesisFieldValidationArgsPattern;
+  | AnamnesisFieldValidationArgsPattern
+  | AnamnesisFieldValidationArgsDate;
 
 export interface AnamnesisFieldValidationBase {
   id: string;
@@ -55,6 +60,19 @@ export type AnamnesisFieldValidation = AnamnesisFieldValidationBase &
     | {
         validationType: AnamnesisFieldValidationType.PATTERN;
         validationArgs: AnamnesisFieldValidationArgsPattern;
+      }
+    | {
+        validationType:
+          AnamnesisFieldValidationType.MIN_DATE | AnamnesisFieldValidationType.MAX_DATE;
+        validationArgs: AnamnesisFieldValidationArgsDate;
+      }
+    | {
+        validationType:
+          | AnamnesisFieldValidationType.DATE_IN_FUTURE
+          | AnamnesisFieldValidationType.DATE_IN_PAST
+          | AnamnesisFieldValidationType.DATE_TODAY_OR_LATER
+          | AnamnesisFieldValidationType.DATE_TODAY_OR_EARLIER;
+        validationArgs: undefined;
       }
   );
 
