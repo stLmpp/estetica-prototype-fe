@@ -314,3 +314,67 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
       detection, restoring normal group-based sorting (confirmed: surfaces
       61 real violations across `src`, all `eslint --fix`-able, once
       added). Re-apply that option if `sort-classes` gets picked back up.
+- [ ] **FE-24** `customer-anamnesis-form-page.component.ts`/`.html`
+      (`routes/customers/customer-details/customer-anamnesis-tab/
+      customer-anamnesis-form-page/`) is one long flat page/form today:
+      an optional form-template selector (only shown via `showFormSelector()`
+      when creating and more than one active form exists), a date field,
+      then every dynamic field answer for the chosen form, all validated and
+      submitted together. Direct feedback: turn this into a 3-step wizard.
+      Suggested step names/order (better than the literal "form, date,
+      fields" — happy to bikeshed further, but these describe what each step
+      actually does rather than which form field lives on it):
+      1. **Template** (`anamnesisFormId` — the form-selector step; only
+         relevant when creating and `activeForms().length > 1`, matching
+         today's `showFormSelector()` condition — likely skipped/auto-
+         advanced past entirely when editing an existing record, since
+         `anamnesisFormId` is fixed then, or when only one active form
+         exists).
+      2. **Date** (`date`).
+      3. **Answers** (the dynamic per-field rows — today's `f.answers`
+         `@for` loop with its per-`fieldType` `@switch`).
+      Mirror the existing multi-step wizard pattern in
+      `routes/appointments/appointment-booking/` (steps/`<name>-step/`
+      subfolders, `appointment-booking-step.guard.ts`,
+      `appointment-booking-can-deactivate.guard.ts`, a
+      `appointment-booking.store.ts` holding cross-step state, one resolver
+      file) rather than inventing a new stepper shape. Open questions to
+      settle before building: whether steps validate/block independently
+      (Signal Forms currently validates the whole model as one `f`) or only
+      the final step's submit validates everything at once like today; since
+      the field list depends on `anamnesisFormId` (loaded reactively via the
+      `toObservable(...).pipe(switchMap(...))` in the constructor today),
+      the wizard's step-2/3 need that resolved before they can render,
+      unlike `appointment-booking`'s steps which are more independent; and
+      whether the create vs. edit entry points (this component is currently
+      dual-purpose, gated by `isEditing()`) both go through all 3 steps or
+      edit jumps straight to the answers step.
+- [ ] **FE-25** No protection against duplicate mutating requests (double-submit,
+      a second tap before a button's `disabled` binding takes effect, a
+      flaky connection resending the same call). `small-ttl-cache.interceptor.ts`
+      (`src/app/core/interceptors/`) already solves the "same request twice"
+      problem for `GET`s — in-flight requests are deduped via a
+      `Map<string, Observable<...>>` keyed on URL+cookies and shared with
+      `shareReplay(1)` (see the `inflightRequests` map, set/read/cleaned up
+      around lines 49/128–134/160–168) — but it explicitly bypasses
+      everything for any non-`GET` method (`req.method !== 'GET'` at line
+      79 short-circuits straight to `next(req)`). Extend the same
+      in-flight-dedup idea to `POST`/`PATCH`/`DELETE`, keyed on
+      method+URL+serialized body instead of just URL — but note a mutation
+      isn't safe to treat like a `GET`'s memory-cache/transfer-state paths
+      (serving a *stored* response to a *later, separate* call): the right
+      behavior for a genuine duplicate is either suppressing the second call
+      outright or piggybacking it on the still-in-flight first one, not
+      replaying a response after the fact to a call made once the first one
+      already finished. FE-14 (submit buttons disabled while
+      `f().submitting()`) already blocks most double-clicks at the UI layer,
+      but doesn't catch every path — a second distinct control triggering
+      the same request, or a race before the disabled binding applies. This
+      is a lower, network-layer backstop, complementary to FE-14 not a
+      replacement for it. Paired with the backend TODO of the same name
+      (`estetica-prototype-api`'s `TODO.md`) — a client-side guard alone
+      doesn't protect against two browser tabs, multiple devices, or a
+      non-browser API caller, so the real guarantee needs the server-side
+      half too; if the backend goes with the client-supplied
+      `Idempotency-Key` direction, this interceptor is also where that
+      header would get generated and attached.
