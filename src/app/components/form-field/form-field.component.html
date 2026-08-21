@@ -1,6 +1,6 @@
 <ng-content select="label[appLabel]"></ng-content>
 <ng-content
-  select="input[appInput],select[appSelect],app-checkbox,app-switch,app-button-toggle-group,app-checkbox-group"
+  select="input[appInput],select[appSelect],app-checkbox,app-switch,app-button-toggle-group,app-checkbox-group,textarea[appInput]"
 ></ng-content>
 @let error = firstError();
 @if (error && input()?.isInvalid()) {
