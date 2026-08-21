@@ -119,17 +119,17 @@ export const CUSTOMER_ROUTES: Routes = [
           {
             path: 'new',
             loadComponent: () =>
-              import(
-                './customer-details/customer-followup-tab/customer-followup-form-page/customer-followup-form-page.component'
-              ).then((m) => m.CustomerFollowupFormPageComponent),
+              import('./customer-details/customer-followup-tab/customer-followup-form-page/customer-followup-form-page.component').then(
+                (m) => m.CustomerFollowupFormPageComponent,
+              ),
             canActivate: [hasPermissionGuard({ orgPermissions: { customerFollowup: ['create'] } })],
           },
           {
             path: ':customerFollowupId',
             loadComponent: () =>
-              import(
-                './customer-details/customer-followup-tab/customer-followup-detail-page/customer-followup-detail-page.component'
-              ).then((m) => m.CustomerFollowupDetailPageComponent),
+              import('./customer-details/customer-followup-tab/customer-followup-detail-page/customer-followup-detail-page.component').then(
+                (m) => m.CustomerFollowupDetailPageComponent,
+              ),
             canActivate: [
               hasPermissionGuard({ orgPermissions: { customerFollowup: ['get'] } }),
               customerFollowupOwnershipGuard(),
@@ -139,9 +139,9 @@ export const CUSTOMER_ROUTES: Routes = [
           {
             path: ':customerFollowupId/edit',
             loadComponent: () =>
-              import(
-                './customer-details/customer-followup-tab/customer-followup-form-page/customer-followup-form-page.component'
-              ).then((m) => m.CustomerFollowupFormPageComponent),
+              import('./customer-details/customer-followup-tab/customer-followup-form-page/customer-followup-form-page.component').then(
+                (m) => m.CustomerFollowupFormPageComponent,
+              ),
             canActivate: [
               hasPermissionGuard({ orgPermissions: { customerFollowup: ['update'] } }),
               customerFollowupOwnershipGuard(),

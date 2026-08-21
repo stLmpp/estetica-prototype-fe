@@ -16,13 +16,13 @@
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <app-form-field>
         <label appLabel for="customer-followup-date">Data</label>
-        <input appInput type="date" [formField]="f.date" id="customer-followup-date" />
+        <input appInput type="date" id="customer-followup-date" [formField]="f.date" />
       </app-form-field>
     </div>
 
     <app-form-field>
       <label appLabel for="customer-followup-text">Texto</label>
-      <textarea appInput rows="4" [formField]="f.text" id="customer-followup-text"></textarea>
+      <textarea appInput rows="4" id="customer-followup-text" [formField]="f.text"></textarea>
     </app-form-field>
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -30,9 +30,9 @@
         <label appLabel for="customer-followup-appointment">Agendamento vinculado</label>
         <select
           appSelect
+          id="customer-followup-appointment"
           [formField]="f.appointmentId"
           (change)="onAppointmentChange()"
-          id="customer-followup-appointment"
         >
           <option value="">Nenhum</option>
           @for (option of appointmentOptions(); track option.id) {
@@ -48,9 +48,9 @@
         <label appLabel for="customer-followup-sale">Venda vinculada</label>
         <select
           appSelect
+          id="customer-followup-sale"
           [formField]="f.saleId"
           (change)="onSaleChange()"
-          id="customer-followup-sale"
         >
           <option value="">Nenhuma</option>
           @for (option of saleOptions(); track option.id) {

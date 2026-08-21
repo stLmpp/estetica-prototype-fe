@@ -33,12 +33,10 @@ export class CustomerFollowupService {
       limit: filter.limit,
     });
     return this.http.get<ListCustomerFollowupResponse>(this.baseUrl, { params }).pipe(
-      map(
-        (response): ListCustomerFollowupResult => ({
-          items: response.data.items,
-          meta: response.meta,
-        }),
-      ),
+      map((response): ListCustomerFollowupResult => ({
+        items: response.data.items,
+        meta: response.meta,
+      })),
     );
   }
 

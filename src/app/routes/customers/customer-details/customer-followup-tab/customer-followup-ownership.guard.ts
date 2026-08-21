@@ -7,16 +7,16 @@ export function customerFollowupOwnershipGuard(): CanActivateFn {
   return (route) => {
     const router = inject(Router);
     const customerFollowupService = inject(CustomerFollowupService);
-    const customerId = route.parent?.parent?.paramMap.get('customerId')!;
+    const customerId = route.parent?.parent?.paramMap.get('customerId');
     const customerFollowupId = route.paramMap.get('customerFollowupId')!;
 
     return customerFollowupService.getById(customerFollowupId).pipe(
       map((record) =>
         record.customerId === customerId
           ? true
-          : router.createUrlTree(['/customers', customerId, 'follow-up']),
+          : router.createUrlTree(['/customers', customerId!, 'follow-up']),
       ),
-      catchError(() => of(router.createUrlTree(['/customers', customerId, 'follow-up']))),
+      catchError(() => of(router.createUrlTree(['/customers', customerId!, 'follow-up']))),
     );
   };
 }

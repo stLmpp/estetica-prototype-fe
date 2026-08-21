@@ -207,7 +207,9 @@ export class CustomerFollowupFormPageComponent {
           }
 
           this.toastService.success(
-            this.isEditing() ? 'Follow-up atualizado com sucesso.' : 'Follow-up criado com sucesso.',
+            this.isEditing()
+              ? 'Follow-up atualizado com sucesso.'
+              : 'Follow-up criado com sucesso.',
           );
           await this.router.navigate([
             '/customers',
@@ -302,12 +304,10 @@ export class CustomerFollowupFormPageComponent {
             items,
           })
           .pipe(
-            map(
-              (): SaveResult => ({
-                ok: true,
-                customerFollowup: { ...record, text: value.text, date: isoDate },
-              }),
-            ),
+            map((): SaveResult => ({
+              ok: true,
+              customerFollowup: { ...record, text: value.text, date: isoDate },
+            })),
           )
       : this.customerFollowupService
           .create({

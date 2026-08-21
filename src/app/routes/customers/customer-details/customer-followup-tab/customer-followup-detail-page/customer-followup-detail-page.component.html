@@ -16,12 +16,7 @@
     </h1>
     <div class="flex items-center gap-2">
       @if (canUpdate()) {
-        <a
-          iconBtn
-          ariaLabel="Editar follow-up"
-          [routerLink]="['edit']"
-          [icon]="LucidePencil"
-        ></a>
+        <a iconBtn ariaLabel="Editar follow-up" [routerLink]="['edit']" [icon]="LucidePencil"></a>
       }
       @if (canDelete()) {
         <button
@@ -39,17 +34,13 @@
     <app-alert error>{{ message }}</app-alert>
   }
 
-  <p class="whitespace-pre-wrap text-sm text-neutral-800 dark:text-neutral-100">
+  <p class="text-sm whitespace-pre-wrap text-neutral-800 dark:text-neutral-100">
     {{ followup.text }}
   </p>
 
   <div class="flex flex-wrap gap-3">
     @if (followup.appointmentId) {
-      <a
-        btn
-        btnOutline
-        [routerLink]="['/appointments', followup.appointmentId]"
-      >
+      <a btn btnOutline [routerLink]="['/appointments', followup.appointmentId]">
         Ver agendamento vinculado
       </a>
     }
@@ -61,12 +52,18 @@
   @if (followup.items.length) {
     <div>
       <h2 class="mb-3 text-lg font-semibold text-neutral-800 dark:text-neutral-100">Itens</h2>
-      <ul class="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-700 dark:border-neutral-700">
+      <ul
+        class="divide-y divide-neutral-200 rounded-xl border border-neutral-200
+          dark:divide-neutral-700 dark:border-neutral-700"
+      >
         @for (item of followup.items; track item.id) {
           <li class="flex items-center justify-between gap-4 px-4 py-3 text-sm">
             <span class="text-neutral-800 dark:text-neutral-100">
-              {{ item.description }} @if (item.catalogItemName) {
-                <span class="text-neutral-500 dark:text-neutral-400">({{ item.catalogItemName }})</span>
+              {{ item.description }}
+              @if (item.catalogItemName) {
+                <span class="text-neutral-500 dark:text-neutral-400"
+                  >({{ item.catalogItemName }})</span
+                >
               }
               × {{ item.quantity }}
             </span>

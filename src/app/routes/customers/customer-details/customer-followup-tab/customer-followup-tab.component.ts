@@ -1,7 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideCalendarPlus, LucideEye, LucidePencil, LucidePlus, LucideReceiptText, LucideTrash2 } from '@lucide/angular';
+import {
+  LucideCalendarPlus,
+  LucideEye,
+  LucidePencil,
+  LucidePlus,
+  LucideReceiptText,
+  LucideTrash2,
+} from '@lucide/angular';
 import { AlertComponent } from '../../../../components/alert/alert.component';
 import { ButtonComponent } from '../../../../components/button/button.component';
 import { IconComponent } from '../../../../components/icon/icon.component';
