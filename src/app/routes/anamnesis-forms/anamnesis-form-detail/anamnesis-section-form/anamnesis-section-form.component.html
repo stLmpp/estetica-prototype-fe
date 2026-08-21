@@ -35,7 +35,7 @@
       btn
       btnPrimary
       type="submit"
-      [disabled]="isEditing() && !f().dirty()"
+      [disabled]="f().invalid() || f().submitting() || (isEditing() && !f().dirty())"
       [btnLoading]="f().submitting()"
     >
       {{ isEditing() ? 'Salvar' : 'Criar' }}

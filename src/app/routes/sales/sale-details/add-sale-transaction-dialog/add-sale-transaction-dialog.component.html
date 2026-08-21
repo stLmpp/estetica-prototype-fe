@@ -85,6 +85,14 @@
     <button btn btnOutline type="button" [disabled]="f().submitting()" (click)="cancel()">
       Cancelar
     </button>
-    <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">Salvar</button>
+    <button
+      btn
+      btnPrimary
+      type="submit"
+      [disabled]="f().invalid() || f().submitting()"
+      [btnLoading]="f().submitting()"
+    >
+      Salvar
+    </button>
   </div>
 </form>

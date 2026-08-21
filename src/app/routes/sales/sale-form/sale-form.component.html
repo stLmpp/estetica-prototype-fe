@@ -245,7 +245,15 @@
 
     <div class="flex justify-end gap-3">
       <a btn btnOutline routerLink="/sales">Cancelar</a>
-      <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">Criar venda</button>
+      <button
+        btn
+        btnPrimary
+        type="submit"
+        [disabled]="f().invalid() || f().submitting()"
+        [btnLoading]="f().submitting()"
+      >
+        Criar venda
+      </button>
     </div>
   </form>
 </div>

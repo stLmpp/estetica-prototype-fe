@@ -217,27 +217,6 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
       tradeoff is acceptable — if so, this is a paired FE (this repo) +
       backend (`estetica-prototype-api`, `AnamnesisFieldOption` model)
       change, not FE-only.
-- [ ] **FE-14** No submit button in the app disables itself when the form is
-      invalid. Checked all 13 `type="submit"` buttons in `src/app`: 5 gate
-      only on `!f().dirty()` (e.g. `anamnesis-section-form.component.html:38`,
-      `anamnesis-field-form.component.html:206`,
-      `customer-anamnesis-form-page.component.html:180`,
-      `anamnesis-form-detail.component.html:66`,
-      `organization-settings.component.html:24`), the other 8 have no
-      `[disabled]` binding at all (`customer-form-dialog`,
-      `employee-form-dialog`, `catalog-item-form-dialog`, `sale-form`,
-      `login`, `add-sale-transaction-dialog`,
-      `customer-anamnesis-finalize-dialog`, `anamnesis-form-create`) — none
-      check `f().invalid()`. It's a real, already-used signal
-      (`FieldState.invalid: Signal<boolean>` in `@angular/forms/signals`) —
-      `schedule-step.component.html:81` already disables a (non-submit)
-      "Avançar" link with `[disabled]="f().invalid()"`, so the primitive is
-      proven, just never applied to an actual submit button. Establish a
-      standard (document it in `docs/CONVENTIONS.md` next to the existing
-      Signal Forms rules) — likely `[disabled]="f().invalid() ||
-      f().submitting() || (isEditing() && !f().dirty())"` or a shared
-      helper/directive so every form doesn't hand-roll the same
-      three-condition expression — then retrofit all 13 forms above to it.
 - [ ] **FE-15** API error display is inconsistent across three different patterns for
       the same "a save/submit call failed" situation, despite
       `extractApiErrorMessage()` (`src/app/model/api-error.ts`, a pure

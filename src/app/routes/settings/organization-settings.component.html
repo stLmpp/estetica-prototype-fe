@@ -25,7 +25,13 @@
   }
 
   <div class="flex justify-end">
-    <button btn btnPrimary type="submit" [disabled]="!f().dirty()" [btnLoading]="f().submitting()">
+    <button
+      btn
+      btnPrimary
+      type="submit"
+      [disabled]="f().invalid() || f().submitting() || !f().dirty()"
+      [btnLoading]="f().submitting()"
+    >
       Salvar
     </button>
   </div>

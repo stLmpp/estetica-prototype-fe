@@ -188,7 +188,13 @@
       btn
       btnPrimary
       type="submit"
-      [disabled]="!f.anamnesisFormId().value() || loadingFields() || (isEditing() && !f().dirty())"
+      [disabled]="
+        !f.anamnesisFormId().value() ||
+        loadingFields() ||
+        f().invalid() ||
+        f().submitting() ||
+        (isEditing() && !f().dirty())
+      "
       [btnLoading]="f().submitting()"
     >
       {{ isEditing() ? 'Salvar' : 'Criar' }}

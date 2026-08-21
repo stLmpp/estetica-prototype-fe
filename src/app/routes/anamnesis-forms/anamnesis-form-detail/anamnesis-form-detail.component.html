@@ -63,7 +63,9 @@
             btn
             btnPrimary
             type="submit"
-            [disabled]="!settingsForm().dirty()"
+            [disabled]="
+              settingsForm().invalid() || settingsForm().submitting() || !settingsForm().dirty()
+            "
             [btnLoading]="settingsForm().submitting()"
           >
             Salvar

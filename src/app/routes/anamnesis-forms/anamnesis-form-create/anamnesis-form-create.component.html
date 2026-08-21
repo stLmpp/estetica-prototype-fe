@@ -41,6 +41,14 @@
 
   <div class="mt-2 flex justify-end gap-3">
     <a btn btnOutline routerLink="/anamnesis-forms">Cancelar</a>
-    <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">Criar</button>
+    <button
+      btn
+      btnPrimary
+      type="submit"
+      [disabled]="f().invalid() || f().submitting()"
+      [btnLoading]="f().submitting()"
+    >
+      Criar
+    </button>
   </div>
 </form>

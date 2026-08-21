@@ -47,6 +47,7 @@
         btn
         btnPrimary
         type="submit"
+        [disabled]="loginForm().invalid() || loginForm().submitting()"
         [btnLoading]="loginForm().submitting()"
       >
         Fazer login

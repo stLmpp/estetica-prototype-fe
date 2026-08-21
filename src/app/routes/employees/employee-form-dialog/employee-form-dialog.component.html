@@ -148,7 +148,13 @@
         <button btn btnOutline type="button" [disabled]="f().submitting()" (click)="cancel()">
           Cancelar
         </button>
-        <button btn btnPrimary type="submit" [btnLoading]="f().submitting()">
+        <button
+          btn
+          btnPrimary
+          type="submit"
+          [disabled]="f().invalid() || f().submitting() || (isEditing && !f().dirty())"
+          [btnLoading]="f().submitting()"
+        >
           {{ isEditing ? 'Salvar' : 'Criar' }}
         </button>
       </div>

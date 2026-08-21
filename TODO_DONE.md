@@ -113,3 +113,22 @@ outright.
       `outerHTML` — so the projected (or missing) light-DOM content is
       visible directly in the thrown error instead of requiring a
       breakpoint to inspect.
+- [x] **FE-14** (2026-08-21) No submit button in the app disabled itself when the
+      form was invalid. Of the 13 `type="submit"` buttons in `src/app`, 5
+      gated only on `!f().dirty()` and the other 8 had no `[disabled]`
+      binding at all — none checked `f().invalid()`, even though
+      `schedule-step.component.html:81` already proved the primitive
+      (`FieldState.invalid: Signal<boolean>`) on a non-submit link.
+      Established the standard in `docs/CONVENTIONS.md` (next to the
+      Signal Forms rules): `f().invalid() || f().submitting() ||
+      (isEditing() && !f().dirty())`, the third clause only on forms that
+      can edit an existing record (omitted entirely on pure-create/
+      one-shot forms) and using a bare `isEditing` where that signal turns
+      out to be a plain boolean instead of a `computed()` on a couple of
+      the dialogs. Retrofitted all 13 forms plus `organization-settings`
+      itself (the stated "reference" — it turned out to be missing
+      `invalid()` too). No `.ts` changes needed anywhere; every
+      signal/computed referenced already existed. Verified with `pnpm
+      build` (catches template-compile-time mismatches on the
+      boolean-vs-signal `isEditing` split and the two non-`f` root field
+      variable names, `settingsForm`/`loginForm`).
