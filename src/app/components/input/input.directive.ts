@@ -4,7 +4,7 @@ import { FormFieldInput } from '../form-field/form-field-input';
 
 @Directive({
   selector:
-    'input[appInput]:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=button]):not([type=submit]):not([type=reset])',
+    'input[appInput]:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=button]):not([type=submit]):not([type=reset]), textarea[appInput]',
   host: {
     class:
       'focus:ring-primary-400 focus:border-primary-400 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder-neutral-400 transition focus:ring-2 focus:outline-none dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-300',
