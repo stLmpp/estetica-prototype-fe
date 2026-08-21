@@ -22,6 +22,7 @@ const statement = {
   sale: ['get', 'create', 'addTransaction', 'updateStatus', 'delete'],
   anamnesisField: ['get', 'create', 'update', 'delete'],
   customerAnamnesis: ['get', 'create', 'update', 'finalize', 'delete'],
+  customerFollowup: ['get', 'create', 'update', 'delete'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -36,6 +37,7 @@ const owner = ac.newRole({
   sale: ['get', 'create', 'addTransaction', 'updateStatus', 'delete'],
   anamnesisField: ['get', 'create', 'update', 'delete'],
   customerAnamnesis: ['get', 'create', 'update', 'finalize', 'delete'],
+  customerFollowup: ['get', 'create', 'update', 'delete'],
   ...ownerAc.statements,
 });
 
@@ -49,6 +51,7 @@ const admin = ac.newRole({
   sale: ['get', 'create', 'addTransaction', 'updateStatus', 'delete'],
   anamnesisField: ['get', 'create', 'update', 'delete'],
   customerAnamnesis: ['get', 'create', 'update', 'finalize', 'delete'],
+  customerFollowup: ['get', 'create', 'update', 'delete'],
   ...adminAc.statements,
 });
 
@@ -62,6 +65,7 @@ const member = ac.newRole({
   sale: ['get'],
   anamnesisField: ['get'],
   customerAnamnesis: ['get', 'create', 'update', 'finalize'],
+  customerFollowup: ['get'],
   ...memberAc.statements,
 });
 
