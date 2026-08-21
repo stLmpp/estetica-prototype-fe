@@ -1,0 +1,150 @@
+<div>
+  <a
+    class="text-primary-600 dark:text-primary-300 text-sm hover:underline"
+    [routerLink]="['/customers', customerId(), 'follow-up']"
+  >
+    ← Voltar para follow-ups
+  </a>
+</div>
+
+<div class="flex flex-col gap-6">
+  <h1 class="text-primary-800 dark:text-primary-300 text-2xl font-bold">
+    {{ isEditing() ? 'Editar follow-up' : 'Novo follow-up' }}
+  </h1>
+
+  <form class="flex flex-col gap-8" [formRoot]="f">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-form-field>
+        <label appLabel for="customer-followup-date">Data</label>
+        <input appInput type="date" [formField]="f.date" id="customer-followup-date" />
+      </app-form-field>
+    </div>
+
+    <app-form-field>
+      <label appLabel for="customer-followup-text">Texto</label>
+      <textarea appInput rows="4" [formField]="f.text" id="customer-followup-text"></textarea>
+    </app-form-field>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <app-form-field>
+        <label appLabel for="customer-followup-appointment">Agendamento vinculado</label>
+        <select
+          appSelect
+          [formField]="f.appointmentId"
+          (change)="onAppointmentChange()"
+          id="customer-followup-appointment"
+        >
+          <option value="">Nenhum</option>
+          @for (option of appointmentOptions(); track option.id) {
+            <option [value]="option.id">{{ option.label }}</option>
+          }
+        </select>
+        @if (f.appointmentId().disabled()) {
+          <app-hint>Definido automaticamente pela venda selecionada.</app-hint>
+        }
+      </app-form-field>
+
+      <app-form-field>
+        <label appLabel for="customer-followup-sale">Venda vinculada</label>
+        <select
+          appSelect
+          [formField]="f.saleId"
+          (change)="onSaleChange()"
+          id="customer-followup-sale"
+        >
+          <option value="">Nenhuma</option>
+          @for (option of saleOptions(); track option.id) {
+            <option [value]="option.id">{{ option.label }}</option>
+          }
+        </select>
+      </app-form-field>
+    </div>
+
+    <div>
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100">Itens</h2>
+        <button btn btnOutline type="button" (click)="addItem()">Adicionar item</button>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        @for (item of f.items; track $index; let i = $index) {
+          <div class="grid grid-cols-1 items-start gap-2 sm:grid-cols-[2fr_1.5fr_1fr_1fr_auto]">
+            <app-form-field>
+              <label appLabel [for]="'customer-followup-item-description-' + i">Descrição</label>
+              <input
+                appInput
+                type="text"
+                [formField]="item.description"
+                [id]="'customer-followup-item-description-' + i"
+              />
+            </app-form-field>
+
+            <app-typeahead
+              label="Item do catálogo (opcional)"
+              placeholder="Buscar produto ou serviço"
+              emptyMessage="Nenhum item encontrado."
+              [formField]="item.catalogItemId"
+              [searchFn]="catalogItemSearchFn"
+              (itemSelected)="onCatalogItemSelected(i, $event)"
+            />
+
+            <app-form-field>
+              <label appLabel [for]="'customer-followup-item-quantity-' + i">Quantidade</label>
+              <input
+                appInput
+                type="number"
+                inputmode="numeric"
+                [formField]="item.quantity"
+                [id]="'customer-followup-item-quantity-' + i"
+              />
+            </app-form-field>
+
+            <app-form-field>
+              <label appLabel [for]="'customer-followup-item-price-' + i">Preço</label>
+              <input
+                appInput
+                type="text"
+                inputmode="decimal"
+                mask="separator.2"
+                prefix="R$ "
+                [formField]="item.priceApplied"
+                [id]="'customer-followup-item-price-' + i"
+              />
+            </app-form-field>
+
+            <button
+              class="self-center"
+              iconBtn
+              type="button"
+              ariaLabel="Remover item"
+              size="sm"
+              [icon]="LucideTrash2"
+              (click)="removeItem(i)"
+            ></button>
+          </div>
+        }
+
+        @if (!f.items().value().length) {
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum item adicionado.</p>
+        }
+      </div>
+    </div>
+
+    @if (submitErrorMessage(); as message) {
+      <app-alert error>{{ message }}</app-alert>
+    }
+
+    <div class="flex justify-end gap-3">
+      <a btn btnOutline [routerLink]="['/customers', customerId(), 'follow-up']">Cancelar</a>
+      <button
+        btn
+        btnPrimary
+        type="submit"
+        [disabled]="f().invalid() || f().submitting() || (isEditing() && !f().dirty())"
+        [btnLoading]="f().submitting()"
+      >
+        {{ isEditing() ? 'Salvar alterações' : 'Criar follow-up' }}
+      </button>
+    </div>
+  </form>
+</div>
