@@ -1,0 +1,97 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <h2 class="text-lg font-bold text-neutral-800 dark:text-neutral-100">Follow-ups</h2>
+  @if (canCreate()) {
+    <a btn btnPrimary routerLink="new">
+      <app-icon size="sm" color="white" [icon]="LucidePlus" />
+      Novo follow-up
+    </a>
+  }
+</div>
+
+@if (store.errorMessage(); as message) {
+  <app-alert error>{{ message }}</app-alert>
+}
+
+<app-table
+  [columns]="columns()"
+  [data]="store.entities()"
+  [trackBy]="trackBy"
+  [loadingOverlay]="store.loading()"
+/>
+
+@if (!store.loading() && store.entities().length === 0) {
+  <div
+    class="rounded-xl border border-dashed border-neutral-300 p-8 text-center
+      dark:border-neutral-700"
+  >
+    <p class="text-neutral-500 dark:text-neutral-400">Nenhum follow-up registrado.</p>
+  </div>
+}
+
+<app-paginator
+  mode="compact"
+  [page]="store.page()"
+  [pageSize]="pageSize"
+  [length]="store.total()"
+  [showPageSizeSelector]="false"
+  [disabled]="store.loading()"
+  (pageChange)="goToPage($event)"
+/>
+
+<ng-template #dateTemplate let-row="row">
+  {{ row.date | date: 'dd/MM/yyyy' }}
+</ng-template>
+
+<ng-template #textTemplate let-row="row">
+  <p class="line-clamp-2 max-w-md text-sm text-neutral-800 dark:text-neutral-100">
+    {{ row.text }}
+  </p>
+</ng-template>
+
+<ng-template #linkedTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    @if (row.appointmentId) {
+      <a
+        iconBtn
+        ariaLabel="Ver agendamento vinculado"
+        size="sm"
+        [routerLink]="['/appointments', row.appointmentId]"
+        [icon]="LucideCalendarPlus"
+      ></a>
+    }
+    @if (row.saleId) {
+      <a
+        iconBtn
+        ariaLabel="Ver venda vinculada"
+        size="sm"
+        [routerLink]="['/sales', row.saleId]"
+        [icon]="LucideReceiptText"
+      ></a>
+    }
+  </div>
+</ng-template>
+
+<ng-template #actionsTemplate let-row="row">
+  <div class="flex items-center gap-1">
+    <a iconBtn ariaLabel="Ver follow-up" size="sm" [routerLink]="[row.id]" [icon]="LucideEye"></a>
+    @if (canUpdate()) {
+      <a
+        iconBtn
+        ariaLabel="Editar follow-up"
+        size="sm"
+        [routerLink]="[row.id, 'edit']"
+        [icon]="LucidePencil"
+      ></a>
+    }
+    @if (canDelete()) {
+      <button
+        iconBtn
+        type="button"
+        ariaLabel="Excluir follow-up"
+        size="sm"
+        [icon]="LucideTrash2"
+        (click)="openDeleteDialog(row)"
+      ></button>
+    }
+  </div>
+</ng-template>
