@@ -119,6 +119,21 @@ coding conventions it points to.
   and `sales.component.ts`'s `toRangeStartIso`/`toRangeEndIso` didn't, and
   were fixed to match. Import from `dayjs/esm`, not plain `dayjs`, matching
   existing usage across the codebase.
+- **Name variables, methods, and classes descriptively and objectively — no
+  acronyms, no single-letter identifiers.** A name should say what the value
+  *is* on its own, not force the reader to trace how it's used a few lines
+  down to figure that out.
+  ```ts
+  // Avoid — a/b say nothing; the reader has to trace the comparison itself
+  // to know these are dates.
+  bounds.reduce((a, b) => (a < b ? a : b));
+
+  // Prefer — the name carries the meaning.
+  bounds.reduce((earlierDate, laterDate) => (earlierDate < laterDate ? earlierDate : laterDate));
+  ```
+  The one established exception is a loop index used purely for
+  `track`/array-position bookkeeping in `@for` (`let i = $index`) — not for
+  anything that carries domain meaning.
 
 ## Code Comments
 
