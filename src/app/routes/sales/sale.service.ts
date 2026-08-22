@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { ApiPaginatedResponse, ApiResponse } from '../../model/api-response';
+import { ApiKeyedResponse, ApiPaginatedResponse, ApiResponse } from '../../model/api-response';
 import {
   AddSaleTransactionResult,
   ListSaleFilter,
@@ -13,10 +13,6 @@ import {
   UpdateSaleStatusPayload,
 } from './sale.dto';
 import { Sale, SaleDetail } from './sale.model';
-
-interface SaleResponse {
-  data: { sale: SaleDetail };
-}
 
 @Service()
 export class SaleService {
@@ -44,13 +40,13 @@ export class SaleService {
 
   getById(saleId: string) {
     return this.http
-      .get<SaleResponse>(`${this.baseUrl}/${saleId}`)
+      .get<ApiKeyedResponse<'sale', SaleDetail>>(`${this.baseUrl}/${saleId}`)
       .pipe(map((response) => response.data.sale));
   }
 
   create(payload: SalePayload) {
     return this.http
-      .post<SaleResponse>(this.baseUrl, { sale: payload })
+      .post<ApiKeyedResponse<'sale', SaleDetail>>(this.baseUrl, { sale: payload })
       .pipe(map((response) => response.data.sale));
   }
 

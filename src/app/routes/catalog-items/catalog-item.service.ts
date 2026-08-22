@@ -3,17 +3,13 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { ApiPaginatedResponse } from '../../model/api-response';
+import { ApiKeyedResponse, ApiPaginatedResponse } from '../../model/api-response';
 import {
   CatalogItemPayload,
   ListCatalogItemFilter,
   ListCatalogItemResult,
 } from './catalog-item.dto';
 import { CatalogItem } from './catalog-item.model';
-
-interface CatalogItemResponse {
-  data: { catalogItem: CatalogItem };
-}
 
 @Service()
 export class CatalogItemService {
@@ -39,7 +35,7 @@ export class CatalogItemService {
 
   create(payload: CatalogItemPayload) {
     return this.http
-      .post<CatalogItemResponse>(this.baseUrl, { catalogItem: payload })
+      .post<ApiKeyedResponse<'catalogItem', CatalogItem>>(this.baseUrl, { catalogItem: payload })
       .pipe(map((response) => response.data.catalogItem));
   }
 

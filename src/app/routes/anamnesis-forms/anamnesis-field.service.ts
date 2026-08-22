@@ -3,20 +3,13 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
+import { ApiKeyedResponse } from '../../model/api-response';
 import {
   CreateAnamnesisFieldPayload,
   ListAnamnesisFieldFilter,
   UpdateAnamnesisFieldPayload,
 } from './anamnesis-field.dto';
 import { AnamnesisField } from './anamnesis-field.model';
-
-interface AnamnesisFieldResponse {
-  data: { anamnesisField: AnamnesisField };
-}
-
-interface ListAnamnesisFieldResponse {
-  data: { anamnesisFields: AnamnesisField[] };
-}
 
 @Service()
 export class AnamnesisFieldService {
@@ -30,19 +23,23 @@ export class AnamnesisFieldService {
       active: filter.active,
     });
     return this.http
-      .get<ListAnamnesisFieldResponse>(this.baseUrl, { params })
+      .get<ApiKeyedResponse<'anamnesisFields', AnamnesisField[]>>(this.baseUrl, { params })
       .pipe(map((response) => response.data.anamnesisFields));
   }
 
   getById(anamnesisFieldId: string) {
     return this.http
-      .get<AnamnesisFieldResponse>(`${this.baseUrl}/${anamnesisFieldId}`)
+      .get<ApiKeyedResponse<'anamnesisField', AnamnesisField>>(
+        `${this.baseUrl}/${anamnesisFieldId}`,
+      )
       .pipe(map((response) => response.data.anamnesisField));
   }
 
   create(payload: CreateAnamnesisFieldPayload) {
     return this.http
-      .post<AnamnesisFieldResponse>(this.baseUrl, { anamnesisField: payload })
+      .post<ApiKeyedResponse<'anamnesisField', AnamnesisField>>(this.baseUrl, {
+        anamnesisField: payload,
+      })
       .pipe(map((response) => response.data.anamnesisField));
   }
 

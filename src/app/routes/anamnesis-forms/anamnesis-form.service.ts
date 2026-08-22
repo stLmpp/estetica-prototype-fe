@@ -3,17 +3,13 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { ApiPaginatedResponse } from '../../model/api-response';
+import { ApiKeyedResponse, ApiPaginatedResponse } from '../../model/api-response';
 import {
   AnamnesisFormPayload,
   ListAnamnesisFormFilter,
   ListAnamnesisFormResult,
 } from './anamnesis-form.dto';
 import { AnamnesisForm } from './anamnesis-form.model';
-
-interface AnamnesisFormResponse {
-  data: { anamnesisForm: AnamnesisForm };
-}
 
 @Service()
 export class AnamnesisFormService {
@@ -37,13 +33,15 @@ export class AnamnesisFormService {
 
   getById(anamnesisFormId: string) {
     return this.http
-      .get<AnamnesisFormResponse>(`${this.baseUrl}/${anamnesisFormId}`)
+      .get<ApiKeyedResponse<'anamnesisForm', AnamnesisForm>>(`${this.baseUrl}/${anamnesisFormId}`)
       .pipe(map((response) => response.data.anamnesisForm));
   }
 
   create(payload: AnamnesisFormPayload) {
     return this.http
-      .post<AnamnesisFormResponse>(this.baseUrl, { anamnesisForm: payload })
+      .post<ApiKeyedResponse<'anamnesisForm', AnamnesisForm>>(this.baseUrl, {
+        anamnesisForm: payload,
+      })
       .pipe(map((response) => response.data.anamnesisForm));
   }
 

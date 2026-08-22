@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { httpParamsFromObject } from '../../../../shared/http-params-from-object';
-import { ApiPaginatedResponse } from '../../../../model/api-response';
+import { ApiKeyedResponse, ApiPaginatedResponse } from '../../../../model/api-response';
 import {
   CreateCustomerFollowupPayload,
   ListCustomerFollowupFilter,
@@ -11,10 +11,6 @@ import {
   UpdateCustomerFollowupPayload,
 } from './customer-followup.dto';
 import { CustomerFollowup, CustomerFollowupListItem } from './customer-followup.model';
-
-interface CustomerFollowupResponse {
-  data: { customerFollowup: CustomerFollowup };
-}
 
 @Service()
 export class CustomerFollowupService {
@@ -39,13 +35,17 @@ export class CustomerFollowupService {
 
   getById(customerFollowupId: string) {
     return this.http
-      .get<CustomerFollowupResponse>(`${this.baseUrl}/${customerFollowupId}`)
+      .get<ApiKeyedResponse<'customerFollowup', CustomerFollowup>>(
+        `${this.baseUrl}/${customerFollowupId}`,
+      )
       .pipe(map((response) => response.data.customerFollowup));
   }
 
   create(payload: CreateCustomerFollowupPayload) {
     return this.http
-      .post<CustomerFollowupResponse>(this.baseUrl, { customerFollowup: payload })
+      .post<ApiKeyedResponse<'customerFollowup', CustomerFollowup>>(this.baseUrl, {
+        customerFollowup: payload,
+      })
       .pipe(map((response) => response.data.customerFollowup));
   }
 

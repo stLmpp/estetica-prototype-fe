@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { ApiPaginatedResponse } from '../../model/api-response';
+import { ApiKeyedResponse, ApiPaginatedResponse } from '../../model/api-response';
 import {
   EmployeePayload,
   ListEmployeeFilter,
@@ -11,10 +11,6 @@ import {
   UpdateEmployeePayload,
 } from './employee.dto';
 import { Employee, EmployeeDetail } from './employee.model';
-
-interface EmployeeResponse {
-  data: { employee: EmployeeDetail };
-}
 
 @Service()
 export class EmployeeService {
@@ -39,13 +35,13 @@ export class EmployeeService {
 
   getById(employeeId: string) {
     return this.http
-      .get<EmployeeResponse>(`${this.baseUrl}/${employeeId}`)
+      .get<ApiKeyedResponse<'employee', EmployeeDetail>>(`${this.baseUrl}/${employeeId}`)
       .pipe(map((response) => response.data.employee));
   }
 
   create(payload: EmployeePayload) {
     return this.http
-      .post<EmployeeResponse>(this.baseUrl, { employee: payload })
+      .post<ApiKeyedResponse<'employee', EmployeeDetail>>(this.baseUrl, { employee: payload })
       .pipe(map((response) => response.data.employee));
   }
 

@@ -146,12 +146,31 @@ outright.
       `employee-service`, `employee`) onto `ApiPaginatedResponse<T>`, and
       `sale.service.ts`'s `AddSaleTransactionResponse` onto
       `ApiResponse<AddSaleTransactionResult>` — the one non-list response
-      whose `data` matched `T` directly. Left every other single-entity
-      response interface as-is (e.g. `CustomerResponse`'s `data: {
-      customer: CustomerDetail }`) since those key `data` by a
-      feature-specific name rather than `T` directly — per the TODO's own
-      note, accepted the generic covering only the common case rather than
-      renaming those keys. Pure typing change, no runtime behavior
-      difference. Verified with `pnpm exec tsc --noEmit`, `pnpm lint`
-      (pre-existing unrelated errors in 4 untouched files only), and `pnpm
-      build`.
+      whose `data` matched `T` directly.
+
+      Initial pass left every feature-keyed single-entity response as-is
+      (e.g. `CustomerResponse`'s `data: { customer: CustomerDetail }`),
+      reasoning the generic only covered the common case. Direct feedback:
+      that left most of the actual boilerplate (`AppointmentResponse`,
+      `GetDayScheduleResponse`, `GetCalendarRangeResponse`, and one or two
+      more per service) still hand-rolled. Checked every backend
+      `createResponseSchema(...)` call
+      (`src/features/*/dto/output/*.response.ts` in
+      `estetica-prototype-api`) and confirmed the wrap-under-a-feature-key
+      shape is the deliberate, universal convention for non-list responses
+      (one exception: `PublishConfigResponseSchema`'s two-key `{ config,
+      oldConfig }`, but there's no frontend `config.service.ts` to migrate).
+      Added `ApiKeyedResponse<K extends string, T> = { data: Record<K, T>
+      }` (a plain `Record` rather than a `[P in K]` mapped type, per
+      `@typescript-eslint/consistent-type-definitions` +
+      `consistent-indexed-object-style`, which also required `interface`
+      over `type`) and migrated every remaining single-key response —
+      including `anamnesis-section.service.ts`/`anamnesis-field.service.ts`,
+      which FE-16's first pass hadn't touched at all since they had no
+      paginated response to trigger the earlier scope. Every hand-rolled
+      `XResponse` interface in `*.service.ts` is now gone; call sites pass
+      the JSON key and value type as `ApiKeyedResponse<'appointment',
+      AppointmentDetail>` inline instead. Pure typing change, no runtime
+      behavior difference. Verified with `pnpm exec tsc --noEmit`, `pnpm
+      lint` (pre-existing unrelated errors in 4 untouched files only), and
+      `pnpm build`.

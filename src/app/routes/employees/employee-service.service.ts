@@ -3,21 +3,13 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { ApiPaginatedResponse } from '../../model/api-response';
+import { ApiKeyedResponse, ApiPaginatedResponse } from '../../model/api-response';
 import {
   EmployeeServicePayload,
   ListEmployeeServiceFilter,
   ListEmployeeServiceResult,
 } from './employee-service.dto';
 import { EmployeeService as EmployeeServiceModel } from './employee-service.model';
-
-interface CreateEmployeeServiceResponse {
-  data: { employeeService: EmployeeServiceModel };
-}
-
-interface SyncEmployeeServiceResponse {
-  data: { employeeServices: EmployeeServiceModel[] };
-}
 
 @Service()
 export class EmployeeServiceService {
@@ -41,7 +33,9 @@ export class EmployeeServiceService {
 
   create(payload: EmployeeServicePayload) {
     return this.http
-      .post<CreateEmployeeServiceResponse>(this.baseUrl, { employeeService: payload })
+      .post<ApiKeyedResponse<'employeeService', EmployeeServiceModel>>(this.baseUrl, {
+        employeeService: payload,
+      })
       .pipe(map((response) => response.data.employeeService));
   }
 
@@ -51,9 +45,12 @@ export class EmployeeServiceService {
 
   sync(employeeId: string, catalogItemIds: string[]) {
     return this.http
-      .put<SyncEmployeeServiceResponse>(`${this.baseUrl}/employee/${employeeId}`, {
-        catalogItemIds,
-      })
+      .put<ApiKeyedResponse<'employeeServices', EmployeeServiceModel[]>>(
+        `${this.baseUrl}/employee/${employeeId}`,
+        {
+          catalogItemIds,
+        },
+      )
       .pipe(map((response) => response.data.employeeServices));
   }
 }
