@@ -3,22 +3,13 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiKeyedResponse, ApiPaginatedResponse } from '../../model/api-response';
 import {
   CatalogItemPayload,
   ListCatalogItemFilter,
   ListCatalogItemResult,
 } from './catalog-item.dto';
 import { CatalogItem } from './catalog-item.model';
-
-interface CatalogItemResponse {
-  data: { catalogItem: CatalogItem };
-}
-
-interface ListCatalogItemResponse {
-  data: { items: CatalogItem[] };
-  meta: PaginationMetadata;
-}
 
 @Service()
 export class CatalogItemService {
@@ -34,7 +25,7 @@ export class CatalogItemService {
       active: filter.active,
       hasEmployees: filter.hasEmployees,
     });
-    return this.http.get<ListCatalogItemResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<CatalogItem>>(this.baseUrl, { params }).pipe(
       map((response): ListCatalogItemResult => ({
         items: response.data.items,
         meta: response.meta,
@@ -44,7 +35,7 @@ export class CatalogItemService {
 
   create(payload: CatalogItemPayload) {
     return this.http
-      .post<CatalogItemResponse>(this.baseUrl, { catalogItem: payload })
+      .post<ApiKeyedResponse<'catalogItem', CatalogItem>>(this.baseUrl, { catalogItem: payload })
       .pipe(map((response) => response.data.catalogItem));
   }
 

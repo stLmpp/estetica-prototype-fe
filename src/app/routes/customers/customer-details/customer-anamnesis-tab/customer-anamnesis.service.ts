@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { httpParamsFromObject } from '../../../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../../../shared/pagination.model';
+import { ApiKeyedResponse, ApiPaginatedResponse } from '../../../../model/api-response';
 import {
   CreateCustomerAnamnesisPayload,
   FinalizeCustomerAnamnesisPayload,
@@ -12,15 +12,6 @@ import {
   UpdateCustomerAnamnesisPayload,
 } from './customer-anamnesis.dto';
 import { CustomerAnamnesis } from './customer-anamnesis.model';
-
-interface CustomerAnamnesisResponse {
-  data: { customerAnamnesis: CustomerAnamnesis };
-}
-
-interface ListCustomerAnamnesisResponse {
-  data: { items: CustomerAnamnesis[] };
-  meta: PaginationMetadata;
-}
 
 @Service()
 export class CustomerAnamnesisService {
@@ -32,23 +23,29 @@ export class CustomerAnamnesisService {
 
   list(customerId: string, filter: ListCustomerAnamnesisFilter = {}) {
     const params = httpParamsFromObject({ page: filter.page, limit: filter.limit });
-    return this.http.get<ListCustomerAnamnesisResponse>(this.baseUrl(customerId), { params }).pipe(
-      map((response): ListCustomerAnamnesisResult => ({
-        items: response.data.items,
-        meta: response.meta,
-      })),
-    );
+    return this.http
+      .get<ApiPaginatedResponse<CustomerAnamnesis>>(this.baseUrl(customerId), { params })
+      .pipe(
+        map((response): ListCustomerAnamnesisResult => ({
+          items: response.data.items,
+          meta: response.meta,
+        })),
+      );
   }
 
   getById(customerId: string, anamnesisId: string) {
     return this.http
-      .get<CustomerAnamnesisResponse>(`${this.baseUrl(customerId)}/${anamnesisId}`)
+      .get<ApiKeyedResponse<'customerAnamnesis', CustomerAnamnesis>>(
+        `${this.baseUrl(customerId)}/${anamnesisId}`,
+      )
       .pipe(map((response) => response.data.customerAnamnesis));
   }
 
   create(customerId: string, payload: CreateCustomerAnamnesisPayload) {
     return this.http
-      .post<CustomerAnamnesisResponse>(this.baseUrl(customerId), { customerAnamnesis: payload })
+      .post<ApiKeyedResponse<'customerAnamnesis', CustomerAnamnesis>>(this.baseUrl(customerId), {
+        customerAnamnesis: payload,
+      })
       .pipe(map((response) => response.data.customerAnamnesis));
   }
 
@@ -60,9 +57,12 @@ export class CustomerAnamnesisService {
 
   finalize(customerId: string, anamnesisId: string, payload: FinalizeCustomerAnamnesisPayload) {
     return this.http
-      .patch<CustomerAnamnesisResponse>(`${this.baseUrl(customerId)}/${anamnesisId}/finalize`, {
-        customerAnamnesis: payload,
-      })
+      .patch<ApiKeyedResponse<'customerAnamnesis', CustomerAnamnesis>>(
+        `${this.baseUrl(customerId)}/${anamnesisId}/finalize`,
+        {
+          customerAnamnesis: payload,
+        },
+      )
       .pipe(map((response) => response.data.customerAnamnesis));
   }
 

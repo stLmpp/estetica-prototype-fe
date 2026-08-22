@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiKeyedResponse, ApiPaginatedResponse, ApiResponse } from '../../model/api-response';
 import {
   AddSaleTransactionResult,
   ListSaleFilter,
@@ -13,19 +13,6 @@ import {
   UpdateSaleStatusPayload,
 } from './sale.dto';
 import { Sale, SaleDetail } from './sale.model';
-
-interface SaleResponse {
-  data: { sale: SaleDetail };
-}
-
-interface ListSaleResponse {
-  data: { items: Sale[] };
-  meta: PaginationMetadata;
-}
-
-interface AddSaleTransactionResponse {
-  data: AddSaleTransactionResult;
-}
 
 @Service()
 export class SaleService {
@@ -43,7 +30,7 @@ export class SaleService {
       from: filter.from,
       to: filter.to,
     });
-    return this.http.get<ListSaleResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<Sale>>(this.baseUrl, { params }).pipe(
       map((response): ListSaleResult => ({
         items: response.data.items,
         meta: response.meta,
@@ -53,19 +40,19 @@ export class SaleService {
 
   getById(saleId: string) {
     return this.http
-      .get<SaleResponse>(`${this.baseUrl}/${saleId}`)
+      .get<ApiKeyedResponse<'sale', SaleDetail>>(`${this.baseUrl}/${saleId}`)
       .pipe(map((response) => response.data.sale));
   }
 
   create(payload: SalePayload) {
     return this.http
-      .post<SaleResponse>(this.baseUrl, { sale: payload })
+      .post<ApiKeyedResponse<'sale', SaleDetail>>(this.baseUrl, { sale: payload })
       .pipe(map((response) => response.data.sale));
   }
 
   addTransaction(saleId: string, payload: SaleTransactionPayload) {
     return this.http
-      .post<AddSaleTransactionResponse>(`${this.baseUrl}/${saleId}/transaction`, {
+      .post<ApiResponse<AddSaleTransactionResult>>(`${this.baseUrl}/${saleId}/transaction`, {
         transaction: payload,
       })
       .pipe(map((response) => response.data));
