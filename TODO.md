@@ -129,17 +129,6 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
       (`appointment-booking/steps/schedule-step/`), which doesn't have an
       equivalent standalone widget yet. Add reschedule support once that
       exists, or extract a reusable version of the schedule-step picker.
-- [ ] **FE-7** No UI exists for customer follow-ups yet. Blocked on the backend TODO
-      of the same name (`estetica-prototype-api`'s `TODO.md`) — the DB
-      schema (`customer_followup`/`followup_item`: a dated note per
-      customer with priced/quantified follow-up items underneath) exists,
-      but there's no feature module or endpoints to build against yet.
-      Once available, the natural place is a new `customer-followup-tab`
-      alongside the existing `customer-details` tabs
-      (`customer-anamnesis-tab`, `customer-appointments-tab`,
-      `customer-sales-tab`, etc.) — actual UX/workflow (how a follow-up
-      gets created, whether it's tied to a specific appointment/procedure,
-      reminders) not designed yet.
 - [ ] **FE-8** Customer-followup before/after photos. Blocked on the backend TODO
       of the same name (`estetica-prototype-api`'s `TODO.md`) — needs the
       storage/upload design decided there first. Once available, the
@@ -378,3 +367,50 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
       half too; if the backend goes with the client-supplied
       `Idempotency-Key` direction, this interceptor is also where that
       header would get generated and attached.
+- [ ] **FE-26** The customer-followup list (`customer-followup-tab.component`)
+      doesn't show an item count/total per row — the shipped
+      `GET /v1/customer-followup` list endpoint returns lightweight rows with
+      no `items` field, only the detail endpoint includes items. Revisit
+      whether it's worth adding a cheap items-count/total to the list row's
+      backend response if this becomes a real usability gap in practice
+      (paired with `BE-32` in `estetica-prototype-api`'s `TODO.md`; low
+      priority).
+- [ ] **FE-27** Signal Forms dirty()-after-resolver-input timing bug on edit routes:
+      `customer-anamnesis-form-page` and `customer-followup-form-page` both
+      have a `(isEditing() && !f().dirty())` guard on their submit button
+      that should disable it when no user edits have been made. However, the
+      button isn't actually disabled on a fresh, unedited load of an edit
+      form — verified via `ng.getComponent()` showing `f().dirty()` reads
+      `true` immediately after the resolver-driven `input()` populates the
+      model, before any user interaction. Root cause: `form()` snapshots its
+      pristine baseline before the routed `input()` (resolver data) has
+      arrived, so any resolver-driven model hydration marks the form dirty
+      even with zero user interaction. Affects at least two existing forms;
+      worth investigating app-wide (not blocking — worst case is an extra
+      no-op save request, not data loss). Frame as a low-priority,
+      non-urgent but worthwhile system-wide review once this feature
+      stabilizes.
+- [ ] **FE-28** `app-typeahead`'s `[initialItem]`/`[searchFn]` input pair
+      (`components/typeahead/typeahead.component.ts`, consumed in
+      `customer-followup-form-page.component.html`'s catalog-item picker) is
+      worth revisiting — direct feedback while reviewing the customer-followup
+      form: not fully happy with this shape. `initialItem` exists only to seed
+      the display label for an id the parent already knows about (edit mode,
+      where `catalogItemId`/`catalogItemName` come from the loaded record),
+      while `searchFn` is the actual query-as-you-type source — two separate
+      inputs for what's conceptually "how do I know what to show for a given
+      id/query". Decide what the better shape looks like (e.g. a single
+      lookup function covering both the initial-id and query-string cases,
+      or resolving the initial label from the same `searchFn` instead of a
+      separate input) before more call sites adopt the current API.
+- [ ] **FE-29** `ColDef` (`components/table/model/col-def.ts`) has typed
+      `'date'`/`'number'`/`'currency'` variants for common formatting, but
+      anything else falls back to a full `type: 'template'` +
+      `ng-template`/`TemplateRef` even for trivial cases — e.g.
+      `customer-followup-tab.component.html`'s `dateTemplate` exists solely
+      to apply `date: 'dd/MM/yyyy'`, formatting `app-table` could already do
+      without a template if `ColDef` supported a `formatValue` (or similarly
+      named) function returning a plain string. Add that variant so simple
+      per-column formatting doesn't need a template ref, reserving
+      `type: 'template'` for columns that need real markup (buttons, links,
+      conditional content) rather than just a formatted string.
