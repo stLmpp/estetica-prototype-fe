@@ -16,6 +16,7 @@ import {
   withComponentInputBinding,
   withDebugTracing,
   withPreloading,
+  withRouterConfig,
   withViewTransitions,
 } from '@angular/router';
 
@@ -38,6 +39,7 @@ const routerFeatures: RouterFeatures[] = [
   withPreloading(PreloadAllModules),
   withComponentInputBinding(),
   withViewTransitions(),
+  withRouterConfig({ paramsInheritanceStrategy: 'always' }),
 ];
 
 if (environment.debug) {

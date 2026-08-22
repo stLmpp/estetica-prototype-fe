@@ -390,3 +390,27 @@ item moves to `TODO_DONE.md`, and give any new item the next unused number
       no-op save request, not data loss). Frame as a low-priority,
       non-urgent but worthwhile system-wide review once this feature
       stabilizes.
+- [ ] **FE-28** `app-typeahead`'s `[initialItem]`/`[searchFn]` input pair
+      (`components/typeahead/typeahead.component.ts`, consumed in
+      `customer-followup-form-page.component.html`'s catalog-item picker) is
+      worth revisiting — direct feedback while reviewing the customer-followup
+      form: not fully happy with this shape. `initialItem` exists only to seed
+      the display label for an id the parent already knows about (edit mode,
+      where `catalogItemId`/`catalogItemName` come from the loaded record),
+      while `searchFn` is the actual query-as-you-type source — two separate
+      inputs for what's conceptually "how do I know what to show for a given
+      id/query". Decide what the better shape looks like (e.g. a single
+      lookup function covering both the initial-id and query-string cases,
+      or resolving the initial label from the same `searchFn` instead of a
+      separate input) before more call sites adopt the current API.
+- [ ] **FE-29** `ColDef` (`components/table/model/col-def.ts`) has typed
+      `'date'`/`'number'`/`'currency'` variants for common formatting, but
+      anything else falls back to a full `type: 'template'` +
+      `ng-template`/`TemplateRef` even for trivial cases — e.g.
+      `customer-followup-tab.component.html`'s `dateTemplate` exists solely
+      to apply `date: 'dd/MM/yyyy'`, formatting `app-table` could already do
+      without a template if `ColDef` supported a `formatValue` (or similarly
+      named) function returning a plain string. Add that variant so simple
+      per-column formatting doesn't need a template ref, reserving
+      `type: 'template'` for columns that need real markup (buttons, links,
+      conditional content) rather than just a formatted string.

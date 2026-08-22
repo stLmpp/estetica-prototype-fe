@@ -5,7 +5,7 @@ import { CustomerAnamnesisService } from './customer-anamnesis.service';
 
 export function customerAnamnesisDetailResolver(): ResolveFn<CustomerAnamnesis> {
   return (route: ActivatedRouteSnapshot) => {
-    const customerId = route.parent?.parent?.paramMap.get('customerId');
+    const customerId = route.paramMap.get('customerId');
     const customerAnamnesisId = route.paramMap.get('customerAnamnesisId')!;
     return inject(CustomerAnamnesisService).getById(customerId!, customerAnamnesisId);
   };

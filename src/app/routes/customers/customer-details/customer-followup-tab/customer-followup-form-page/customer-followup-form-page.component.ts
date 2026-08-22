@@ -135,9 +135,6 @@ export class CustomerFollowupFormPageComponent {
     return record ? modelFromRecord(record) : emptyModel();
   });
 
-  // The appointment/sale list APIs have no free-text search param (only
-  // customerId/status/date-range), so these are bounded dropdowns scoped to
-  // the customer, not a typeahead like the catalog-item picker below.
   protected readonly appointmentsResource = rxResource({
     params: () => ({ customerId: this.customerId() }),
     stream: ({ params }) =>
@@ -275,7 +272,7 @@ export class CustomerFollowupFormPageComponent {
   }
 
   protected removeItem(index: number) {
-    this.model.update((value) => ({ ...value, items: value.items.filter((_, i) => i !== index) }));
+    this.model.update((value) => ({ ...value, items: value.items.toSpliced(index, 1) }));
     this.f.items().markAsDirty();
   }
 

@@ -123,9 +123,7 @@
               (click)="removeItem(i)"
             ></button>
           </div>
-        }
-
-        @if (!f.items().value().length) {
+        } @empty {
           <p class="text-sm text-neutral-500 dark:text-neutral-400">Nenhum item adicionado.</p>
         }
       </div>
