@@ -18,6 +18,7 @@ operate here (tooling); that one covers how the code itself is written.
   - Only comment when it explains a genuinely non-obvious **why** (a workaround, a constraint, a trade-off) that the reader can't get from the code itself — see the Code Comments section in `docs/CONVENTIONS.md` for the full rule.
 - **When a `TODO.md` item is done, move it to `TODO_DONE.md` — do not delete it outright.** Same rule on the backend's `TODO.md`/`TODO_DONE.md`.
 - **Always run `pnpm format` as the last step of any task that touches files, before `pnpm lint`** — right after you finish creating/editing everything the task needed, not just when something looks misformatted. Format first, then lint: lint can flag things formatting would have already fixed, and running it first just means re-running it after formatting anyway. Same order as the backend's `estetica-prototype-api` (`docs/CONVENTIONS.md` → **Linting / formatting**).
+- **Never commit directly to `main`.** Every change, however small, happens on a new branch or worktree cut from an up-to-date `main` and ends as a PR for the user to review — never push straight to `main`. Same rule on the backend's `estetica-prototype-api`.
 
 ## Tooling
 
