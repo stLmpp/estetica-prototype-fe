@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { httpParamsFromObject } from '../../../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../../../shared/pagination.model';
+import { ApiPaginatedResponse } from '../../../../model/api-response';
 import {
   CreateCustomerAnamnesisPayload,
   FinalizeCustomerAnamnesisPayload,
@@ -17,11 +17,6 @@ interface CustomerAnamnesisResponse {
   data: { customerAnamnesis: CustomerAnamnesis };
 }
 
-interface ListCustomerAnamnesisResponse {
-  data: { items: CustomerAnamnesis[] };
-  meta: PaginationMetadata;
-}
-
 @Service()
 export class CustomerAnamnesisService {
   private readonly http = inject(HttpClient);
@@ -32,12 +27,14 @@ export class CustomerAnamnesisService {
 
   list(customerId: string, filter: ListCustomerAnamnesisFilter = {}) {
     const params = httpParamsFromObject({ page: filter.page, limit: filter.limit });
-    return this.http.get<ListCustomerAnamnesisResponse>(this.baseUrl(customerId), { params }).pipe(
-      map((response): ListCustomerAnamnesisResult => ({
-        items: response.data.items,
-        meta: response.meta,
-      })),
-    );
+    return this.http
+      .get<ApiPaginatedResponse<CustomerAnamnesis>>(this.baseUrl(customerId), { params })
+      .pipe(
+        map((response): ListCustomerAnamnesisResult => ({
+          items: response.data.items,
+          meta: response.meta,
+        })),
+      );
   }
 
   getById(customerId: string, anamnesisId: string) {

@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiPaginatedResponse } from '../../model/api-response';
 import {
   AnamnesisFormPayload,
   ListAnamnesisFormFilter,
@@ -13,11 +13,6 @@ import { AnamnesisForm } from './anamnesis-form.model';
 
 interface AnamnesisFormResponse {
   data: { anamnesisForm: AnamnesisForm };
-}
-
-interface ListAnamnesisFormResponse {
-  data: { items: AnamnesisForm[] };
-  meta: PaginationMetadata;
 }
 
 @Service()
@@ -32,7 +27,7 @@ export class AnamnesisFormService {
       name: filter.name,
       active: filter.active,
     });
-    return this.http.get<ListAnamnesisFormResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<AnamnesisForm>>(this.baseUrl, { params }).pipe(
       map((response): ListAnamnesisFormResult => ({
         items: response.data.items,
         meta: response.meta,

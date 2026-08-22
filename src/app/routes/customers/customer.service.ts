@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiPaginatedResponse } from '../../model/api-response';
 import {
   CustomerPayload,
   ListCustomerFilter,
@@ -21,11 +21,6 @@ interface SyncCustomerPhonesResponse {
   data: { phones: CustomerPhone[] };
 }
 
-interface ListCustomerResponse {
-  data: { items: Customer[] };
-  meta: PaginationMetadata;
-}
-
 @Service()
 export class CustomerService {
   private readonly http = inject(HttpClient);
@@ -37,7 +32,7 @@ export class CustomerService {
       limit: filter.limit,
       name: filter.name,
     });
-    return this.http.get<ListCustomerResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<Customer>>(this.baseUrl, { params }).pipe(
       map((response): ListCustomerResult => ({
         items: response.data.items,
         meta: response.meta,

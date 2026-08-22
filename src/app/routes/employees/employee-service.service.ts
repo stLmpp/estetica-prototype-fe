@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiPaginatedResponse } from '../../model/api-response';
 import {
   EmployeeServicePayload,
   ListEmployeeServiceFilter,
@@ -19,11 +19,6 @@ interface SyncEmployeeServiceResponse {
   data: { employeeServices: EmployeeServiceModel[] };
 }
 
-interface ListEmployeeServiceResponse {
-  data: { items: EmployeeServiceModel[] };
-  meta: PaginationMetadata;
-}
-
 @Service()
 export class EmployeeServiceService {
   private readonly http = inject(HttpClient);
@@ -36,7 +31,7 @@ export class EmployeeServiceService {
       employeeId: filter.employeeId,
       catalogItemId: filter.catalogItemId,
     });
-    return this.http.get<ListEmployeeServiceResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<EmployeeServiceModel>>(this.baseUrl, { params }).pipe(
       map((response): ListEmployeeServiceResult => ({
         items: response.data.items,
         meta: response.meta,

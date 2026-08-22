@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { httpParamsFromObject } from '../../../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../../../shared/pagination.model';
+import { ApiPaginatedResponse } from '../../../../model/api-response';
 import {
   CreateCustomerFollowupPayload,
   ListCustomerFollowupFilter,
@@ -14,11 +14,6 @@ import { CustomerFollowup, CustomerFollowupListItem } from './customer-followup.
 
 interface CustomerFollowupResponse {
   data: { customerFollowup: CustomerFollowup };
-}
-
-interface ListCustomerFollowupResponse {
-  data: { items: CustomerFollowupListItem[] };
-  meta: PaginationMetadata;
 }
 
 @Service()
@@ -32,12 +27,14 @@ export class CustomerFollowupService {
       page: filter.page,
       limit: filter.limit,
     });
-    return this.http.get<ListCustomerFollowupResponse>(this.baseUrl, { params }).pipe(
-      map((response): ListCustomerFollowupResult => ({
-        items: response.data.items,
-        meta: response.meta,
-      })),
-    );
+    return this.http
+      .get<ApiPaginatedResponse<CustomerFollowupListItem>>(this.baseUrl, { params })
+      .pipe(
+        map((response): ListCustomerFollowupResult => ({
+          items: response.data.items,
+          meta: response.meta,
+        })),
+      );
   }
 
   getById(customerFollowupId: string) {

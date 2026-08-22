@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiPaginatedResponse } from '../../model/api-response';
 import {
   EmployeePayload,
   ListEmployeeFilter,
@@ -14,11 +14,6 @@ import { Employee, EmployeeDetail } from './employee.model';
 
 interface EmployeeResponse {
   data: { employee: EmployeeDetail };
-}
-
-interface ListEmployeeResponse {
-  data: { items: Employee[] };
-  meta: PaginationMetadata;
 }
 
 @Service()
@@ -34,7 +29,7 @@ export class EmployeeService {
       role: filter.role,
       catalogItemId: filter.catalogItemId,
     });
-    return this.http.get<ListEmployeeResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<Employee>>(this.baseUrl, { params }).pipe(
       map((response): ListEmployeeResult => ({
         items: response.data.items,
         meta: response.meta,

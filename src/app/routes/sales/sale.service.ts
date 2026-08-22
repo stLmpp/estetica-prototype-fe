@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiPaginatedResponse, ApiResponse } from '../../model/api-response';
 import {
   AddSaleTransactionResult,
   ListSaleFilter,
@@ -16,15 +16,6 @@ import { Sale, SaleDetail } from './sale.model';
 
 interface SaleResponse {
   data: { sale: SaleDetail };
-}
-
-interface ListSaleResponse {
-  data: { items: Sale[] };
-  meta: PaginationMetadata;
-}
-
-interface AddSaleTransactionResponse {
-  data: AddSaleTransactionResult;
 }
 
 @Service()
@@ -43,7 +34,7 @@ export class SaleService {
       from: filter.from,
       to: filter.to,
     });
-    return this.http.get<ListSaleResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<Sale>>(this.baseUrl, { params }).pipe(
       map((response): ListSaleResult => ({
         items: response.data.items,
         meta: response.meta,
@@ -65,7 +56,7 @@ export class SaleService {
 
   addTransaction(saleId: string, payload: SaleTransactionPayload) {
     return this.http
-      .post<AddSaleTransactionResponse>(`${this.baseUrl}/${saleId}/transaction`, {
+      .post<ApiResponse<AddSaleTransactionResult>>(`${this.baseUrl}/${saleId}/transaction`, {
         transaction: payload,
       })
       .pipe(map((response) => response.data));

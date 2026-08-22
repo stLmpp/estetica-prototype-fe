@@ -3,7 +3,7 @@ import { inject, Service } from '@angular/core';
 import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { httpParamsFromObject } from '../../shared/http-params-from-object';
-import { PaginationMetadata } from '../../shared/pagination.model';
+import { ApiPaginatedResponse } from '../../model/api-response';
 import {
   AppointmentPayload,
   ListAppointmentFilter,
@@ -20,11 +20,6 @@ import {
 
 interface AppointmentResponse {
   data: { appointment: AppointmentDetail };
-}
-
-interface ListAppointmentResponse {
-  data: { items: Appointment[] };
-  meta: PaginationMetadata;
 }
 
 interface GetDayScheduleResponse {
@@ -51,7 +46,7 @@ export class AppointmentService {
       from: filter.from,
       to: filter.to,
     });
-    return this.http.get<ListAppointmentResponse>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiPaginatedResponse<Appointment>>(this.baseUrl, { params }).pipe(
       map((response): ListAppointmentResult => ({
         items: response.data.items,
         meta: response.meta,

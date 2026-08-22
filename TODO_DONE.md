@@ -137,3 +137,21 @@ outright.
       `customer-details` tabs, mirroring `customer-anamnesis-tab`'s full-CRUD
       structure. See
       `docs/superpowers/specs/2026-08-21-customer-followup-frontend-design.md`.
+- [x] **FE-16** (2026-08-22) Added `ApiResponse<T>`/`ApiPaginatedResponse<T>`
+      (`src/app/model/api-response.ts`), mirroring the backend's
+      `createResponseSchema<T>`/`createPaginatedResponseSchema<T>`. Migrated
+      every `List*Response` interface across 9 `*.service.ts` files
+      (`customer`, `customer-anamnesis`, `customer-followup`,
+      `catalog-item`, `sale`, `appointment`, `anamnesis-form`,
+      `employee-service`, `employee`) onto `ApiPaginatedResponse<T>`, and
+      `sale.service.ts`'s `AddSaleTransactionResponse` onto
+      `ApiResponse<AddSaleTransactionResult>` — the one non-list response
+      whose `data` matched `T` directly. Left every other single-entity
+      response interface as-is (e.g. `CustomerResponse`'s `data: {
+      customer: CustomerDetail }`) since those key `data` by a
+      feature-specific name rather than `T` directly — per the TODO's own
+      note, accepted the generic covering only the common case rather than
+      renaming those keys. Pure typing change, no runtime behavior
+      difference. Verified with `pnpm exec tsc --noEmit`, `pnpm lint`
+      (pre-existing unrelated errors in 4 untouched files only), and `pnpm
+      build`.
